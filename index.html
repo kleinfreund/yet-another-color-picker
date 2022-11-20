@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+	<title>color picker demo</title>
+
+	<link rel="stylesheet" href="./src/ColorPicker.css">
+</head>
+
+<body>
+	<main style="display: flex; justify-content: center;">
+		<color-picker />
+	</main>
+
+	<script type="module">
+		import { ColorPicker } from './src/ColorPicker.js'
+
+		window.customElements.define('color-picker', ColorPicker)
+
+		const colorPicker = document.querySelector('color-picker')
+		colorPicker.addEventListener('color-change', colorChangeListener)
+
+		function colorChangeListener(event) {
+			console.log(event.detail)
+		}
+	</script>
+</body>
+
+</html>
