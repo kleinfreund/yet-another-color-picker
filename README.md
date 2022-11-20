@@ -44,7 +44,7 @@ Import the `ColorPicker` custom element class and define it.
 
 HTML:
 ```html
-<color-picker />
+<color-picker></color-picker>
 ```
 
 JavaScript:
