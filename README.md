@@ -54,6 +54,16 @@ import { ColorPicker } from 'yet-another-color-picker'
 window.customElements.define('color-picker', ColorPicker)
 ```
 
+### Styles
+
+HTML:
+```html
+<link
+	rel="stylesheet"
+	href="./node_modules/yet-another-color-picker/dist/ColorPicker.css"
+>
+```
+
 ## Documentation
 
 ### Props
