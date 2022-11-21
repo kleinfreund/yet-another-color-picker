@@ -15,22 +15,26 @@ import { ColorPicker } from './ColorPicker.js'
  */
 function render (options = {}) {
 	const props = options.props ?? {}
+	const colorPicker = document.createElement('color-picker')
+	for (const [prop, value] of Object.entries(props)) {
+		colorPicker.setAttribute(prop, value)
+	}
+
+	document.body.appendChild(colorPicker)
+
 	const shouldDefineCustomElement = options.shouldDefineCustomElement ?? true
-
-	const attributes = Object.entries(props).map(([prop, value]) => `${prop}="${value}"`)
-	const template = `<color-picker ${attributes.join(' ')} />`
-	document.body.insertAdjacentHTML('beforeend', template)
-
 	if (shouldDefineCustomElement && window.customElements.get('color-picker') === undefined) {
 		window.customElements.define('color-picker', ColorPicker)
 	}
 
-	return /** @type {HTMLElement} */ (document.querySelector('color-picker'))
+	return colorPicker
 }
 
 describe('ColorPicker', () => {
 	afterEach(() => {
+		// Empties the document after each test in order to isolate tests.
 		document.body.innerHTML = ''
+
 		vi.restoreAllMocks()
 	})
 
@@ -299,22 +303,17 @@ describe('ColorPicker', () => {
 			}))
 
 			colorSpace.dispatchEvent(new MouseEvent('mousedown', { buttons: 1, clientX: 0 }))
-
 			expect(spy).toHaveBeenCalledTimes(0)
 
-			const mouseMoveEvent1 = new MouseEvent('mousemove', { buttons: 1, clientX: 1 })
-			colorPicker.ownerDocument.dispatchEvent(mouseMoveEvent1)
+			colorPicker.ownerDocument.dispatchEvent(new MouseEvent('mousemove', { buttons: 1, clientX: 1 }))
 			expect(spy).toHaveBeenCalledTimes(1)
 
-			const mouseMoveEvent2 = new MouseEvent('mousemove', { buttons: 1, clientX: 2 })
-			colorPicker.ownerDocument.dispatchEvent(mouseMoveEvent2)
+			colorPicker.ownerDocument.dispatchEvent(new MouseEvent('mousemove', { buttons: 1, clientX: 2 }))
 			expect(spy).toHaveBeenCalledTimes(2)
 
 			colorPicker.remove()
 
-			const mouseMoveEvent3 = new MouseEvent('mousemove', { buttons: 1, clientX: 3 })
-			colorPicker.ownerDocument.dispatchEvent(mouseMoveEvent3)
-			document.dispatchEvent(mouseMoveEvent3)
+			colorPicker.ownerDocument.dispatchEvent(new MouseEvent('mousemove', { buttons: 1, clientX: 3 }))
 			// Note that we assert here that the method hasn’t been called *again*.
 			expect(spy).toHaveBeenCalledTimes(2)
 		})
