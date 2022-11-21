@@ -161,7 +161,6 @@ export class ColorPicker extends HTMLElement {
 	 * @param {string | null} newValue
 	 */
 	attributeChangedCallback (name, oldValue, newValue) {
-		// console.info('> attributeChangedCallback', name, oldValue, newValue)
 		// Returns early if the prop has changed or if the component wasn't upgraded, yet.
 		if (oldValue === newValue || !this.#isDefined) {
 			return
@@ -183,13 +182,9 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	#processRecomputeQueue () {
-		// console.info('> Recompute')
 		if (this.#recomputeQueue.length === 0) {
-			// console.info('>> Abort recompute')
 			return
 		}
-
-		// console.info('>> Actually recomputing!')
 
 		for (const { name, value } of this.#recomputeQueue) {
 			this.#recomputeState(name, value)
@@ -325,10 +320,8 @@ export class ColorPicker extends HTMLElement {
 	 * Renders the component.
 	 */
 	#render () {
-		// console.info('> render')
 		if (!this.isConnected) {
 			// Aborts rendering if the component is not yet or no longer connected.
-			// console.info('>> Aborting rendering (not connected)')
 			return
 		}
 
@@ -355,11 +348,11 @@ export class ColorPicker extends HTMLElement {
 			this.#updateColorValue,
 			this.#updateHexColorValue,
 		)
-		this.classList.add(prefix`color-picker`)
+		this.classList.add('cp-color-picker')
 		render(templateResult, this)
 
-		this.#colorSpace = this.querySelector('.' + prefix`color-space`)
-		this.#thumb = this.querySelector('.' + prefix`thumb`)
+		this.#colorSpace = this.querySelector('.cp-color-space')
+		this.#thumb = this.querySelector('.cp-thumb')
 		this.#setCssProps()
 	}
 
@@ -631,17 +624,6 @@ export class ColorPicker extends HTMLElement {
 }
 
 /**
- * TODO: Consider dropping this again. It's quite some complexity for prefixing strings.
- *
- * @param {TemplateStringsArray} strings
- * @param {string[]} expressions
- * @returns {string}
- */
-function prefix (strings, ...expressions) {
-	return 'cp-' + strings.map((str, index) => str + (index < expressions.length ? expressions[index] : '')).join('')
-}
-
-/**
  * @param {HTMLElement} colorSpace
  * @param {number} clientX
  * @param {number} clientY
@@ -699,12 +681,12 @@ function colorPickerTemplate (
 ) {
 	const colorSpaceTemplate = () => html`
 		<div
-			class="${prefix`color-space`}"
+			class="cp-color-space"
 			@mousedown="${startMovingThumbWithMouse}"
 			@touchstart="${startMovingThumbWithTouch}"
 		>
 			<div
-				class="${prefix`thumb`}"
+				class="cp-thumb"
 				tabIndex="0"
 				aria-label="Color space thumb"
 				@keydown="${moveThumbWithArrows}"
@@ -714,13 +696,13 @@ function colorPickerTemplate (
 
 	const hueRangeInputLabelTemplate = () => html`
 		<label
-			class="${prefix`range-input-label`} ${prefix`range-input-label--hue`}"
+			class="cp-range-input-label cp-range-input-label--hue"
 			for="${id}-hue-slider"
 		>
-			<span class="${prefix`range-input-label-text`} ${prefix`range-input-label-text--hue`}">Hue</span>
+			<span class="cp-range-input-label-text cp-range-input-label-text--hue">Hue</span>
 
 			<input
-				class="${prefix`range-input`} ${prefix`range-input--hue`}"
+				class="cp-range-input cp-range-input--hue"
 				id="${id}-hue-slider"
 				type="range"
 				min="0"
@@ -735,13 +717,13 @@ function colorPickerTemplate (
 
 	const alphaRangeInputLabelTemplate = () => html`
 		<label
-			class="${prefix`range-input-label`} ${prefix`range-input-label--alpha`}"
+			class="cp-range-input-label cp-range-input-label--alpha"
 			for="${id}-alpha-slider"
 		>
-			<span class="${prefix`range-input-label-text`} ${prefix`range-input-label-text--alpha`}">Alpha</span>
+			<span class="cp-range-input-label-text cp-range-input-label-text--alpha">Alpha</span>
 
 			<input
-				class="${prefix`range-input`} ${prefix`range-input--alpha`}"
+				class="cp-range-input cp-range-input--alpha"
 				id="${id}-alpha-slider"
 				type="range"
 				min="0"
@@ -755,7 +737,7 @@ function colorPickerTemplate (
 	`
 
 	const rangeInputGroupTemplate = () => html`
-		<div class="${prefix`range-input-group`}">
+		<div class="cp-range-input-group">
 			${hueRangeInputLabelTemplate()}
 			${alphaChannel === 'show' ? alphaRangeInputLabelTemplate() : ''}
 		</div>
@@ -763,11 +745,11 @@ function colorPickerTemplate (
 
 	const copyButtonTemplate = () => html`
 		<button
-			class="${prefix`copy-button`}"
+			class="cp-copy-button"
 			type="button"
 			@click="${copyColor}"
 		>
-			<span class="${prefix`visually-hidden`}">Copy coloy</span>
+			<span class="cp-visually-hidden">Copy coloy</span>
 
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
@@ -786,13 +768,13 @@ function colorPickerTemplate (
 
 	const hexColorInputTemplate = () => html`
 		<label
-			class="${prefix`hex-input-label`}"
+			class="cp-hex-input-label"
 			for="${id}-color-hex"
 		>
-			<span class="${prefix`color-input-label-text`}">Hex</span>
+			<span class="cp-color-input-label-text">Hex</span>
 
 			<input
-				class="${prefix`color-input`}"
+				class="cp-color-input"
 				id="${id}-color-hex"
 				type="text"
 				.value="${hexInputValue}"
@@ -803,14 +785,14 @@ function colorPickerTemplate (
 
 	const colorInputTemplate = () => visibleChannels.map((channel) => html`
 		<label
-			class="${prefix`color-input-label`}"
+			class="cp-color-input-label"
 			id="${id}-color-${activeFormat}-${channel}-label"
 			for="${id}-color-${activeFormat}-${channel}"
 		>
-			<span class="${prefix`color-input-label-text`}">${channel.toUpperCase()}</span>
+			<span class="cp-color-input-label-text">${channel.toUpperCase()}</span>
 
 			<input
-				class="${prefix`color-input`}"
+				class="cp-color-input"
 				id="${id}-color-${activeFormat}-${channel}"
 				type="text"
 				.value="${getChannelAsCssValue(channel)}"
@@ -821,14 +803,14 @@ function colorPickerTemplate (
 
 	const switchFormatButtonTemplate = () => html`
 		<button
-			class="${prefix`switch-format-button`}"
+			class="cp-switch-format-button"
 			type="button"
 			@click="${switchFormat}"
 		>
-			<span class="${prefix`visually-hidden`}">Switch format</span>
+			<span class="cp-visually-hidden">Switch format</span>
 
 			<svg
-				class="${prefix`icon`}"
+				class="cp-icon"
 				aria-hidden="true"
 				xmlns="http://www.w3.org/2000/svg"
 				width="16"
@@ -843,8 +825,8 @@ function colorPickerTemplate (
 	`
 
 	const colorInputWrapperTemplate = () => html`
-		<div class="${prefix`color-input-wrapper`}">
-			<div class="${prefix`color-input-group`}">
+		<div class="cp-color-input-wrapper">
+			<div class="cp-color-input-group">
 				${activeFormat === 'hex' ? hexColorInputTemplate() : colorInputTemplate()}
 			</div>
 			${visibleFormats.length > 1 ? switchFormatButtonTemplate() : ''}
