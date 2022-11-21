@@ -31,6 +31,7 @@ Links:
 - [Versioning](#versioning)
 - [Contributing](#contributing)
 - [Design](#design)
+- [To do](#to-do)
 
 ## Installation
 
@@ -225,3 +226,9 @@ The color picker consists of the following main elements:
 - **Switch format button**:
 
 	Cycles through the available color formats (currently HEX, HSL, HWB, and RGB).
+
+## To do
+
+- Document browser usage via import maps (https://caniuse.com/import-maps).
+- Consider providing a version that adds `ColorPicker` to `window` so the package can be used via CDNs such as unpkg and jsDelivr.
+- Re-consider how state is recomputed internally.
