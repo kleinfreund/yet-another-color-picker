@@ -7,6 +7,7 @@ import { colorsAreValueEqual } from './utilities/colors-are-value-equal.js'
 import { conversions } from './utilities/conversions.js'
 import { copyColorObject } from './utilities/copy-color-object.js'
 import { formatAsCssColor } from './utilities/format-as-css-color.js'
+import { getNewThumbPosition } from './utilities/getNewThumbPosition.js'
 import { isValidHexColor } from './utilities/is-valid-hex-color.js'
 import { parsePropsColor } from './utilities/parse-props-color.js'
 /** @typedef {import('../types/index.d').AlphaChannelProp} AlphaChannelProp */
@@ -620,23 +621,6 @@ export class ColorPicker extends HTMLElement {
 	 */
 	#createError (message) {
 		return new Error(`<${this.localName}>: ${message}`)
-	}
-}
-
-/**
- * @param {HTMLElement} colorSpace
- * @param {number} clientX
- * @param {number} clientY
- * @returns {{ x: number, y: number }}
- */
-function getNewThumbPosition (colorSpace, clientX, clientY) {
-	const rect = colorSpace.getBoundingClientRect()
-	const x = clientX - rect.left
-	const y = clientY - rect.top
-
-	return {
-		x: rect.width === 0 ? 0 : clamp(x / rect.width, 0, 1),
-		y: rect.height === 0 ? 0 : clamp(1 - y / rect.height, 0, 1),
 	}
 }
 
