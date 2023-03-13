@@ -18,8 +18,9 @@ Links:
 
 ## Contents
 
-- [Installation](#installation)
-- [Usage](#usage)
+- [Installation & usage](#installation-&-usage)
+	- [As npm package](#as-npm-package)
+	- [As plain JS and CSS files](#as-plain-js-and-css-files)
 - [Documentation](#documentation)
 	- [Props](#props)
 		- [`data-color`](#data-color)
@@ -34,37 +35,65 @@ Links:
 - [Design](#design)
 - [To do](#to-do)
 
-## Installation
+## Installation & usage
 
-```sh
-npm install yet-another-color-picker
-```
+### As npm package
 
-## Usage
+1. Install the package.
 
-Import the `ColorPicker` custom element class and define it.
+	```sh
+	npm install yet-another-color-picker
+	```
 
-HTML:
-```html
-<color-picker></color-picker>
-```
+2. Import the `ColorPicker` custom element class and define it.
 
-JavaScript:
-```js
-import { ColorPicker } from 'yet-another-color-picker'
+	HTML:
+	```html
+	<color-picker></color-picker>
+	```
 
-window.customElements.define('color-picker', ColorPicker)
-```
+	JavaScript:
+	```js
+	import { ColorPicker } from 'yet-another-color-picker'
 
-### Styles
+	window.customElements.define('color-picker', ColorPicker)
+	```
 
-HTML:
-```html
-<link
-	rel="stylesheet"
-	href="./node_modules/yet-another-color-picker/dist/ColorPicker.css"
->
-```
+3. Make sure to also load the color picker styles.
+
+	HTML:
+	```html
+	<link rel="stylesheet" href="./node_modules/yet-another-color-picker/dist/ColorPicker.css">
+	```
+
+### As plain JS and CSS files
+
+1. Download the files.
+
+	```sh
+	curl --remote-name-all 'https://cdn.jsdelivr.net/npm/yet-another-color-picker@latest/dist/ColorPicker.{js,css}'
+	```
+
+2. Import the `ColorPicker` custom element class and define it.
+
+	HTML:
+	```html
+	<color-picker></color-picker>
+	```
+
+	JavaScript:
+	```js
+	import { ColorPicker } from './ColorPicker.js'
+
+	window.customElements.define('color-picker', ColorPicker)
+	```
+
+3. Make sure to also load the color picker styles.
+
+	HTML:
+	```html
+	<link rel="stylesheet" href="./ColorPicker.css">
+	```
 
 ## Documentation
 
