@@ -23,8 +23,12 @@
 	],
 	"type": "module",
 	"exports": {
-		".": "./dist/ColorPicker.js",
-		"./dist/ColorPicker.css": "./dist/ColorPicker.css"
+		".": {
+			"types": "./types/index.d.ts",
+			"default": "./dist/ColorPicker.js"
+		},
+		"./dist/ColorPicker.css": "./dist/ColorPicker.css",
+		"./types/index.d.ts": "./types/index.d.ts"
 	},
 	"main": "./dist/ColorPicker.js",
 	"module": "./dist/ColorPicker.js",
