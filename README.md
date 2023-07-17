@@ -1,6 +1,6 @@
 # yet-another-color-picker
 
-[![Tests passing](https://github.com/kleinfreund/yet-another-color-picker/workflows/main/badge.svg)](https://github.com/kleinfreund/yet-another-color-picker/actions)
+[![Tests passing](https://github.com/kleinfreund/yet-another-color-picker/workflows/Tests/badge.svg)](https://github.com/kleinfreund/yet-another-color-picker/actions)
 
 A color picker web component.
 
