@@ -1,6 +1,12 @@
+declare class ColorPicker extends HTMLElement { }
+
 declare global {
 	interface HTMLElementEventMap {
 		'color-change': CustomEvent<ColorChangeDetail>
+	}
+
+	interface HTMLElementTagNameMap {
+		'color-picker': ColorPicker
 	}
 }
 
@@ -73,3 +79,5 @@ export type ColorRgb = {
 	b: number
 	a: number
 }
+
+export { ColorPicker }
