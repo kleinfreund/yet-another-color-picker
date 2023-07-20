@@ -6,7 +6,7 @@ declare global {
 
 export type PropDefinition = {
 	/**
-	 * The
+	 * The prop type.
 	 */
 	type: String | Array
 
