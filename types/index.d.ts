@@ -10,7 +10,7 @@ declare global {
 	}
 }
 
-export type PropDefinition = {
+type PropDefinition = {
 	/**
 	 * The prop type.
 	 */
@@ -35,13 +35,13 @@ type PropTypeMap = {
 	'data-alpha-channel': AlphaChannelProp
 }
 
-export type PropName = keyof PropTypeMap
-export type PropMap = Record<PropName, PropDefinition>
-export type VisibleColorFormat = 'hex' | 'hsl' | 'hwb' | 'rgb'
-export type ColorFormat = 'hex' | 'hsl' | 'hsv' | 'hwb' | 'rgb'
-export type AlphaChannelProp = 'show' | 'hide'
+type PropName = keyof PropTypeMap
+type PropMap = Record<PropName, PropDefinition>
+type VisibleColorFormat = 'hex' | 'hsl' | 'hwb' | 'rgb'
+type ColorFormat = 'hex' | 'hsl' | 'hsv' | 'hwb' | 'rgb'
+type AlphaChannelProp = 'show' | 'hide'
 
-export type ColorChangeDetail = {
+type ColorChangeDetail = {
 	colors: {
 		hex: string
 		hsl: ColorHsl
@@ -52,32 +52,46 @@ export type ColorChangeDetail = {
 	cssColor: string
 }
 
-export type ColorHsl = {
+type ColorHsl = {
 	h: number
 	s: number
 	l: number
 	a: number
 }
 
-export type ColorHsv = {
+type ColorHsv = {
 	h: number
 	s: number
 	v: number
 	a: number
 }
 
-export type ColorHwb = {
+type ColorHwb = {
 	h: number
 	w: number
 	b: number
 	a: number
 }
 
-export type ColorRgb = {
+type ColorRgb = {
 	r: number
 	g: number
 	b: number
 	a: number
 }
 
-export { ColorPicker }
+export {
+	AlphaChannelProp,
+	ColorChangeDetail,
+	ColorFormat,
+	ColorHsl,
+	ColorHsv,
+	ColorHwb,
+	ColorPicker,
+	ColorRgb,
+	PropDefinition,
+	PropMap,
+	PropName,
+	PropTypeMap,
+	VisibleColorFormat,
+}
