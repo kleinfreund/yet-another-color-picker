@@ -1,6 +1,6 @@
 declare global {
-	interface ElementEventMap {
-		'color-change': CustomEvent
+	interface HTMLElementEventMap {
+		'color-change': CustomEvent<ColorChangeDetail>
 	}
 }
 
