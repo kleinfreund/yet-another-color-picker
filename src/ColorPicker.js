@@ -30,10 +30,10 @@ import { parsePropsColor } from './utilities/parse-props-color.js'
 /**
  * @typedef {object} AttributeTypeMap
  * @property {string} id
- * @property {string} data-color
- * @property {VisibleColorFormat[]} data-visible-formats
- * @property {VisibleColorFormat} data-default-format
- * @property {AlphaChannelProp} data-alpha-channel
+ * @property {string} color
+ * @property {VisibleColorFormat[]} visible-formats
+ * @property {VisibleColorFormat} default-format
+ * @property {AlphaChannelProp} alpha-channel
  */
 
 /** @typedef {keyof AttributeTypeMap} AttributeName */
@@ -42,17 +42,17 @@ import { parsePropsColor } from './utilities/parse-props-color.js'
 
 /** @type {AttributesMap} */
 const ATTRIBUTES = {
-	'data-alpha-channel': {
+	'alpha-channel': {
 		type: String,
 		property: 'alphaChannel',
 	},
 
-	'data-color': {
+	color: {
 		type: String,
 		property: 'color',
 	},
 
-	'data-default-format': {
+	'default-format': {
 		type: String,
 		property: 'defaultFormat',
 	},
@@ -62,7 +62,7 @@ const ATTRIBUTES = {
 		property: 'id',
 	},
 
-	'data-visible-formats': {
+	'visible-formats': {
 		type: Array,
 		property: 'visibleFormats',
 	},

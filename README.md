@@ -122,12 +122,12 @@ Each of the following properties can also be set via its corresponding attribute
 - **Type**: `'show' | 'hide'`
 - **Required**: `false`
 - **Default**: `'show'`
-- **Attribute**: `data-alpha-channel`
+- **Attribute**: `alpha-channel`
 - **Usage**:
 
 	HTML:
 	```html
-	<color-picker data-alpha-channel="hide" />
+	<color-picker alpha-channel="hide" />
 	```
 
 	JavaScript:
@@ -141,17 +141,17 @@ Each of the following properties can also be set via its corresponding attribute
 - **Type**: `string | ColorHsl | ColorHsv | ColorHwb | ColorRgb` (for `string`, any valid CSS color string will work)
 - **Required**: `false`
 - **Default**: `'#ffffffff'`
-- **Attribute**: `data-color`
+- **Attribute**: `color`
 - **Usage**:
 
 	HTML:
 	```html
-	<color-picker data-color="hsl(270 100% 50% / 0.8)" />
+	<color-picker color="hsl(270 100% 50% / 0.8)" />
 	```
 
 	HTML:
 	```html
-	<color-picker data-color="#f80b" />
+	<color-picker color="#f80b" />
 	```
 
 	JavaScript:
@@ -170,12 +170,12 @@ Each of the following properties can also be set via its corresponding attribute
 - **Type**: `VisibleColorFormat`
 - **Required**: `false`
 - **Default**: `'hsl'`
-- **Attribute**: `data-default-format`
+- **Attribute**: `default-format`
 - **Usage**:
 
 	HTML:
 	```html
-	<color-picker data-default-format="hwb" />
+	<color-picker default-format="hwb" />
 	```
 
 	JavaScript:
@@ -213,7 +213,7 @@ Each of the following properties can also be set via its corresponding attribute
 
 	HTML:
 	```html
-	<color-picker data-visible-formats="hsl,hwb" />
+	<color-picker visible-formats="hsl,hwb" />
 	```
 
 	JavaScript:
@@ -231,7 +231,7 @@ Each of the following properties can also be set via its corresponding attribute
 
 - **Description**: The custom event that is emitted each time the internal colors object is updated.
 - **Type**: `CustomEvent<ColorChangeDetail>`
-- **Data**: The custom event emits an object whose `detail` property contains both the internal colors object and a CSS color value as a string based on the currently active format. The `cssColor` property will respect `data-alpha-channel`.
+- **Data**: The custom event emits an object whose `detail` property contains both the internal colors object and a CSS color value as a string based on the currently active format. The `cssColor` property will respect `alpha-channel`.
 
 	```ts
 	{
@@ -250,7 +250,7 @@ Each of the following properties can also be set via its corresponding attribute
 
 	HTML:
 	```html
-	<color-picker data-color="hsl(270 100% 50% / 0.8)" />
+	<color-picker color="hsl(270 100% 50% / 0.8)" />
 	```
 
 	JavaScript:

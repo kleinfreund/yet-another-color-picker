@@ -52,27 +52,27 @@ describe('ColorPicker', () => {
 
 		test.each([
 			[
-				{ 'data-alpha-channel': 'show' },
+				{ 'alpha-channel': 'show' },
 				/** @type {ColorPickerProperties} */ ('alphaChannel'),
 				'show',
 			],
 			[
-				{ 'data-alpha-channel': 'hide' },
+				{ 'alpha-channel': 'hide' },
 				/** @type {ColorPickerProperties} */ ('alphaChannel'),
 				'hide',
 			],
 			[
-				{ 'data-color': '#fff' },
+				{ color: '#fff' },
 				/** @type {ColorPickerProperties} */ ('color'),
 				'#fff',
 			],
 			[
-				{ 'data-default-format': 'hex' },
+				{ 'default-format': 'hex' },
 				/** @type {ColorPickerProperties} */ ('defaultFormat'),
 				'hex',
 			],
 			[
-				{ 'data-visible-formats': 'hex,rgb,hsl' },
+				{ 'visible-formats': 'hex,rgb,hsl' },
 				/** @type {ColorPickerProperties} */ ('visibleFormats'),
 				['hex', 'rgb', 'hsl'],
 			],
@@ -92,27 +92,27 @@ describe('ColorPicker', () => {
 
 		test.each([
 			[
-				{ 'data-alpha-channel': 'show' },
+				{ 'alpha-channel': 'show' },
 				/** @type {ColorPickerProperties} */ ('alphaChannel'),
 				'show',
 			],
 			[
-				{ 'data-alpha-channel': 'hide' },
+				{ 'alpha-channel': 'hide' },
 				/** @type {ColorPickerProperties} */ ('alphaChannel'),
 				'hide',
 			],
 			[
-				{ 'data-color': '#fff' },
+				{ color: '#fff' },
 				/** @type {ColorPickerProperties} */ ('color'),
 				'#fff',
 			],
 			[
-				{ 'data-default-format': 'hex' },
+				{ 'default-format': 'hex' },
 				/** @type {ColorPickerProperties} */ ('defaultFormat'),
 				'hex',
 			],
 			[
-				{ 'data-visible-formats': 'hex,rgb,hsl' },
+				{ 'visible-formats': 'hex,rgb,hsl' },
 				/** @type {ColorPickerProperties} */ ('visibleFormats'),
 				['hex', 'rgb', 'hsl'],
 			],
@@ -138,11 +138,11 @@ describe('ColorPicker', () => {
 			['rgb(255 50% 0 / 0.5)', '#ff800080'],
 			['hsl(0 100% 50% / 1)', '#ff0000ff'],
 			['hwb(180 33.333% 50% / 1)', '#558080ff'],
-		]))('renders hex input correctly for valid data-color attribute', async (color, expectedHexInputValue) => {
+		]))('renders hex input correctly for valid color attribute', async (color, expectedHexInputValue) => {
 			const colorPicker = render({
 				attributes: {
-					'data-color': color,
-					'data-default-format': 'hex',
+					color,
+					'default-format': 'hex',
 				},
 			})
 
@@ -171,11 +171,11 @@ describe('ColorPicker', () => {
 			expect(input.value).toBe(expectedHexInputValue)
 		})
 
-		test('renders correctly with an invalid data-color attribute', async () => {
+		test('renders correctly with an invalid color attribute', async () => {
 			const colorPicker = render({
 				attributes: {
-					'data-color': '#ff',
-					'data-default-format': 'hex',
+					color: '#ff',
+					'default-format': 'hex',
 				},
 			})
 
@@ -206,9 +206,9 @@ describe('ColorPicker', () => {
 		test('falls back to visible color format when defaultFormat isn\'t a visible format', async () => {
 			const colorPicker = render({
 				attributes: {
-					'data-color': '#ff',
-					'data-default-format': 'hsl',
-					'data-visible-formats': 'hex',
+					color: '#ff',
+					'default-format': 'hsl',
+					'visible-formats': 'hex',
 				},
 			})
 
@@ -220,11 +220,11 @@ describe('ColorPicker', () => {
 
 		test.each([
 			[{}, ['H', 'S', 'L']],
-			[{ 'data-default-format': 'hex' }, ['Hex']],
-			[{ 'data-default-format': 'hsl' }, ['H', 'S', 'L']],
-			[{ 'data-default-format': 'hwb' }, ['H', 'W', 'B']],
-			[{ 'data-default-format': 'rgb' }, ['R', 'G', 'B']],
-		])('sets active color format correctly when providing data-default-format attribute', async (attributes, expectedLabels) => {
+			[{ 'default-format': 'hex' }, ['Hex']],
+			[{ 'default-format': 'hsl' }, ['H', 'S', 'L']],
+			[{ 'default-format': 'hwb' }, ['H', 'W', 'B']],
+			[{ 'default-format': 'rgb' }, ['R', 'G', 'B']],
+		])('sets active color format correctly when providing default-format attribute', async (attributes, expectedLabels) => {
 			const colorPicker = render({ attributes })
 
 			await Promise.resolve()
@@ -260,7 +260,7 @@ describe('ColorPicker', () => {
 				'hsl(180 50% 50% / 1)',
 				{ r: 0.25, g: 0.7499999999999999, b: 0.75, a: 1 },
 			],
-		]))('recomputes colors when data-color attribute changes', async (color, expectedRgbColor) => {
+		]))('recomputes colors when color attribute changes', async (color, expectedRgbColor) => {
 			const colorPicker = render()
 			await Promise.resolve()
 
@@ -273,11 +273,11 @@ describe('ColorPicker', () => {
 			}
 			colorPicker.addEventListener('color-change', colorChangeListener)
 
-			colorPicker.setAttribute('data-color', color)
+			colorPicker.setAttribute('color', color)
 			await Promise.resolve()
 			expect(rgbColorSpy).toHaveBeenCalledWith(expectedRgbColor)
 
-			colorPicker.setAttribute('data-color', '#fffc')
+			colorPicker.setAttribute('color', '#fffc')
 			await Promise.resolve()
 			expect(rgbColorSpy).toHaveBeenCalledWith({ r: 1, g: 1, b: 1, a: 0.8 })
 		})
@@ -368,12 +368,12 @@ describe('ColorPicker', () => {
 		test.each([
 			['show', true, 'hsl(180 0% 100% / 1)'],
 			['hide', false, 'hsl(180 0% 100%)'],
-		])('shows/hides correct elements when setting data-alpha-channel', async (alphaChannel, isElementVisible, expectedCssColor) => {
+		])('shows/hides correct elements when setting alpha-channel', async (alphaChannel, isElementVisible, expectedCssColor) => {
 			const id = 'test-color-picker'
 			const colorPicker = render({
 				attributes: {
 					id,
-					'data-alpha-channel': alphaChannel,
+					'alpha-channel': alphaChannel,
 				},
 			})
 
@@ -444,49 +444,49 @@ describe('ColorPicker', () => {
 		test.each([
 			{},
 			{
-				'data-color': '#ffffffff',
-				'data-alpha-channel': 'show',
+				color: '#ffffffff',
+				'alpha-channel': 'show',
 			},
 			{
-				'data-color': '#ffffffff',
-				'data-alpha-channel': 'hide',
+				color: '#ffffffff',
+				'alpha-channel': 'hide',
 			},
 			{
-				'data-color': '#ffffff',
-				'data-alpha-channel': 'show',
+				color: '#ffffff',
+				'alpha-channel': 'show',
 			},
 			{
-				'data-color': '#ffffff',
-				'data-alpha-channel': 'hide',
+				color: '#ffffff',
+				'alpha-channel': 'hide',
 			},
 			{
-				'data-color': '#fff',
-				'data-alpha-channel': 'show',
+				color: '#fff',
+				'alpha-channel': 'show',
 			},
 			{
-				'data-color': '#fff',
-				'data-alpha-channel': 'hide',
+				color: '#fff',
+				'alpha-channel': 'hide',
 			},
 			{
-				'data-color': 'white',
-				'data-alpha-channel': 'show',
+				color: 'white',
+				'alpha-channel': 'show',
 			},
 			{
-				'data-color': 'white',
-				'data-alpha-channel': 'hide',
+				color: 'white',
+				'alpha-channel': 'hide',
 			},
 			{
-				'data-color': 'hsl(0, 0%, 100%, 1)',
-				'data-alpha-channel': 'show',
+				color: 'hsl(0, 0%, 100%, 1)',
+				'alpha-channel': 'show',
 			},
 			{
-				'data-color': 'hsl(0, 0%, 100%, 1)',
-				'data-alpha-channel': 'hide',
+				color: 'hsl(0, 0%, 100%, 1)',
+				'alpha-channel': 'hide',
 			},
 		])('initializes color space and thumb correctly with default color value', async (attributes) => {
 			const colorPicker = render({
 				attributes: {
-					'data-default-format': 'hex',
+					'default-format': 'hex',
 					...attributes,
 				},
 			})
@@ -506,7 +506,7 @@ describe('ColorPicker', () => {
 		test('can initiate moving the color space thumb with a mouse', async () => {
 			const colorPicker = render({
 				attributes: {
-					'data-color': '#f80c',
+					color: '#f80c',
 				},
 			})
 
@@ -529,7 +529,7 @@ describe('ColorPicker', () => {
 		test('can initiate moving the color space thumb with a touch-based device', async () => {
 			const colorPicker = render({
 				attributes: {
-					'data-color': '#f80c',
+					color: '#f80c',
 				},
 			})
 
@@ -615,7 +615,7 @@ describe('ColorPicker', () => {
 
 			const colorPicker = render({
 				attributes: {
-					'data-color': 'hwb(180, 25%, 50%, 1)',
+					color: 'hwb(180, 25%, 50%, 1)',
 				},
 			})
 
@@ -734,23 +734,23 @@ describe('ColorPicker', () => {
 
 		test.each([
 			[
-				{ 'data-default-format': 'rgb', 'data-alpha-channel': 'show' },
+				{ 'default-format': 'rgb', 'alpha-channel': 'show' },
 				'rgb(255 255 255 / 1)',
 			],
 			[
-				{ 'data-default-format': 'hsl', 'data-alpha-channel': 'show' },
+				{ 'default-format': 'hsl', 'alpha-channel': 'show' },
 				'hsl(0 0% 100% / 1)',
 			],
 			[
-				{ 'data-default-format': 'hwb', 'data-alpha-channel': 'show' },
+				{ 'default-format': 'hwb', 'alpha-channel': 'show' },
 				'hwb(0 100% 0% / 1)',
 			],
 			[
-				{ 'data-default-format': 'hex', 'data-alpha-channel': 'show' },
+				{ 'default-format': 'hex', 'alpha-channel': 'show' },
 				'#ffffffff',
 			],
 			[
-				{ 'data-default-format': 'hex', 'data-alpha-channel': 'hide' },
+				{ 'default-format': 'hex', 'alpha-channel': 'hide' },
 				'#ffffff',
 			],
 		])('copy button copies %s format as %s', async (attributes, cssColor) => {
@@ -821,9 +821,9 @@ describe('ColorPicker', () => {
 
 	describe('color value inputs', () => {
 		test.each([
-			[{ 'data-default-format': 'rgb' }, 'r', '127.'],
-			[{ 'data-default-format': 'hsl' }, 's', 'a'],
-			[{ 'data-default-format': 'hwb' }, 'b', '25.%'],
+			[{ 'default-format': 'rgb' }, 'r', '127.'],
+			[{ 'default-format': 'hsl' }, 's', 'a'],
+			[{ 'default-format': 'hwb' }, 'b', '25.%'],
 		])('updating a color input with an invalid value does not update the internal color data', async (attributes, channel, channelValue) => {
 			const colorPicker = render({ attributes })
 
@@ -831,7 +831,7 @@ describe('ColorPicker', () => {
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
 
-			const input = /** @type {HTMLInputElement} */ (colorPicker.querySelector(`#${colorPicker.id}-color-${attributes['data-default-format']}-${channel}`))
+			const input = /** @type {HTMLInputElement} */ (colorPicker.querySelector(`#${colorPicker.id}-color-${attributes['default-format']}-${channel}`))
 			input.value = channelValue
 			input.dispatchEvent(new InputEvent('input'))
 
@@ -844,7 +844,7 @@ describe('ColorPicker', () => {
 		])('updating a hex color input with an invalid value does not update the internal color data', async (invalidHexColorString) => {
 			const colorPicker = render({
 				attributes: {
-					'data-default-format': 'hex',
+					'default-format': 'hex',
 				},
 			})
 
@@ -860,9 +860,9 @@ describe('ColorPicker', () => {
 		})
 
 		test.each([
-			[{ 'data-default-format': 'rgb' }, 'r', '127.5'],
-			[{ 'data-default-format': 'hsl' }, 's', '75%'],
-			[{ 'data-default-format': 'hwb' }, 'b', '25.5%'],
+			[{ 'default-format': 'rgb' }, 'r', '127.5'],
+			[{ 'default-format': 'hsl' }, 's', '75%'],
+			[{ 'default-format': 'hwb' }, 'b', '25.5%'],
 		])('updating a %s color input with a valid value updates the internal color data', async (attributes, channel, channelValue) => {
 			const colorPicker = render({ attributes })
 
@@ -870,7 +870,7 @@ describe('ColorPicker', () => {
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
 
-			const input = /** @type {HTMLInputElement} */ (colorPicker.querySelector(`#${colorPicker.id}-color-${attributes['data-default-format']}-${channel}`))
+			const input = /** @type {HTMLInputElement} */ (colorPicker.querySelector(`#${colorPicker.id}-color-${attributes['default-format']}-${channel}`))
 			input.value = channelValue
 			input.dispatchEvent(new InputEvent('input'))
 
@@ -882,7 +882,7 @@ describe('ColorPicker', () => {
 		])('updating a %s color input with a valid value updates the internal color data', async (channelValue) => {
 			const colorPicker = render({
 				attributes: {
-					'data-default-format': 'hex',
+					'default-format': 'hex',
 				},
 			})
 
@@ -902,9 +902,9 @@ describe('ColorPicker', () => {
 		test.each([
 			[
 				{
-					'data-color': '#ff99aacc',
-					'data-default-format': 'hsl',
-					'data-alpha-channel': 'show',
+					color: '#ff99aacc',
+					'default-format': 'hsl',
+					'alpha-channel': 'show',
 				},
 				{
 					cssColor: 'hsl(350 100% 80% / 0.8)',
@@ -919,9 +919,9 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					'data-color': '#f9ac',
-					'data-default-format': 'hsl',
-					'data-alpha-channel': 'show',
+					color: '#f9ac',
+					'default-format': 'hsl',
+					'alpha-channel': 'show',
 				},
 				{
 					cssColor: 'hsl(350 100% 80% / 0.8)',
@@ -936,9 +936,9 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					'data-color': '#ff99aacc',
-					'data-default-format': 'hex',
-					'data-alpha-channel': 'show',
+					color: '#ff99aacc',
+					'default-format': 'hex',
+					'alpha-channel': 'show',
 				},
 				{
 					cssColor: '#ff99aacc',
@@ -953,9 +953,9 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					'data-color': '#f9ac',
-					'data-default-format': 'hex',
-					'data-alpha-channel': 'show',
+					color: '#f9ac',
+					'default-format': 'hex',
+					'alpha-channel': 'show',
 				},
 				{
 					cssColor: '#f9ac',
@@ -970,9 +970,9 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					'data-color': '#ff99aacc',
-					'data-default-format': 'hsl',
-					'data-alpha-channel': 'hide',
+					color: '#ff99aacc',
+					'default-format': 'hsl',
+					'alpha-channel': 'hide',
 				},
 				{
 					cssColor: 'hsl(350 100% 80%)',
@@ -987,9 +987,9 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					'data-color': '#f9ac',
-					'data-default-format': 'hsl',
-					'data-alpha-channel': 'hide',
+					color: '#f9ac',
+					'default-format': 'hsl',
+					'alpha-channel': 'hide',
 				},
 				{
 					cssColor: 'hsl(350 100% 80%)',
@@ -1004,9 +1004,9 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					'data-color': '#ff99aacc',
-					'data-default-format': 'hex',
-					'data-alpha-channel': 'hide',
+					color: '#ff99aacc',
+					'default-format': 'hex',
+					'alpha-channel': 'hide',
 				},
 				{
 					cssColor: '#ff99aa',
@@ -1021,9 +1021,9 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					'data-color': '#f9ac',
-					'data-default-format': 'hex',
-					'data-alpha-channel': 'hide',
+					color: '#f9ac',
+					'default-format': 'hex',
+					'alpha-channel': 'hide',
 				},
 				{
 					cssColor: '#f9a',
@@ -1038,9 +1038,9 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					'data-color': '#23a96a',
-					'data-default-format': 'hex',
-					'data-alpha-channel': 'hide',
+					color: '#23a96a',
+					'default-format': 'hex',
+					'alpha-channel': 'hide',
 				},
 				{
 					cssColor: '#23a96a',
@@ -1074,41 +1074,41 @@ describe('ColorPicker', () => {
 	describe('color inputs', () => {
 		test.each([
 			[
-				{ 'data-color': '#12345678', 'data-alpha-channel': 'show' },
+				{ color: '#12345678', 'alpha-channel': 'show' },
 				'#12345678',
 			],
 			[
-				{ 'data-color': '#12345678', 'data-alpha-channel': 'hide' },
+				{ color: '#12345678', 'alpha-channel': 'hide' },
 				'#123456',
 			],
 			[
-				{ 'data-color': '#123456', 'data-alpha-channel': 'show' },
+				{ color: '#123456', 'alpha-channel': 'show' },
 				'#123456',
 			],
 			[
-				{ 'data-color': '#123456', 'data-alpha-channel': 'hide' },
+				{ color: '#123456', 'alpha-channel': 'hide' },
 				'#123456',
 			],
 			[
-				{ 'data-color': '#123a', 'data-alpha-channel': 'show' },
+				{ color: '#123a', 'alpha-channel': 'show' },
 				'#123a',
 			],
 			[
-				{ 'data-color': '#123a', 'data-alpha-channel': 'hide' },
+				{ color: '#123a', 'alpha-channel': 'hide' },
 				'#123',
 			],
 			[
-				{ 'data-color': '#123', 'data-alpha-channel': 'show' },
+				{ color: '#123', 'alpha-channel': 'show' },
 				'#123',
 			],
 			[
-				{ 'data-color': '#123', 'data-alpha-channel': 'hide' },
+				{ color: '#123', 'alpha-channel': 'hide' },
 				'#123',
 			],
 		])('shows expected color for hex colors', async (attributes, expectedHexColor) => {
 			const colorPicker = render({
 				attributes: {
-					'data-default-format': 'hex',
+					'default-format': 'hex',
 					...attributes,
 				},
 			})
