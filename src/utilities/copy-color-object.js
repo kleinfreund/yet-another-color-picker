@@ -2,6 +2,7 @@
  * @param {T} color
  * @returns {T}
  * @template T
+ * @constraint {Record<string, number>}
  */
 export function copyColorObject (color) {
 	// @ts-expect-error because whatever TypeScript
