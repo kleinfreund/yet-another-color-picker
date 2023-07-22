@@ -11,15 +11,15 @@ import { formatAsCssColor } from './utilities/formatAsCssColor.js'
 import { getNewThumbPosition } from './utilities/getNewThumbPosition.js'
 import { isValidHexColor } from './utilities/isValidHexColor.js'
 import { parsePropsColor } from './utilities/parsePropsColor.js'
-/** @typedef {import('../types/index.d').AlphaChannelProp} AlphaChannelProp */
-/** @typedef {import('../types/index.d').ColorChangeDetail} ColorChangeDetail */
-/** @typedef {import('../types/index.d').ColorFormat} ColorFormat */
-/** @typedef {import('../types/index.d').ColorHsl} ColorHsl */
-/** @typedef {import('../types/index.d').ColorHsv} ColorHsv */
-/** @typedef {import('../types/index.d').ColorHwb} ColorHwb */
-/** @typedef {import('../types/index.d').ColorRgb} ColorRgb */
-/** @typedef {import('../types/index.d').ColorPickerProperties} ColorPickerProperties */
-/** @typedef {import('../types/index.d').VisibleColorFormat} VisibleColorFormat */
+/** @typedef {import('../types/index.d.js').AlphaChannelProp} AlphaChannelProp */
+/** @typedef {import('../types/index.d.js').ColorChangeDetail} ColorChangeDetail */
+/** @typedef {import('../types/index.d.js').ColorFormat} ColorFormat */
+/** @typedef {import('../types/index.d.js').ColorHsl} ColorHsl */
+/** @typedef {import('../types/index.d.js').ColorHsv} ColorHsv */
+/** @typedef {import('../types/index.d.js').ColorHwb} ColorHwb */
+/** @typedef {import('../types/index.d.js').ColorRgb} ColorRgb */
+/** @typedef {import('../types/index.d.js').ColorPickerProperties} ColorPickerProperties */
+/** @typedef {import('../types/index.d.js').VisibleColorFormat} VisibleColorFormat */
 
 /**
  * @typedef {object} AttributeDefinition

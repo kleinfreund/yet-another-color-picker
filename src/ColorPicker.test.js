@@ -1,8 +1,8 @@
 import { afterEach, beforeAll, describe, test, expect, vi } from 'vitest'
 
 import './ColorPicker.js'
-/** @typedef {import('../types/index.d').ColorChangeDetail} ColorChangeDetail */
-/** @typedef {import('../types/index.d').ColorPickerProperties} ColorPickerProperties */
+/** @typedef {import('../types/index.d.js').ColorChangeDetail} ColorChangeDetail */
+/** @typedef {import('../types/index.d.js').ColorPickerProperties} ColorPickerProperties */
 
 /**
  * @typedef {object} RenderOptions

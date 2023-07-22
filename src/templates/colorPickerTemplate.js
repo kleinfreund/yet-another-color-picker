@@ -1,8 +1,8 @@
 import { html } from 'lit-html'
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
 
-/** @typedef {import('../../types/index.d').AlphaChannelProp} AlphaChannelProp */
-/** @typedef {import('../../types/index.d').VisibleColorFormat} VisibleColorFormat */
+/** @typedef {import('../../types/index.d.js').AlphaChannelProp} AlphaChannelProp */
+/** @typedef {import('../../types/index.d.js').VisibleColorFormat} VisibleColorFormat */
 
 /**
  * @param {string} id
