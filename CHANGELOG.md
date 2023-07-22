@@ -5,7 +5,7 @@
 
 * types incorrectly set-up in pkg.exports ([f4833bb](https://github.com/kleinfreund/yet-another-color-picker/commit/f4833bb1f294a0a10f4ba4ba88e0054e1f6910fd))
 
-# 1.0.0 (2022-11-20)
+## 1.0.0 (2022-11-20)
 
 
 ### Features
