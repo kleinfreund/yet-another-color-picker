@@ -11,19 +11,15 @@
 </head>
 
 <body>
-	<main style="display: flex; justify-content: center;">
-		<color-picker></color-picker>
-	</main>
+	<color-picker></color-picker>
 
 	<script type="module">
 		import './src/ColorPicker.js'
 
 		const colorPicker = document.querySelector('color-picker')
-		colorPicker.addEventListener('color-change', colorChangeListener)
-
-		function colorChangeListener(event) {
+		colorPicker.addEventListener('color-change', function (event) {
 			console.log(event.detail)
-		}
+		})
 	</script>
 </body>
 
