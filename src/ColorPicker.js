@@ -607,8 +607,12 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	/**
-	 * Sets the next active color format by cycling through the visible color formats.
+	 * Sets the next active color format by cycling through `colorPicker.visibleFormats`.
 	 */
+	switchFormat () {
+		return this.#switchFormat()
+	}
+
 	#switchFormat = () => {
 		const activeFormatIndex = this.visibleFormats.findIndex((format) => format === this.activeFormat)
 		const newFormatIndex = (activeFormatIndex + 1) % this.visibleFormats.length

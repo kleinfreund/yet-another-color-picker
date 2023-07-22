@@ -31,6 +31,7 @@ Links:
 		- [`id`](#id)
 		- [`visibleFormats`](#visibleformats)
 	- [Methods](#methods)
+		- [`switchFormat()`](#switchformat)
 	- [Events](#events)
 		- [`color-change`](#color-change)
 - [Versioning](#versioning)
@@ -104,7 +105,7 @@ Each of the following properties can also be set via its corresponding attribute
 
 #### `activeFormat`
 
-- **Description**: The currently active format. Changed by interacting with the “Switch format” button.
+- **Description**: The currently active format. Changes when interacting with the “Switch format” button or when calling [`switchFormat()`](#switchformat).
 - **Type**: `VisibleColorFormat`
 - **Required**: `false`
 - **Default**: `'hsl'`
@@ -223,7 +224,16 @@ Each of the following properties can also be set via its corresponding attribute
 
 ### Methods
 
-—
+#### `switchFormat()`
+
+- **Description**: Sets the next active color format by cycling through `colorPicker.visibleFormats`. This method behaves the same as activating the “Switch format” button. To set a specific color format, use the [`activeFormat` property](#activeformat).
+- **Return type**: `void`
+- **Usage**:
+
+	JavaScript:
+	```js
+	colorPicker.switchFormat()
+	```
 
 ### Events
 
