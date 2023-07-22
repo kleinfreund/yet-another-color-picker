@@ -22,12 +22,15 @@ Links:
 	- [As npm package](#as-npm-package)
 	- [As plain JS and CSS files](#as-plain-js-and-css-files)
 - [Documentation](#documentation)
-	- [Props](#props)
-		- [`data-color`](#data-color)
-		- [`data-visible-formats`](#data-visible-formats)
-		- [`data-default-format`](#data-default-format)
-		- [`data-alpha-channel`](#data-alpha-channel)
+	- [Technical summary](#technical-summary)
+	- [Properties](#properties)
+		- [`activeFormat`](#activeformat)
+		- [`alphaChannel`](#alphachannel)
+		- [`color`](#color)
+		- [`defaultFormat`](#defaultformat)
 		- [`id`](#id)
+		- [`visibleFormats`](#visibleformats)
+	- [Methods](#methods)
 	- [Events](#events)
 		- [`color-change`](#color-change)
 - [Versioning](#versioning)
@@ -93,14 +96,52 @@ Links:
 
 ## Documentation
 
-### Props
+### Properties
 
-#### `data-color`
+Each of the following properties can also be set via its corresponding attribute.
+
+**Note**: Changing an attribute will be synced to its corresponding property; however, changing a property will *not* be synced to its corresponding attribute.
+
+#### `activeFormat`
+
+- **Description**: The currently active format. Changed by interacting with the “Switch format” button.
+- **Type**: `VisibleColorFormat`
+- **Required**: `false`
+- **Default**: `'hsl'`
+- **Attribute**: —
+- **Usage**:
+
+	JavaScript:
+	```js
+	colorPicker.activeFormat = 'hwb'
+	```
+
+#### `alphaChannel`
+
+- **Description**: Whether to show input controls for a color’s alpha channel. If set to `'hide'`, the alpha range input and the alpha channel input are hidden, the “Copy color” button will copy a CSS color value without alpha channel, and the object emitted in a `color-change` event will have a `cssColor` property value without alpha channel.
+- **Type**: `'show' | 'hide'`
+- **Required**: `false`
+- **Default**: `'show'`
+- **Attribute**: `data-alpha-channel`
+- **Usage**:
+
+	HTML:
+	```html
+	<color-picker data-alpha-channel="hide" />
+	```
+
+	JavaScript:
+	```js
+	colorPicker.alphaChannel = 'hide'
+	```
+
+#### `color`
 
 - **Description**: Sets the color of the color picker. You can pass any valid CSS color string.
-- **Type**: `string` (any valid CSS color string)
+- **Type**: `string | ColorHsl | ColorHsv | ColorHwb | ColorRgb` (for `string`, any valid CSS color string will work)
 - **Required**: `false`
 - **Default**: `'#ffffffff'`
+- **Attribute**: `data-color`
 - **Usage**:
 
 	HTML:
@@ -115,28 +156,21 @@ Links:
 
 	JavaScript:
 	```js
-	colorPicker.setAttribute('data-color', 'hsl(270 100% 50% / 0.8)')
+	colorPicker.color = 'hsl(270 100% 50% / 0.8)'
 	```
 
-#### `data-visible-formats`
-
-- **Description**: A comma-separated string of visible color formats. Controls for which formats the color `input` elements are shown and in which order the formats will be cycled through when activating the format switch button.
-- **Type**: `string` (a comma-separated list of `VisibleColorFormat`s)
-- **Required**: `false`
-- **Default**: `'hex,hsl,hwb,rgb'`
-- **Usage**:
-
-	HTML:
-	```html
-	<color-picker data-visible-formats="hsl,hwb" />
+	JavaScript:
+	```js
+	colorPicker.color = { h: 270, s: 1, l: 0.5, a: 0.8 }
 	```
 
-#### `data-default-format`
+#### `defaultFormat`
 
-- **Description**: The color format to show by default when rendering the color picker. Must be one of the formats specified in `data-visible-formats`.
+- **Description**: The color format to show by default when rendering the color picker. Must be one of the formats specified in [`visibleFormats`](#visibleformats).
 - **Type**: `VisibleColorFormat`
 - **Required**: `false`
 - **Default**: `'hsl'`
+- **Attribute**: `data-default-format`
 - **Usage**:
 
 	HTML:
@@ -144,25 +178,18 @@ Links:
 	<color-picker data-default-format="hwb" />
 	```
 
-#### `data-alpha-channel`
-
-- **Description**: Whether to show input controls for a color’s alpha channel. If set to `'hide'`, the alpha range input and the alpha channel input are hidden, the “Copy color” button will copy a CSS color value without alpha channel, and the object emitted in a `color-change` event will have a `cssColor` property value without alpha channel.
-- **Type**: `'show'` or `'hide'`
-- **Required**: `false`
-- **Default**: `'show'`
-- **Usage**:
-
-	HTML:
-	```html
-	<color-picker data-alpha-channel="hide" />
+	JavaScript:
+	```js
+	colorPicker.defaultFormat = 'hwb'
 	```
 
 #### `id`
 
-- **Description**: The ID value will be used to prefix all `input` elements’ `id` and `label` elements’ `for` attribute values. Set this prop if you use multiple instances of the component on one page.
+- **Description**: The ID value will be used to prefix all `input` elements’ `id` and `label` elements’ `for` attribute values. Make sure to set this if you use multiple instances of the component on a page.
 - **Type**: `string`
 - **Required**: `false`
 - **Default**: `'color-picker'`
+- **Attribute**: `id`
 - **Usage**:
 
 	HTML:
@@ -170,11 +197,40 @@ Links:
 	<color-picker id="color-picker-1" />
 	```
 
+	JavaScript:
+	```js
+	colorPicker.id = 'color-picker-1'
+	```
+
+#### `visibleFormats`
+
+- **Description**: A list of visible color formats. Controls for which formats the color `input` elements are shown and in which order the formats will be cycled through when activating the format switch button.
+- **Type**: `VisibleColorFormat` (an array of `VisibleColorFormat`s)
+- **Required**: `false`
+- **Default**: `['hex', 'hsl', 'hwb', 'rgb']`
+- **Attribute**: `visibleFormats`
+- **Usage**:
+
+	HTML:
+	```html
+	<color-picker data-visible-formats="hsl,hwb" />
+	```
+
+	JavaScript:
+	```js
+	colorPicker.visibleFormats = ['hsl', 'hwb']
+	```
+
+### Methods
+
+—
+
 ### Events
 
 #### `color-change`
 
 - **Description**: The custom event that is emitted each time the internal colors object is updated.
+- **Type**: `CustomEvent<ColorChangeDetail>`
 - **Data**: The custom event emits an object whose `detail` property contains both the internal colors object and a CSS color value as a string based on the currently active format. The `cssColor` property will respect `data-alpha-channel`.
 
 	```ts
@@ -200,17 +256,11 @@ Links:
 	JavaScript:
 	```js
 	import 'yet-another-color-picker'
-	/** @typedef {import('yet-another-color-picker').ColorChangeDetail} ColorChangeDetail */
 
 	const colorPicker = document.querySelector('color-picker')
-	colorPicker.addEventListener('color-change', colorChangeListener)
-
-	/**
-	 * @param {CustomEvent<ColorChangeDetail>} event
-	 */
-	function colorChangeListener (event) {
+	colorPicker.addEventListener('color-change', function (event) {
 		console.log(event.detail)
-	}
+	})
 	```
 
 ## Versioning
@@ -255,3 +305,4 @@ The color picker consists of the following main elements:
 
 - Document browser usage via import maps (https://caniuse.com/import-maps).
 - Re-consider how state is recomputed internally.
+- Re-consider bundling and optimization strategy following https://lit.dev/docs/tools/publishing/#don't-bundle-minify-or-optimize-modules (see also https://open-wc.org/guides/developing-components/publishing/#do-not-minify).

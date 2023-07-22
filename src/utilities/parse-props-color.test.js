@@ -1,8 +1,8 @@
-/** @typedef {import('../../types/index.d').ColorFormat} ColorFormat */
-/** @typedef {import('../../types/index.d').ColorHsl} ColorHsl */
-/** @typedef {import('../../types/index.d').ColorHsv} ColorHsv */
-/** @typedef {import('../../types/index.d').ColorHwb} ColorHwb */
-/** @typedef {import('../../types/index.d').ColorRgb} ColorRgb */
+/** @typedef {import('../../types/index.d.js').ColorFormat} ColorFormat */
+/** @typedef {import('../../types/index.d.js').ColorHsl} ColorHsl */
+/** @typedef {import('../../types/index.d.js').ColorHsv} ColorHsv */
+/** @typedef {import('../../types/index.d.js').ColorHwb} ColorHwb */
+/** @typedef {import('../../types/index.d.js').ColorRgb} ColorRgb */
 
 import { describe, test, expect } from 'vitest'
 
@@ -11,7 +11,7 @@ import { parsePropsColor } from './parse-props-color.js'
 // Note: This test is the reason this project has the package `canvas` installed. JSDom uses it automatically to handle HTML canvas which is used by `parsePropsColor` to convert a CSS color name to a color in hexadecimal format.
 
 describe('getCssColorAsRgbString', () => {
-	test.each(/** @type {[string, { format: ColorFormat, color: string | ColorHsl | ColorHsv | ColorHwb | ColorRgb } | null][]} */ ([
+	test.each(/** @type {[string | ColorHsl | ColorHsv | ColorHwb | ColorRgb, { format: ColorFormat, color: string | ColorHsl | ColorHsv | ColorHwb | ColorRgb } | null][]} */ ([
 		['rgb(255, 0, 0)', { format: 'rgb', color: { r: 1, g: 0, b: 0, a: 1 } }],
 		['rgba(255, 0, 0, 1)', { format: 'rgb', color: { r: 1, g: 0, b: 0, a: 1 } }],
 		['rgb(127.5, 0, 255)', { format: 'rgb', color: { r: 0.5, g: 0, b: 1, a: 1 } }],
@@ -24,6 +24,8 @@ describe('getCssColorAsRgbString', () => {
 		['hsl(127.5 0% 100%)', { format: 'hsl', color: { h: 0.3541666666666667, s: 0, l: 1, a: 1 } }],
 		['hsl(127.5 0% 100% / 0.5)', { format: 'hsl', color: { h: 0.3541666666666667, s: 0, l: 1, a: 0.5 } }],
 		['hsl(360 0% 100% / 0.5)', { format: 'hsl', color: { h: 0, s: 0, l: 1, a: 0.5 } }],
+		[{ r: 0.5, g: 0, b: 1, a: 1 }, { format: 'rgb', color: { r: 0.5, g: 0, b: 1, a: 1 } }],
+		[{ h: 0.3541666666666667, s: 0, l: 1, a: 0.5 }, { format: 'hsl', color: { h: 0.3541666666666667, s: 0, l: 1, a: 0.5 } }],
 		['#1234', { format: 'hex', color: '#1234' }],
 		['#12345', null],
 		['#123456', { format: 'hex', color: '#123456' }],

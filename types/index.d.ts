@@ -1,4 +1,12 @@
-declare class ColorPicker extends HTMLElement { }
+declare class ColorPicker extends HTMLElement {
+	alphaChannel: AlphaChannelProp
+	activeFormat: VisibleColorFormat
+	color: string
+	defaultFormat: VisibleColorFormat
+	visibleFormats: VisibleColorFormat[]
+}
+
+type ColorPickerProperties = keyof ColorPicker
 
 declare global {
 	interface HTMLElementEventMap {
@@ -10,33 +18,6 @@ declare global {
 	}
 }
 
-type PropDefinition = {
-	/**
-	 * The prop type.
-	 */
-	type: String | Array
-
-	/**
-	 * Whether a prop is required.
-	 */
-	isRequired?: boolean
-
-	/**
-	 * Default value used when not providing an optional prop.
-	 */
-	default?: () => any
-}
-
-type PropTypeMap = {
-	id: string
-	'data-color': string
-	'data-visible-formats': VisibleColorFormat[]
-	'data-default-format': VisibleColorFormat
-	'data-alpha-channel': AlphaChannelProp
-}
-
-type PropName = keyof PropTypeMap
-type PropMap = Record<PropName, PropDefinition>
 type VisibleColorFormat = 'hex' | 'hsl' | 'hwb' | 'rgb'
 type ColorFormat = 'hex' | 'hsl' | 'hsv' | 'hwb' | 'rgb'
 type AlphaChannelProp = 'show' | 'hide'
@@ -88,10 +69,7 @@ export {
 	ColorHsv,
 	ColorHwb,
 	ColorPicker,
+	ColorPickerProperties,
 	ColorRgb,
-	PropDefinition,
-	PropMap,
-	PropName,
-	PropTypeMap,
 	VisibleColorFormat,
 }

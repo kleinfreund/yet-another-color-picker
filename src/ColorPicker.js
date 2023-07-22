@@ -18,61 +18,79 @@ import { parsePropsColor } from './utilities/parse-props-color.js'
 /** @typedef {import('../types/index.d').ColorHsv} ColorHsv */
 /** @typedef {import('../types/index.d').ColorHwb} ColorHwb */
 /** @typedef {import('../types/index.d').ColorRgb} ColorRgb */
-/** @typedef {import('../types/index.d').PropDefinition} PropDefinition */
-/** @typedef {import('../types/index.d').PropMap} PropMap */
-/** @typedef {import('../types/index.d').PropName} PropName */
-/** @typedef {import('../types/index.d').PropTypeMap} PropTypeMap */
+/** @typedef {import('../types/index.d').ColorPickerProperties} ColorPickerProperties */
 /** @typedef {import('../types/index.d').VisibleColorFormat} VisibleColorFormat */
 
-/** @type {PropMap} */
-const PROPS = {
+/**
+ * @typedef {object} AttributeDefinition
+ * @property {StringConstructor | ArrayConstructor} type
+ * @property {ColorPickerProperties} property
+ */
+
+/**
+ * @typedef {object} AttributeTypeMap
+ * @property {string} id
+ * @property {string} data-color
+ * @property {VisibleColorFormat[]} data-visible-formats
+ * @property {VisibleColorFormat} data-default-format
+ * @property {AlphaChannelProp} data-alpha-channel
+ */
+
+/** @typedef {keyof AttributeTypeMap} AttributeName */
+
+/** @typedef {Record<AttributeName, AttributeDefinition>} AttributesMap */
+
+/** @type {AttributesMap} */
+const ATTRIBUTES = {
 	'data-alpha-channel': {
 		type: String,
-		default: () => 'show',
+		property: 'alphaChannel',
 	},
 
 	'data-color': {
 		type: String,
-		default: () => '#ffffffff',
+		property: 'color',
 	},
 
 	'data-default-format': {
 		type: String,
-		default: () => 'hsl',
-	},
-
-	'data-visible-formats': {
-		type: Array,
-		default: () => ['hex', 'hsl', 'hwb', 'rgb'],
+		property: 'defaultFormat',
 	},
 
 	id: {
 		type: String,
-		default: () => 'color-picker',
+		property: 'id',
+	},
+
+	'data-visible-formats': {
+		type: Array,
+		property: 'visibleFormats',
 	},
 }
 
-// Constructs an *iterable* list of entries *with* appropriate types.
-const PROP_DEFINITIONS = /** @type {[PropName, PropDefinition][]} */ (Object.entries(PROPS))
-
 export class ColorPicker extends HTMLElement {
 	/**
-	 * The component's props.
-	 *
-	 * @type {PropName[]}
+	 * @type {AttributeName[]}
 	 */
-	static observedAttributes = /** @type {PropName[]} */ (Object.keys(PROPS))
+	static observedAttributes = /** @type {AttributeName[]} */ (Object.keys(ATTRIBUTES))
 
 	/**
 	 * Defines the custom element using a static initialization block. Does nothing if the custom element is already defined.
 	 *
-	 * Note that this block needs to come after defining `ColorPicker.observedAttributes`.
+	 * Note that this block needs to be defined after defining `ColorPicker.observedAttributes`.
 	 */
 	static {
 		if (window.customElements.get('color-picker') === undefined) {
 			window.customElements.define('color-picker', ColorPicker)
 		}
 	}
+
+	/** @type {VisibleColorFormat} */ #activeFormat = 'hsl'
+	/** @type {AlphaChannelProp} */ #alphaChannel = 'show'
+	/** @type {string | ColorHsl | ColorHsv | ColorHwb | ColorRgb} */ #color = '#ffffffff'
+	/** @type {VisibleColorFormat} */ #defaultFormat = 'hsl'
+	/** @type {string} */ #id = 'color-picker'
+	/** @type {VisibleColorFormat[]} */ #visibleFormats = ['hex', 'hsl', 'hwb', 'rgb']
 
 	/** @type {HTMLElement | null} */ #colorSpace = null
 	/** @type {HTMLElement | null} */ #thumb = null
@@ -100,46 +118,112 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	/**
-	 * @type {boolean}
-	 */
-	#isDefined = false
-
-	/**
-	 * The currently active format. Can be changed by the user using the “Switch format” button.
-	 *
-	 * @type {VisibleColorFormat}
-	 */
-	#activeFormat = 'hsl'
-
-	/**
 	 * A list of color channels rendered as part of the color picker. Only used out of convenience for simplifying rendering of the channel-specific color inputs.
 	 *
 	 * @type {string[]}
 	 */
-	#visibleChannels = []
+	#visibleChannels = ['h', 's', 'l', 'a']
 
 	/**
 	 * Input value of the color `input` element for the hexadecimal representation of the current color.
 	 *
 	 * @type {string}
 	 */
-	#hexInputValue = ''
+	#hexInputValue = '#ffffffff'
 
 	/**
-	 * @type {Array<{ name: PropName, value: string | null }>}
+	 * @type {boolean}
 	 */
-	#recomputeQueue = []
-
-	constructor () {
-		super()
-
-		window.customElements.whenDefined(this.localName).then(() => {
-			this.#isDefined = true
-		})
-	}
+	#isProcessingRenderQueue = false
 
 	get [Symbol.toStringTag] () {
 		return 'ColorPicker'
+	}
+
+	/**
+	 * The currently active format. Changed by interacting with the “Switch format” button.
+	 */
+	get activeFormat () {
+		return this.#activeFormat
+	}
+
+	set activeFormat (activeFormat) {
+		this.#activeFormat = activeFormat
+
+		queueMicrotask(() => {
+			this.#recomputeVisibleChannels()
+			this.#queueRender()
+		})
+	}
+
+	/**
+	 * Whether to show input controls for a color’s alpha channel. If set to `'hide'`, the alpha range input and the alpha channel input are hidden, the “Copy color” button will copy a CSS color value without alpha channel, and the object emitted in a `color-change` event will have a `cssColor` property value without alpha channel.
+	 */
+	get alphaChannel () {
+		return this.#alphaChannel
+	}
+
+	set alphaChannel (alphaChannel) {
+		this.#alphaChannel = alphaChannel
+
+		queueMicrotask(() => {
+			this.#recomputeVisibleChannels()
+			this.#recomputeHexInputValue()
+			this.#queueRender()
+		})
+	}
+
+	/**
+	 * Sets the color of the color picker. You can pass any valid CSS color string.
+	 */
+	get color () {
+		return this.#color
+	}
+
+	set color (color) {
+		this.#color = color
+
+		queueMicrotask(() => {
+			this.#recomputeColors()
+			this.#queueRender()
+		})
+	}
+
+	/**
+	 * The color format to show by default when rendering the color picker. Must be one of the formats specified in `visibleFormats`.
+	 */
+	get defaultFormat () {
+		return this.#defaultFormat
+	}
+
+	set defaultFormat (defaultFormat) {
+		this.#defaultFormat = defaultFormat
+	}
+
+	/**
+	 * The ID value will be used to prefix all `input` elements’ `id` and `label` elements’ `for` attribute values. Make sure to set this if you use multiple instances of the component on a page.
+	 */
+	get id () {
+		return this.#id
+	}
+
+	set id (id) {
+		this.#id = id
+
+		queueMicrotask(() => {
+			this.#queueRender()
+		})
+	}
+
+	/**
+	 * A list of visible color formats. Controls for which formats the color `input` elements are shown and in which order the formats will be cycled through when activating the format switch button.
+	 */
+	get visibleFormats () {
+		return this.#visibleFormats
+	}
+
+	set visibleFormats (visibleFormats) {
+		this.#visibleFormats = visibleFormats
 	}
 
 	connectedCallback () {
@@ -152,13 +236,13 @@ export class ColorPicker extends HTMLElement {
 		this.ownerDocument.addEventListener('mouseup', this.#stopMovingThumb)
 		this.ownerDocument.addEventListener('touchend', this.#stopMovingThumb)
 
-		const visibleFormats = this.#getPropValue('data-visible-formats')
-		const defaultFormat = this.#getPropValue('data-default-format')
-		this.#activeFormat = !visibleFormats.includes(defaultFormat) ? /** @type {VisibleColorFormat} */ (visibleFormats[0]) : defaultFormat
-
-		for (const name of ColorPicker.observedAttributes) {
-			this.#queueRecomputation(name, this.#getPropValue(name))
+		for (const attribute of ColorPicker.observedAttributes) {
+			this.#syncAttributeToProperty(attribute)
 		}
+
+		this.activeFormat = !this.visibleFormats.includes(this.defaultFormat)
+			? /** @type {VisibleColorFormat} */ (this.visibleFormats[0])
+			: this.defaultFormat
 	}
 
 	disconnectedCallback () {
@@ -169,84 +253,63 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	/**
-	 * @param {PropName} name
+	 * @param {AttributeName} attribute
 	 * @param {string | null} oldValue
 	 * @param {string | null} newValue
 	 */
-	attributeChangedCallback (name, oldValue, newValue) {
-		// Returns early if the prop has changed or if the component wasn't upgraded, yet.
-		if (oldValue === newValue || !this.#isDefined) {
+	attributeChangedCallback (attribute, oldValue, newValue) {
+		// Returns early if the prop has changed.
+		if (oldValue === newValue) {
 			return
 		}
 
-		this.#queueRecomputation(name, newValue)
+		this.#syncAttributeToProperty(attribute)
 	}
 
 	/**
-	 * @param {PropName} name
-	 * @param {any} value
+	 * Syncs a changed attribute to its corresponding property.
+	 *
+	 * @param {AttributeName} attribute
 	 */
-	#queueRecomputation (name, value) {
-		this.#recomputeQueue.push({ name, value })
+	#syncAttributeToProperty (attribute) {
+		const { property, type } = ATTRIBUTES[attribute]
+		const attributeValue = this.getAttribute(attribute)
 
-		queueMicrotask(() => {
-			this.#processRecomputeQueue()
-		})
-	}
+		let value
+		if (attributeValue !== null) {
+			switch (type) {
+				case Array: {
+					value = attributeValue.split(',').map((format) => format.trim())
+					break
+				}
+				default: {
+					value = attributeValue
+					break
+				}
+			}
 
-	#processRecomputeQueue () {
-		if (this.#recomputeQueue.length === 0) {
-			return
-		}
-
-		for (const { name, value } of this.#recomputeQueue) {
-			this.#recomputeState(name, value)
-		}
-
-		this.#recomputeQueue = []
-
-		// (Re-)renders the component.
-		this.#render()
-	}
-
-	/**
-	 * @param {PropName} name
-	 * @param {any} value
-	 */
-	#recomputeState (name, value) {
-		if (name === 'data-color') {
-			const color = value !== null ? /** @type {string} */ (value) : this.#getPropDefaultValue(name)
-
-			this.#setColorFromProp(color)
-		} else if (name === 'data-alpha-channel') {
-			const alphaChannel = value !== null ? /** @type {AlphaChannelProp} */ (value) : this.#getPropDefaultValue(name)
-
-			this.#recomputeVisibleChannels(alphaChannel)
-			this.#recomputeHexInputValue(alphaChannel)
+			// Only sets a property if it has changed.
+			if (this[property] !== value) {
+				Reflect.set(this, property, value)
+			}
 		}
 	}
 
-	/**
-	 * @param {string} color
-	 */
-	#setColorFromProp (color) {
-		const result = parsePropsColor(color)
+	#recomputeColors () {
+		const result = parsePropsColor(this.color)
 
 		if (result !== null) {
-			this.#setColor(result.format, result.color)
+			this.#updateColors(result.format, result.color)
 		}
 	}
 
 	/**
-	 * May mutate `color`.
-	 *
 	 * @param {ColorFormat} format
 	 * @param {string | ColorHsl | ColorHsv | ColorHwb | ColorRgb} color
 	 */
-	#setColor (format, color) {
+	#updateColors (format, color) {
 		let normalizedColor = color
-		const alphaChannel = this.#getPropValue('data-alpha-channel')
-		if (alphaChannel === 'hide') {
+		if (this.alphaChannel === 'hide') {
 			if (typeof color !== 'string') {
 				color.a = 1
 				normalizedColor = color
@@ -259,33 +322,36 @@ export class ColorPicker extends HTMLElement {
 		}
 
 		if (!colorsAreValueEqual(this.#colors[format], normalizedColor)) {
-			this.#applyColorUpdates(format, normalizedColor)
+			this.#colors[format] = normalizedColor
+
+			for (const [targetFormat, convert] of conversions[format]) {
+				this.#colors[targetFormat] = convert(this.#colors[format])
+			}
+
+			// TODO: Find a better way to manage reactivity/recomputations
+			this.#recomputeHexInputValue()
+			this.#render()
 			this.#emitColorChangeEvent()
 		}
-	}
-
-	/**
-	 * Updates the internal color representation for a given format and recomputes all colors for other formats.
-	 *
-	 * @param {ColorFormat} sourceFormat
-	 * @param {string | ColorHsl | ColorHsv | ColorHwb | ColorRgb} newColor
-	 */
-	#applyColorUpdates (sourceFormat, newColor) {
-		this.#colors[sourceFormat] = newColor
-
-		for (const [format, convert] of conversions[sourceFormat]) {
-			this.#colors[format] = convert(this.#colors[sourceFormat])
-		}
-
-		// TODO: Find a better way to manage reactivity/recomputations
-		this.#recomputeHexInputValue(this.#getPropValue('data-alpha-channel'))
-		this.#render()
 	}
 
 	#emitColorChangeEvent () {
 		const detail = this.#getColorChangeDetail()
 		const event = new CustomEvent('color-change', { detail })
 		this.dispatchEvent(event)
+	}
+
+	/**
+	 * @returns {ColorChangeDetail}
+	 */
+	#getColorChangeDetail () {
+		const excludeAlphaChannel = this.alphaChannel === 'hide'
+		const cssColor = formatAsCssColor(this.#colors[this.activeFormat], this.activeFormat, excludeAlphaChannel)
+
+		return {
+			colors: this.#colors,
+			cssColor,
+		}
 	}
 
 	#setCssProps () {
@@ -309,24 +375,28 @@ export class ColorPicker extends HTMLElement {
 		this.#thumb.style.bottom = `${this.#colors.hsv.v * 100}%`
 	}
 
-	/**
-	 * @param {AlphaChannelProp} alphaChannel
-	 */
-	#recomputeVisibleChannels (alphaChannel) {
-		const allChannels = Object.keys(this.#colors[this.#activeFormat])
-		this.#visibleChannels = this.#activeFormat !== 'hex' && alphaChannel === 'hide'
+	#recomputeVisibleChannels () {
+		const allChannels = Object.keys(this.#colors[this.activeFormat])
+		this.#visibleChannels = this.activeFormat !== 'hex' && this.alphaChannel === 'hide'
 			? allChannels.slice(0, 3)
 			: allChannels
 	}
 
-	/**
-	 * @param {AlphaChannelProp} alphaChannel
-	 */
-	#recomputeHexInputValue (alphaChannel) {
+	#recomputeHexInputValue () {
 		const hex = this.#colors.hex
-		this.#hexInputValue = alphaChannel === 'hide' && [5, 9].includes(hex.length)
+		this.#hexInputValue = this.alphaChannel === 'hide' && [5, 9].includes(hex.length)
 			? hex.substring(0, hex.length - (hex.length - 1) / 4)
 			: hex
+	}
+
+	#queueRender () {
+		if (this.#isProcessingRenderQueue) {
+			return
+		}
+
+		this.#isProcessingRenderQueue = true
+		this.#render()
+		this.#isProcessingRenderQueue = false
 	}
 
 	/**
@@ -338,17 +408,15 @@ export class ColorPicker extends HTMLElement {
 			return
 		}
 
-		this.#validateProps()
-
 		const templateResult = colorPickerTemplate(
 			// Data
 			this.id,
-			this.#activeFormat,
+			this.activeFormat,
 			this.#visibleChannels,
 			this.#colors,
 			this.#hexInputValue,
-			this.#getPropValue('data-alpha-channel'),
-			this.#getPropValue('data-visible-formats'),
+			this.alphaChannel,
+			this.visibleFormats,
 			// Listeners
 			this.#getChannelAsCssValue,
 			this.#changeInputValue,
@@ -367,26 +435,6 @@ export class ColorPicker extends HTMLElement {
 		this.#colorSpace = this.querySelector('.cp-color-space')
 		this.#thumb = this.querySelector('.cp-thumb')
 		this.#setCssProps()
-	}
-
-	/**
-	 * Validates the component's props.
-	 *
-	 * **Side effect**: Sets attributes of omitted optional props to their default values.
-	 */
-	#validateProps () {
-		for (const [propName, propDefinition] of PROP_DEFINITIONS) {
-			const hasProp = this.hasAttribute(propName)
-
-			if (propDefinition.isRequired && !hasProp) {
-				throw this.#createError(`Prop “${propName}” is required but wasn't provided.`)
-			}
-
-			// Let's set the attribute's of optional props which weren't provided to their respective default values. This way, the current state of the component can be carried around in the DOM (my hope is that this allows the component do be moved to another part of the DOM without losing that information).
-			if (!propDefinition.isRequired && !hasProp) {
-				this.setAttribute(propName, propDefinition.default?.())
-			}
-		}
 	}
 
 	/**
@@ -450,7 +498,7 @@ export class ColorPicker extends HTMLElement {
 		hsvColor.s = newThumbPosition.x
 		hsvColor.v = newThumbPosition.y
 
-		this.#setColor('hsv', hsvColor)
+		this.#updateColors('hsv', hsvColor)
 	}
 
 	#stopMovingThumb = () => {
@@ -473,7 +521,7 @@ export class ColorPicker extends HTMLElement {
 		const hsvColor = copyColorObject(this.#colors.hsv)
 		hsvColor[channel] = clamp(newColorValue, 0, 1)
 
-		this.#setColor('hsv', hsvColor)
+		this.#updateColors('hsv', hsvColor)
 	}
 
 	/**
@@ -506,7 +554,7 @@ export class ColorPicker extends HTMLElement {
 		const hsvColor = copyColorObject(this.#colors.hsv)
 		hsvColor[channel] = parseInt(input.value) / parseInt(input.max)
 
-		this.#setColor('hsv', hsvColor)
+		this.#updateColors('hsv', hsvColor)
 	}
 
 	/**
@@ -516,7 +564,7 @@ export class ColorPicker extends HTMLElement {
 		const input = /** @type {HTMLInputElement} */ (event.target)
 
 		if (isValidHexColor(input.value)) {
-			this.#setColor('hex', input.value)
+			this.#updateColors('hex', input.value)
 		}
 	}
 
@@ -527,8 +575,8 @@ export class ColorPicker extends HTMLElement {
 	#updateColorValue = (event, channel) => {
 		const input = /** @type {HTMLInputElement} */ (event.target)
 
-		const color = copyColorObject(this.#colors[this.#activeFormat])
-		const value = colorChannels[this.#activeFormat][channel].from(input.value)
+		const color = copyColorObject(this.#colors[this.activeFormat])
+		const value = colorChannels[this.activeFormat][channel].from(input.value)
 
 		if (Number.isNaN(value) || value === undefined) {
 			// This means that the input value does not result in a valid CSS value.
@@ -537,20 +585,7 @@ export class ColorPicker extends HTMLElement {
 
 		color[channel] = value
 
-		this.#setColor(this.#activeFormat, color)
-	}
-
-	/**
-	 * @returns {ColorChangeDetail}
-	 */
-	#getColorChangeDetail () {
-		const excludeAlphaChannel = this.#getPropValue('data-alpha-channel') === 'hide'
-		const cssColor = formatAsCssColor(this.#colors[this.#activeFormat], this.#activeFormat, excludeAlphaChannel)
-
-		return {
-			colors: this.#colors,
-			cssColor,
-		}
+		this.#updateColors(this.activeFormat, color)
 	}
 
 	/**
@@ -563,9 +598,9 @@ export class ColorPicker extends HTMLElement {
 	 * @returns {Promise<void>}
 	 */
 	#copyColor = () => {
-		const activeColor = this.#colors[this.#activeFormat]
-		const excludeAlphaChannel = this.#getPropValue('data-alpha-channel') === 'hide'
-		const cssColor = formatAsCssColor(activeColor, this.#activeFormat, excludeAlphaChannel)
+		const activeColor = this.#colors[this.activeFormat]
+		const excludeAlphaChannel = this.alphaChannel === 'hide'
+		const cssColor = formatAsCssColor(activeColor, this.activeFormat, excludeAlphaChannel)
 
 		// Note: the Clipboard API’s `writeText` method can throw a `DOMException` error in case of insufficient write permissions (see https://w3c.github.io/clipboard-apis/#dom-clipboard-writetext). This error is explicitly not handled here so that users of this package can see the original error in the console.
 		return window.navigator.clipboard.writeText(cssColor)
@@ -575,13 +610,10 @@ export class ColorPicker extends HTMLElement {
 	 * Sets the next active color format by cycling through the visible color formats.
 	 */
 	#switchFormat = () => {
-		const visibleFormats = this.#getPropValue('data-visible-formats')
-		const activeFormatIndex = visibleFormats.findIndex((format) => format === this.#activeFormat)
-		const newFormatIndex = (activeFormatIndex + 1) % visibleFormats.length
+		const activeFormatIndex = this.visibleFormats.findIndex((format) => format === this.activeFormat)
+		const newFormatIndex = (activeFormatIndex + 1) % this.visibleFormats.length
 
-		this.#activeFormat = /** @type {VisibleColorFormat} */ (visibleFormats[newFormatIndex])
-		this.#recomputeVisibleChannels(this.#getPropValue('data-alpha-channel'))
-		this.#render()
+		this.activeFormat = /** @type {VisibleColorFormat} */ (this.visibleFormats[newFormatIndex])
 	}
 
 	/**
@@ -591,47 +623,7 @@ export class ColorPicker extends HTMLElement {
 	 * @returns {string}
 	 */
 	#getChannelAsCssValue = (channel) => {
-		const format = this.#activeFormat
+		const format = this.activeFormat
 		return colorChannels[format][channel].to(this.#colors[format][channel])
-	}
-
-	/**
-	 * Retrieves a prop's value.
-	 *
-	 * @template {PropName} P
-	 * @param {P} propName
-	 * @returns {PropTypeMap[P]} the value of the prop if present; otherwise, the prop's default value.
-	 */
-	#getPropValue (propName) {
-		// Justification for type assertion: props were appropriately validated meaning they're either set or have a default value.
-		const value = /** @type {any} */ (this.getAttribute(propName) ?? this.#getPropDefaultValue(propName))
-
-		switch (PROPS[propName].type) {
-			case Array: {
-				return Array.isArray(value) ? value : value.split(',').map((/** @type {string} */ format) => format.trim())
-			}
-			default: {
-				return value
-			}
-		}
-	}
-
-	/**
-	 * Retrieves a prop's default value.
-	 *
-	 * @template {PropName} P
-	 * @param {P} propName
-	 * @returns {PropTypeMap[P]} the deault value of the prop.
-	 */
-	#getPropDefaultValue (propName) {
-		return PROPS[propName].default?.()
-	}
-
-	/**
-	 * @param {string} message
-	 * @returns {Error} an `Error` object whose message is prefixed with the component name.
-	 */
-	#createError (message) {
-		return new Error(`<${this.localName}>: ${message}`)
 	}
 }

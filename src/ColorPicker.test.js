@@ -2,20 +2,28 @@ import { afterEach, beforeAll, describe, test, expect, vi } from 'vitest'
 
 import './ColorPicker.js'
 /** @typedef {import('../types/index.d').ColorChangeDetail} ColorChangeDetail */
+/** @typedef {import('../types/index.d').ColorPickerProperties} ColorPickerProperties */
 
 /**
  * @typedef {object} RenderOptions
- * @property {Record<string, string>} [props] **Default**: `{}`.
+ * @property {Record<string, string>} [attributes] **Default**: `{}`.
+ * @property {Partial<Record<ColorPickerProperties, string>>} [properties] **Default**: `{}`.
  */
 
 /**
  * @param {RenderOptions} options
  */
 function render (options = {}) {
-	const props = options.props ?? {}
+	const { attributes = {}, properties = {} } = options
 	const colorPicker = document.createElement('color-picker')
-	for (const [prop, value] of Object.entries(props)) {
-		colorPicker.setAttribute(prop, value)
+
+	for (const [attribute, value] of Object.entries(attributes)) {
+		colorPicker.setAttribute(attribute, value)
+	}
+
+	for (const [property, value] of Object.entries(properties)) {
+		// @ts-ignore
+		colorPicker[property] = value
 	}
 
 	document.body.appendChild(colorPicker)
@@ -31,43 +39,98 @@ describe('ColorPicker', () => {
 		vi.restoreAllMocks()
 	})
 
-	describe('props & attributes', () => {
+	describe('attributes & properties', () => {
+		test('has expected property default values', async () => {
+			const colorPicker = render()
+
+			expect(colorPicker.id).toBe('color-picker')
+			expect(colorPicker.alphaChannel).toBe('show')
+			expect(colorPicker.color).toBe('#ffffffff')
+			expect(colorPicker.defaultFormat).toBe('hsl')
+			expect(colorPicker.visibleFormats).toEqual(['hex', 'hsl', 'hwb', 'rgb'])
+		})
+
 		test.each([
 			[
-				{},
-				{
-					'data-alpha-channel': 'show',
-					'data-color': '#ffffffff',
-					'data-default-format': 'hsl',
-					'data-visible-formats': 'hex,hsl,hwb,rgb',
-					id: 'color-picker',
-				},
+				{ 'data-alpha-channel': 'show' },
+				/** @type {ColorPickerProperties} */ ('alphaChannel'),
+				'show',
 			],
 			[
-				{
-					'data-alpha-channel': 'show',
-					'data-color': '#fff',
-					'data-default-format': 'hex',
-					'data-visible-formats': 'hex,rgb,hsl',
-					id: 'color-picker',
-				},
-				{
-					'data-alpha-channel': 'show',
-					'data-color': '#fff',
-					'data-default-format': 'hex',
-					'data-visible-formats': 'hex,rgb,hsl',
-					id: 'color-picker',
-				},
+				{ 'data-alpha-channel': 'hide' },
+				/** @type {ColorPickerProperties} */ ('alphaChannel'),
+				'hide',
 			],
-		])('has correct attributes when using props', async (props, expectedAttributes) => {
-			const colorPicker = render({ props })
+			[
+				{ 'data-color': '#fff' },
+				/** @type {ColorPickerProperties} */ ('color'),
+				'#fff',
+			],
+			[
+				{ 'data-default-format': 'hex' },
+				/** @type {ColorPickerProperties} */ ('defaultFormat'),
+				'hex',
+			],
+			[
+				{ 'data-visible-formats': 'hex,rgb,hsl' },
+				/** @type {ColorPickerProperties} */ ('visibleFormats'),
+				['hex', 'rgb', 'hsl'],
+			],
+			[
+				{ id: 'color-picker' },
+				/** @type {ColorPickerProperties} */ ('id'),
+				'color-picker',
+			],
+		])('syncs attributes to properties on render', async (attributes, property, propertyValue) => {
+			const colorPicker = render({ attributes })
 
-			// Awaits one micro task loop because recomputations props changes in the component are processed via `queueMicrotask`.
+			// Awaits one micro task loop because recomputations attribute changes in the component are processed via `queueMicrotask`.
 			await Promise.resolve()
 
-			for (const [attribute, value] of Object.entries(expectedAttributes)) {
-				expect(colorPicker.getAttribute(attribute)).toBe(value)
+			expect(colorPicker[property]).toEqual(propertyValue)
+		})
+
+		test.each([
+			[
+				{ 'data-alpha-channel': 'show' },
+				/** @type {ColorPickerProperties} */ ('alphaChannel'),
+				'show',
+			],
+			[
+				{ 'data-alpha-channel': 'hide' },
+				/** @type {ColorPickerProperties} */ ('alphaChannel'),
+				'hide',
+			],
+			[
+				{ 'data-color': '#fff' },
+				/** @type {ColorPickerProperties} */ ('color'),
+				'#fff',
+			],
+			[
+				{ 'data-default-format': 'hex' },
+				/** @type {ColorPickerProperties} */ ('defaultFormat'),
+				'hex',
+			],
+			[
+				{ 'data-visible-formats': 'hex,rgb,hsl' },
+				/** @type {ColorPickerProperties} */ ('visibleFormats'),
+				['hex', 'rgb', 'hsl'],
+			],
+			[
+				{ id: 'color-picker' },
+				/** @type {ColorPickerProperties} */ ('id'),
+				'color-picker',
+			],
+		])('syncs attributes to properties post render', async (attributes, property, propertyValue) => {
+			const colorPicker = render()
+			await Promise.resolve()
+
+			for (const [attribute, value] of Object.entries(attributes)) {
+				colorPicker.setAttribute(attribute, value)
 			}
+			await Promise.resolve()
+
+			expect(colorPicker[property]).toEqual(propertyValue)
 		})
 
 		test.each(/** @type {[any, string][]} */ ([
@@ -75,10 +138,10 @@ describe('ColorPicker', () => {
 			['rgb(255 50% 0 / 0.5)', '#ff800080'],
 			['hsl(0 100% 50% / 1)', '#ff0000ff'],
 			['hwb(180 33.333% 50% / 1)', '#558080ff'],
-		]))('renders hex input correctly for valid color prop', async (colorProp, expectedHexInputValue) => {
+		]))('renders hex input correctly for valid data-color attribute', async (color, expectedHexInputValue) => {
 			const colorPicker = render({
-				props: {
-					'data-color': colorProp,
+				attributes: {
+					'data-color': color,
 					'data-default-format': 'hex',
 				},
 			})
@@ -89,9 +152,28 @@ describe('ColorPicker', () => {
 			expect(input.value).toBe(expectedHexInputValue)
 		})
 
-		test('renders correctly with an invalid color prop', async () => {
+		test.each(/** @type {[any, string][]} */ ([
+			['#f00', '#f00'],
+			['rgb(255 50% 0 / 0.5)', '#ff800080'],
+			['hsl(0 100% 50% / 1)', '#ff0000ff'],
+			['hwb(180 33.333% 50% / 1)', '#558080ff'],
+		]))('renders hex input correctly for valid color property', async (color, expectedHexInputValue) => {
 			const colorPicker = render({
-				props: {
+				properties: {
+					color,
+					defaultFormat: 'hex',
+				},
+			})
+
+			await Promise.resolve()
+
+			const input = /** @type {HTMLInputElement} */ (colorPicker.querySelector('.cp-color-input'))
+			expect(input.value).toBe(expectedHexInputValue)
+		})
+
+		test('renders correctly with an invalid data-color attribute', async () => {
+			const colorPicker = render({
+				attributes: {
 					'data-color': '#ff',
 					'data-default-format': 'hex',
 				},
@@ -99,15 +181,33 @@ describe('ColorPicker', () => {
 
 			await Promise.resolve()
 
+			expect(colorPicker.color).toBe('#ff')
+
+			const input = /** @type {HTMLInputElement} */ (colorPicker.querySelector('.cp-color-input'))
+			expect(input.value).toBe('#ffffffff')
+		})
+
+		test('renders correctly with an invalid color property', async () => {
+			const colorPicker = render({
+				properties: {
+					color: '#ff',
+					defaultFormat: 'hex',
+				},
+			})
+
+			await Promise.resolve()
+
+			expect(colorPicker.color).toBe('#ff')
+
 			const input = /** @type {HTMLInputElement} */ (colorPicker.querySelector('.cp-color-input'))
 			expect(input.value).toBe('#ffffffff')
 		})
 
 		test('falls back to visible color format when defaultFormat isn\'t a visible format', async () => {
 			const colorPicker = render({
-				props: {
+				attributes: {
 					'data-color': '#ff',
-					'data-default-format': 'hex',
+					'data-default-format': 'hsl',
 					'data-visible-formats': 'hex',
 				},
 			})
@@ -124,8 +224,24 @@ describe('ColorPicker', () => {
 			[{ 'data-default-format': 'hsl' }, ['H', 'S', 'L']],
 			[{ 'data-default-format': 'hwb' }, ['H', 'W', 'B']],
 			[{ 'data-default-format': 'rgb' }, ['R', 'G', 'B']],
-		])('sets active color format correctly when providing “data-default-format” prop', async (props, expectedLabels) => {
-			const colorPicker = render({ props })
+		])('sets active color format correctly when providing data-default-format attribute', async (attributes, expectedLabels) => {
+			const colorPicker = render({ attributes })
+
+			await Promise.resolve()
+
+			const inputGroupMarkup = /** @type {HTMLElement} */ (colorPicker.querySelector('.cp-color-input-group')).innerHTML
+			for (const expectedLabel of expectedLabels) {
+				expect(inputGroupMarkup).toContain(expectedLabel)
+			}
+		})
+
+		test.each([
+			[{ defaultFormat: 'hex' }, ['Hex']],
+			[{ defaultFormat: 'hsl' }, ['H', 'S', 'L']],
+			[{ defaultFormat: 'hwb' }, ['H', 'W', 'B']],
+			[{ defaultFormat: 'rgb' }, ['R', 'G', 'B']],
+		])('sets active color format correctly when providing defaultFormat property', async (properties, expectedLabels) => {
+			const colorPicker = render({ properties })
 
 			await Promise.resolve()
 
@@ -144,7 +260,7 @@ describe('ColorPicker', () => {
 				'hsl(180 50% 50% / 1)',
 				{ r: 0.25, g: 0.7499999999999999, b: 0.75, a: 1 },
 			],
-		]))('recomputes colors when “data-color” prop changes', async (color, expectedRgbColor) => {
+		]))('recomputes colors when data-color attribute changes', async (color, expectedRgbColor) => {
 			const colorPicker = render()
 			await Promise.resolve()
 
@@ -166,10 +282,41 @@ describe('ColorPicker', () => {
 			expect(rgbColorSpy).toHaveBeenCalledWith({ r: 1, g: 1, b: 1, a: 0.8 })
 		})
 
+		test.each(/** @type {[any, any][]} */([
+			[
+				'#f80c',
+				{ r: 1, g: 0.5333333333333333, b: 0, a: 0.8 },
+			],
+			[
+				'hsl(180 50% 50% / 1)',
+				{ r: 0.25, g: 0.7499999999999999, b: 0.75, a: 1 },
+			],
+		]))('recomputes colors when color property changes', async (color, expectedRgbColor) => {
+			const colorPicker = render()
+			await Promise.resolve()
+
+			const rgbColorSpy = vi.fn()
+			/**
+			 * @param {CustomEvent<ColorChangeDetail>} event
+			 */
+			function colorChangeListener (event) {
+				rgbColorSpy(event.detail.colors.rgb)
+			}
+			colorPicker.addEventListener('color-change', colorChangeListener)
+
+			colorPicker.color = color
+			await Promise.resolve()
+			expect(rgbColorSpy).toHaveBeenCalledWith(expectedRgbColor)
+
+			colorPicker.color = '#fffc'
+			await Promise.resolve()
+			expect(rgbColorSpy).toHaveBeenCalledWith({ r: 1, g: 1, b: 1, a: 0.8 })
+		})
+
 		test('id attributes are set correctly', async () => {
 			const id = 'test-color-picker'
 			const colorPicker = render({
-				props: {
+				attributes: {
 					id,
 				},
 			})
@@ -196,8 +343,26 @@ describe('ColorPicker', () => {
 				expect(colorPicker.querySelector(`[id="${id}-color-${format}-a"]`)).not.toBe(null)
 				expect(colorPicker.querySelector(`[for="${id}-color-${format}-a"]`)).not.toBe(null)
 
-				formatSwitchButton.dispatchEvent(new Event('click'))
+				formatSwitchButton.click()
+				await Promise.resolve()
 			}
+		})
+
+		test('id attributes are updated correctly', async () => {
+			const defaultId = 'color-picker'
+			const updatedId = 'test-color-picker'
+			const colorPicker = render()
+
+			await Promise.resolve()
+
+			expect(colorPicker.querySelector(`#${defaultId}-hue-slider`)).not.toBe(null)
+			expect(colorPicker.querySelector(`#${updatedId}-hue-slider`)).toBe(null)
+
+			colorPicker.id = updatedId
+			await Promise.resolve()
+
+			expect(colorPicker.querySelector(`#${defaultId}-hue-slider`)).toBe(null)
+			expect(colorPicker.querySelector(`#${updatedId}-hue-slider`)).not.toBe(null)
 		})
 
 		test.each([
@@ -206,7 +371,7 @@ describe('ColorPicker', () => {
 		])('shows/hides correct elements when setting data-alpha-channel', async (alphaChannel, isElementVisible, expectedCssColor) => {
 			const id = 'test-color-picker'
 			const colorPicker = render({
-				props: {
+				attributes: {
 					id,
 					'data-alpha-channel': alphaChannel,
 				},
@@ -318,11 +483,11 @@ describe('ColorPicker', () => {
 				'data-color': 'hsl(0, 0%, 100%, 1)',
 				'data-alpha-channel': 'hide',
 			},
-		])('initializes color space and thumb correctly with default color value', async (props) => {
+		])('initializes color space and thumb correctly with default color value', async (attributes) => {
 			const colorPicker = render({
-				props: {
+				attributes: {
 					'data-default-format': 'hex',
-					...props,
+					...attributes,
 				},
 			})
 
@@ -340,7 +505,7 @@ describe('ColorPicker', () => {
 
 		test('can initiate moving the color space thumb with a mouse', async () => {
 			const colorPicker = render({
-				props: {
+				attributes: {
 					'data-color': '#f80c',
 				},
 			})
@@ -363,7 +528,7 @@ describe('ColorPicker', () => {
 
 		test('can initiate moving the color space thumb with a touch-based device', async () => {
 			const colorPicker = render({
-				props: {
+				attributes: {
 					'data-color': '#f80c',
 				},
 			})
@@ -449,7 +614,7 @@ describe('ColorPicker', () => {
 			}
 
 			const colorPicker = render({
-				props: {
+				attributes: {
 					'data-color': 'hwb(180, 25%, 50%, 1)',
 				},
 			})
@@ -588,15 +753,15 @@ describe('ColorPicker', () => {
 				{ 'data-default-format': 'hex', 'data-alpha-channel': 'hide' },
 				'#ffffff',
 			],
-		])('copy button copies %s format as %s', async (props, cssColor) => {
+		])('copy button copies %s format as %s', async (attributes, cssColor) => {
 			vi.spyOn(global.navigator.clipboard, 'writeText').mockImplementation(vi.fn(() => Promise.resolve()))
 
-			const colorPicker = render({ props })
+			const colorPicker = render({ attributes })
 
 			await Promise.resolve()
 
 			const copyButton = /** @type {HTMLButtonElement} */ (colorPicker.querySelector('.cp-copy-button'))
-			copyButton.dispatchEvent(new Event('click'))
+			copyButton.click()
 
 			expect(global.navigator.clipboard.writeText).toHaveBeenCalledWith(cssColor)
 		})
@@ -612,16 +777,44 @@ describe('ColorPicker', () => {
 
 			expect(colorPicker.querySelector('#color-picker-color-hsl-l') !== null).toBe(true)
 
-			switchFormatButton.dispatchEvent(new Event('click'))
+			switchFormatButton.click()
+			await Promise.resolve()
 			expect(colorPicker.querySelector('#color-picker-color-hwb-w') !== null).toBe(true)
 
-			switchFormatButton.dispatchEvent(new Event('click'))
+			switchFormatButton.click()
+			await Promise.resolve()
 			expect(colorPicker.querySelector('#color-picker-color-rgb-r') !== null).toBe(true)
 
-			switchFormatButton.dispatchEvent(new Event('click'))
+			switchFormatButton.click()
+			await Promise.resolve()
 			expect(colorPicker.querySelector('#color-picker-color-hex') !== null).toBe(true)
 
-			switchFormatButton.dispatchEvent(new Event('click'))
+			switchFormatButton.click()
+			await Promise.resolve()
+			expect(colorPicker.querySelector('#color-picker-color-hsl-l') !== null).toBe(true)
+		})
+
+		test('setting active format through property works', async () => {
+			const colorPicker = render()
+
+			await Promise.resolve()
+
+			expect(colorPicker.querySelector('#color-picker-color-hsl-l') !== null).toBe(true)
+
+			colorPicker.activeFormat = 'hwb'
+			await Promise.resolve()
+			expect(colorPicker.querySelector('#color-picker-color-hwb-w') !== null).toBe(true)
+
+			colorPicker.activeFormat = 'rgb'
+			await Promise.resolve()
+			expect(colorPicker.querySelector('#color-picker-color-rgb-r') !== null).toBe(true)
+
+			colorPicker.activeFormat = 'hex'
+			await Promise.resolve()
+			expect(colorPicker.querySelector('#color-picker-color-hex') !== null).toBe(true)
+
+			colorPicker.activeFormat = 'hsl'
+			await Promise.resolve()
 			expect(colorPicker.querySelector('#color-picker-color-hsl-l') !== null).toBe(true)
 		})
 	})
@@ -631,14 +824,14 @@ describe('ColorPicker', () => {
 			[{ 'data-default-format': 'rgb' }, 'r', '127.'],
 			[{ 'data-default-format': 'hsl' }, 's', 'a'],
 			[{ 'data-default-format': 'hwb' }, 'b', '25.%'],
-		])('updating a color input with an invalid value does not update the internal color data', async (props, channel, channelValue) => {
-			const colorPicker = render({ props })
+		])('updating a color input with an invalid value does not update the internal color data', async (attributes, channel, channelValue) => {
+			const colorPicker = render({ attributes })
 
 			await Promise.resolve()
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
 
-			const input = /** @type {HTMLInputElement} */ (colorPicker.querySelector(`#${colorPicker.id}-color-${props['data-default-format']}-${channel}`))
+			const input = /** @type {HTMLInputElement} */ (colorPicker.querySelector(`#${colorPicker.id}-color-${attributes['data-default-format']}-${channel}`))
 			input.value = channelValue
 			input.dispatchEvent(new InputEvent('input'))
 
@@ -650,7 +843,7 @@ describe('ColorPicker', () => {
 			['25%'],
 		])('updating a hex color input with an invalid value does not update the internal color data', async (invalidHexColorString) => {
 			const colorPicker = render({
-				props: {
+				attributes: {
 					'data-default-format': 'hex',
 				},
 			})
@@ -670,14 +863,14 @@ describe('ColorPicker', () => {
 			[{ 'data-default-format': 'rgb' }, 'r', '127.5'],
 			[{ 'data-default-format': 'hsl' }, 's', '75%'],
 			[{ 'data-default-format': 'hwb' }, 'b', '25.5%'],
-		])('updating a %s color input with a valid value updates the internal color data', async (props, channel, channelValue) => {
-			const colorPicker = render({ props })
+		])('updating a %s color input with a valid value updates the internal color data', async (attributes, channel, channelValue) => {
+			const colorPicker = render({ attributes })
 
 			await Promise.resolve()
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
 
-			const input = /** @type {HTMLInputElement} */ (colorPicker.querySelector(`#${colorPicker.id}-color-${props['data-default-format']}-${channel}`))
+			const input = /** @type {HTMLInputElement} */ (colorPicker.querySelector(`#${colorPicker.id}-color-${attributes['data-default-format']}-${channel}`))
 			input.value = channelValue
 			input.dispatchEvent(new InputEvent('input'))
 
@@ -688,7 +881,7 @@ describe('ColorPicker', () => {
 			['#ff8800cc'],
 		])('updating a %s color input with a valid value updates the internal color data', async (channelValue) => {
 			const colorPicker = render({
-				props: {
+				attributes: {
 					'data-default-format': 'hex',
 				},
 			})
@@ -860,8 +1053,8 @@ describe('ColorPicker', () => {
 					},
 				},
 			],
-		])('emits correct data', async (props, expectedData) => {
-			const colorPicker = render({ props })
+		])('emits correct data', async (attributes, expectedData) => {
+			const colorPicker = render({ attributes })
 
 			const spy = vi.fn()
 			/**
@@ -912,11 +1105,11 @@ describe('ColorPicker', () => {
 				{ 'data-color': '#123', 'data-alpha-channel': 'hide' },
 				'#123',
 			],
-		])('shows expected color for hex colors', async (props, expectedHexColor) => {
+		])('shows expected color for hex colors', async (attributes, expectedHexColor) => {
 			const colorPicker = render({
-				props: {
+				attributes: {
 					'data-default-format': 'hex',
-					...props,
+					...attributes,
 				},
 			})
 
