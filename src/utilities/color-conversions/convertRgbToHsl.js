@@ -1,7 +1,7 @@
 /** @typedef {import('../../../types/index.d.js').ColorHsl} ColorHsl */
 /** @typedef {import('../../../types/index.d.js').ColorRgb} ColorRgb */
 
-import { convertRgbToHwb } from './convert-rgb-to-hwb.js'
+import { convertRgbToHwb } from './convertRgbToHwb.js'
 
 /**
  * Converts an RGB color object to an HSL color object.

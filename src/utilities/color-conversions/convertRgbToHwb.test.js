@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 
-import { convertRgbToHwb } from './convert-rgb-to-hwb.js'
+import { convertRgbToHwb } from './convertRgbToHwb.js'
 
 describe('convertRgbToHwb', () => {
 	test.each([

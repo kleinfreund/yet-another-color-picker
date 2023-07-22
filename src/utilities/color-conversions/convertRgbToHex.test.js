@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 
-import { convertRgbToHex } from './convert-rgb-to-hex.js'
+import { convertRgbToHex } from './convertRgbToHex.js'
 
 describe('convertRgbToHex', () => {
 	test.each([

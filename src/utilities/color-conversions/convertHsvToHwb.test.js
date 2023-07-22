@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 
-import { convertHsvToHwb } from './convert-hsv-to-hwb.js'
+import { convertHsvToHwb } from './convertHsvToHwb.js'
 
 describe('convertHsvToHwb', () => {
 	test.each([

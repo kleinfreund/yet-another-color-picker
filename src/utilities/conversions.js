@@ -4,20 +4,20 @@
 /** @typedef {import('../../types/index.d.js').ColorHwb} ColorHwb */
 /** @typedef {import('../../types/index.d.js').ColorRgb} ColorRgb */
 
-import { convertHexToRgb } from './color-conversions/convert-hex-to-rgb.js'
+import { convertHexToRgb } from './color-conversions/convertHexToRgb.js'
 
-import { convertHslToHsv } from './color-conversions/convert-hsl-to-hsv.js'
-import { convertHslToRgb } from './color-conversions/convert-hsl-to-rgb.js'
+import { convertHslToHsv } from './color-conversions/convertHslToHsv.js'
+import { convertHslToRgb } from './color-conversions/convertHslToRgb.js'
 
-import { convertHsvToHsl } from './color-conversions/convert-hsv-to-hsl.js'
-import { convertHsvToHwb } from './color-conversions/convert-hsv-to-hwb.js'
-import { convertHsvToRgb } from './color-conversions/convert-hsv-to-rgb.js'
+import { convertHsvToHsl } from './color-conversions/convertHsvToHsl.js'
+import { convertHsvToHwb } from './color-conversions/convertHsvToHwb.js'
+import { convertHsvToRgb } from './color-conversions/convertHsvToRgb.js'
 
-import { convertHwbToHsv } from './color-conversions/convert-hwb-to-hsv.js'
+import { convertHwbToHsv } from './color-conversions/convertHwbToHsv.js'
 
-import { convertRgbToHsl } from './color-conversions/convert-rgb-to-hsl.js'
-import { convertRgbToHex } from './color-conversions/convert-rgb-to-hex.js'
-import { convertRgbToHwb } from './color-conversions/convert-rgb-to-hwb.js'
+import { convertRgbToHsl } from './color-conversions/convertRgbToHsl.js'
+import { convertRgbToHex } from './color-conversions/convertRgbToHex.js'
+import { convertRgbToHwb } from './color-conversions/convertRgbToHwb.js'
 
 /**
  * @type {{ [key in ColorFormat]: Array<[ColorFormat, (color: any) => any]> }}
