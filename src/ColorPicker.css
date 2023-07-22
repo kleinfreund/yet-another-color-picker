@@ -17,6 +17,7 @@
 	background-color: #fff;
 }
 
+.cp-color-picker,
 .cp-color-picker *,
 .cp-color-picker *::before,
 .cp-color-picker *::after {
