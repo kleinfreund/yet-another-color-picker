@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 
-import { copyColorObject } from './copy-color-object.js'
+import { copyColorObject } from './copyColorObject.js'
 
 describe('copyColorObject', () => {
 	test.each([

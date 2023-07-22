@@ -2,15 +2,15 @@ import { render } from 'lit-html'
 /** @typedef {import('lit-html').TemplateResult} TemplateResult */
 
 import { clamp } from './utilities/clamp.js'
-import { colorChannels } from './utilities/color-channels.js'
+import { colorChannels } from './utilities/colorChannels.js'
 import { colorPickerTemplate } from './templates/colorPickerTemplate.js'
-import { colorsAreValueEqual } from './utilities/colors-are-value-equal.js'
+import { colorsAreValueEqual } from './utilities/colorsAreValueEqual.js'
 import { conversions } from './utilities/conversions.js'
-import { copyColorObject } from './utilities/copy-color-object.js'
-import { formatAsCssColor } from './utilities/format-as-css-color.js'
+import { copyColorObject } from './utilities/copyColorObject.js'
+import { formatAsCssColor } from './utilities/formatAsCssColor.js'
 import { getNewThumbPosition } from './utilities/getNewThumbPosition.js'
-import { isValidHexColor } from './utilities/is-valid-hex-color.js'
-import { parsePropsColor } from './utilities/parse-props-color.js'
+import { isValidHexColor } from './utilities/isValidHexColor.js'
+import { parsePropsColor } from './utilities/parsePropsColor.js'
 /** @typedef {import('../types/index.d').AlphaChannelProp} AlphaChannelProp */
 /** @typedef {import('../types/index.d').ColorChangeDetail} ColorChangeDetail */
 /** @typedef {import('../types/index.d').ColorFormat} ColorFormat */

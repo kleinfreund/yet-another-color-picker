@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 
-import { isValidHexColor } from './is-valid-hex-color.js'
+import { isValidHexColor } from './isValidHexColor.js'
 
 describe('isValidHexColor', () => {
 	test.each(/** @type {[string, boolean][]} */ ([

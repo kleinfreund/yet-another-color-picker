@@ -1,11 +1,11 @@
-/** @typedef {import('../../types/index.d').ColorHsl} ColorHsl */
-/** @typedef {import('../../types/index.d').ColorHwb} ColorHwb */
-/** @typedef {import('../../types/index.d').ColorRgb} ColorRgb */
-/** @typedef {import('../../types/index.d').VisibleColorFormat} VisibleColorFormat */
+/** @typedef {import('../../types/index.d.js').ColorHsl} ColorHsl */
+/** @typedef {import('../../types/index.d.js').ColorHwb} ColorHwb */
+/** @typedef {import('../../types/index.d.js').ColorRgb} ColorRgb */
+/** @typedef {import('../../types/index.d.js').VisibleColorFormat} VisibleColorFormat */
 
 import { describe, test, expect } from 'vitest'
 
-import { formatAsCssColor } from './format-as-css-color.js'
+import { formatAsCssColor } from './formatAsCssColor.js'
 
 describe('formatAsCssColor', () => {
 	test.each(/** @type {[string, VisibleColorFormat, boolean, string][]} */ ([

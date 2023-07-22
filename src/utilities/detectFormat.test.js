@@ -6,7 +6,7 @@
 
 import { describe, test, expect } from 'vitest'
 
-import { detectFormat } from './detect-format.js'
+import { detectFormat } from './detectFormat.js'
 
 describe('detectFormat', () => {
 	test.each(/** @type {[ColorHsl | ColorHsv | ColorHwb | ColorRgb, ColorFormat][]} */ ([

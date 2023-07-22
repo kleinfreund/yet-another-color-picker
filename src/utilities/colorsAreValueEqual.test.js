@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 
-import { colorsAreValueEqual } from './colors-are-value-equal.js'
+import { colorsAreValueEqual } from './colorsAreValueEqual.js'
 
 const testColorObject = { r: 1, g: 1, b: 1, a: 1 }
 

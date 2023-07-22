@@ -6,7 +6,7 @@
 
 import { describe, test, expect } from 'vitest'
 
-import { parsePropsColor } from './parse-props-color.js'
+import { parsePropsColor } from './parsePropsColor.js'
 
 // Note: This test is the reason this project has the package `canvas` installed. JSDom uses it automatically to handle HTML canvas which is used by `parsePropsColor` to convert a CSS color name to a color in hexadecimal format.
 

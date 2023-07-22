@@ -4,9 +4,9 @@
 /** @typedef {import('../../types/index.d.js').ColorHwb} ColorHwb */
 /** @typedef {import('../../types/index.d.js').ColorRgb} ColorRgb */
 
-import { colorChannels } from './color-channels.js'
-import { detectFormat } from './detect-format.js'
-import { isValidHexColor } from './is-valid-hex-color.js'
+import { colorChannels } from './colorChannels.js'
+import { detectFormat } from './detectFormat.js'
+import { isValidHexColor } from './isValidHexColor.js'
 
 /**
  * Parses a color as it can be provided to the color picker’s `color` prop.
