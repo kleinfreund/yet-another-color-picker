@@ -5,7 +5,7 @@
  * @constraint {Record<string, number>}
  */
 export function copyColorObject (color) {
-	// @ts-expect-error because whatever TypeScript
+	// @ts-ignore
 	/** @type {T} */ const newColor = {}
 
 	for (const prop in color) {

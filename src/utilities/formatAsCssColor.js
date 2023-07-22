@@ -73,5 +73,6 @@ const formatters = {
  * @returns {string}
  */
 export function formatAsCssColor (color, format, excludeAlphaChannel) {
+	// @ts-ignore
 	return formatters[format](color, excludeAlphaChannel)
 }
