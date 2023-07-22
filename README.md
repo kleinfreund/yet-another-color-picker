@@ -14,7 +14,7 @@ Links:
 - [**github.com**/kleinfreund/yet-another-color-picker](https://github.com/kleinfreund/yet-another-color-picker)
 	- [code of conduct](https://github.com/kleinfreund/yet-another-color-picker/blob/main/CODE_OF_CONDUCT.md)
 	- [contributing guidelines](https://github.com/kleinfreund/yet-another-color-picker/blob/main/CONTRIBUTING.md)
-- as a Vue 3 component: [vue-accessible-color-picker](https://www.npmjs.com/package/vue-accessible-color-picker)
+- as a Vue component: [vue-accessible-color-picker](https://www.npmjs.com/package/vue-accessible-color-picker)
 
 ## Contents
 
