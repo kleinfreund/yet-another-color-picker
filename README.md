@@ -129,7 +129,7 @@ Each of the following properties can also be set via its corresponding attribute
 
 	HTML:
 	```html
-	<color-picker alpha-channel="hide" />
+	<color-picker alpha-channel="hide"></color-picker>
 	```
 
 	JavaScript:
@@ -148,12 +148,12 @@ Each of the following properties can also be set via its corresponding attribute
 
 	HTML:
 	```html
-	<color-picker color="hsl(270 100% 50% / 0.8)" />
+	<color-picker color="hsl(270 100% 50% / 0.8)"></color-picker>
 	```
 
 	HTML:
 	```html
-	<color-picker color="#f80b" />
+	<color-picker color="#f80b"></color-picker>
 	```
 
 	JavaScript:
@@ -177,7 +177,7 @@ Each of the following properties can also be set via its corresponding attribute
 
 	HTML:
 	```html
-	<color-picker default-format="hwb" />
+	<color-picker default-format="hwb"></color-picker>
 	```
 
 	JavaScript:
@@ -196,7 +196,7 @@ Each of the following properties can also be set via its corresponding attribute
 
 	HTML:
 	```html
-	<color-picker id="color-picker-1" />
+	<color-picker id="color-picker-1"></color-picker>
 	```
 
 	JavaScript:
@@ -215,7 +215,7 @@ Each of the following properties can also be set via its corresponding attribute
 
 	HTML:
 	```html
-	<color-picker visible-formats="hsl,hwb" />
+	<color-picker visible-formats="hsl,hwb"></color-picker>
 	```
 
 	JavaScript:
@@ -276,7 +276,7 @@ Each of the following properties can also be set via its corresponding attribute
 
 	HTML:
 	```html
-	<color-picker color="hsl(270 100% 50% / 0.8)" />
+	<color-picker color="hsl(270 100% 50% / 0.8)"></color-picker>
 	```
 
 	JavaScript:
