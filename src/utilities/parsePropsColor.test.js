@@ -11,7 +11,7 @@ import { parsePropsColor } from './parsePropsColor.js'
 // Note: This test is the reason this project has the package `canvas` installed. JSDom uses it automatically to handle HTML canvas which is used by `parsePropsColor` to convert a CSS color name to a color in hexadecimal format.
 
 describe('getCssColorAsRgbString', () => {
-	test.each(/** @type {[string | ColorHsl | ColorHsv | ColorHwb | ColorRgb, { format: ColorFormat, color: string | ColorHsl | ColorHsv | ColorHwb | ColorRgb } | null][]} */ ([
+	test.each([
 		['rgb(255, 0, 0)', { format: 'rgb', color: { r: 1, g: 0, b: 0, a: 1 } }],
 		['rgba(255, 0, 0, 1)', { format: 'rgb', color: { r: 1, g: 0, b: 0, a: 1 } }],
 		['rgb(127.5, 0, 255)', { format: 'rgb', color: { r: 0.5, g: 0, b: 1, a: 1 } }],
@@ -35,7 +35,7 @@ describe('getCssColorAsRgbString', () => {
 		['rebeccapurple', { format: 'hex', color: '#663399' }],
 		['black', { format: 'hex', color: '#000000' }],
 		['invalid', null],
-	]))('parses “%s” correctly', (cssColor, rgbColorString) => {
+	])('parses “%s” correctly', (cssColor, rgbColorString) => {
 		expect(parsePropsColor(cssColor)).toEqual(rgbColorString)
 	})
 })
