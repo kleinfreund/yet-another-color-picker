@@ -31,6 +31,7 @@ Links:
 		- [`id`](#id)
 		- [`visibleFormats`](#visibleformats)
 	- [Methods](#methods)
+		- [`copyColor()`](#copycolor)
 		- [`switchFormat()`](#switchformat)
 	- [Events](#events)
 		- [`color-change`](#color-change)
@@ -223,6 +224,21 @@ Each of the following properties can also be set via its corresponding attribute
 	```
 
 ### Methods
+
+#### `copyColor()`
+
+- **Description**: Copies the current color (determined by the active color format).
+
+  This method behaves the same as activating the “Copy color” button.
+
+  **Only works in secure browsing contexts (i.e. HTTPS)**.
+- **Return type**: `Promise<void>` (the promise returned by calling `window.navigator.clipboard.writeText`)
+- **Usage**:
+
+	JavaScript:
+	```js
+	colorPicker.copyColor()
+	```
 
 #### `switchFormat()`
 

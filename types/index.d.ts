@@ -4,6 +4,7 @@ declare class ColorPicker extends HTMLElement {
 	color: string
 	defaultFormat: VisibleColorFormat
 	visibleFormats: VisibleColorFormat[]
+	copyColor(): Promise<void>
 	switchFormat(): void
 }
 

@@ -595,8 +595,12 @@ export class ColorPicker extends HTMLElement {
 	 *
 	 * Only works in secure browsing contexts (i.e. HTTPS).
 	 *
-	 * @returns {Promise<void>}
+	 * @returns {Promise<void>} the promise returned by calling `window.navigator.clipboard.writeText`.
 	 */
+	copyColor () {
+		return this.#copyColor()
+	}
+
 	#copyColor = () => {
 		const activeColor = this.#colors[this.activeFormat]
 		const excludeAlphaChannel = this.alphaChannel === 'hide'
