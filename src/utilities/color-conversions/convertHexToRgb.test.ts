@@ -16,7 +16,8 @@ describe('convertHexToRgb', () => {
 		['#0000ffa8', { r: 0, g: 0, b: 1, a: 0.6588235294117647 }],
 		['#000000ff', { r: 0, g: 0, b: 0, a: 1 }],
 		['#cc0000cc', { r: 0.8, g: 0, b: 0, a: 0.8 }],
-	])('works', (hexColor, rgbColor) => {
+		['#B000B135', { r: 0.6901960784313725, g: 0, b: 0.6941176470588235, a: 0.20784313725490197 }],
+	])('works for %s', (hexColor, rgbColor) => {
 		expect(convertHexToRgb(hexColor)).toEqual(rgbColor)
 	})
 })
