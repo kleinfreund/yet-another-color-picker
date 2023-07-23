@@ -3,6 +3,7 @@ import { detectFormat } from './detectFormat.js'
 import { isValidHexColor } from './isValidHexColor.js'
 
 import {
+	ColorPair,
 	ColorFormat,
 	ColorHsl,
 	ColorHsv,
@@ -15,11 +16,11 @@ import {
  *
  * Supports all valid CSS colors in string form (e.g. tomato, #f80c, hsl(266.66 50% 100% / 0.8), hwb(0.9 0.9 0.9 / 1), etc.) as well as the color formats used for internal storage by the color picker.
  */
-export function parsePropsColor (propsColor: string | ColorHsl | ColorHsv | ColorHwb | ColorRgb): { format: ColorFormat, color: string | ColorHsl | ColorHsv | ColorHwb | ColorRgb } | null {
+export function parsePropsColor (propsColor: string | ColorHsl | ColorHsv | ColorHwb | ColorRgb): ColorPair | null {
 	// 1. Objects
 	if (typeof propsColor !== 'string') {
 		const format = detectFormat(propsColor)
-		return { format, color: propsColor }
+		return { format, color: propsColor } as ColorPair
 	}
 
 	// 2. Strings: hexadecimal
@@ -64,5 +65,5 @@ export function parsePropsColor (propsColor: string | ColorHsl | ColorHsv | Colo
 		colorChannels[format][channel].from(parameters[index]),
 	])) as ColorHsl | ColorHsv | ColorHwb | ColorRgb
 
-	return { format, color }
+	return { format, color } as ColorPair
 }

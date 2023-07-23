@@ -320,14 +320,14 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	#recomputeColors () {
-		const result = parsePropsColor(this.color)
+		const pair = parsePropsColor(this.color)
 
-		if (result !== null) {
-			this.#updateColors(result.format, result.color)
+		if (pair !== null) {
+			this.#updateColors(pair)
 		}
 	}
 
-	#updateColors (format: ColorFormat, color: string | ColorHsl | ColorHsv | ColorHwb | ColorRgb) {
+	#updateColors ({ format, color }: ColorPair) {
 		let normalizedColor = color
 		if (this.alphaChannel === 'hide') {
 			if (typeof color !== 'string') {
@@ -498,7 +498,7 @@ export class ColorPicker extends HTMLElement {
 		hsvColor.s = newThumbPosition.x
 		hsvColor.v = newThumbPosition.y
 
-		this.#updateColors('hsv', hsvColor)
+		this.#updateColors({ format: 'hsv', color: hsvColor })
 	}
 
 	#stopMovingThumb = () => {
@@ -518,7 +518,7 @@ export class ColorPicker extends HTMLElement {
 		const hsvColor = Object.assign({}, this.#colors.hsv)
 		hsvColor[channel] = clamp(newColorValue, 0, 1)
 
-		this.#updateColors('hsv', hsvColor)
+		this.#updateColors({ format: 'hsv', color: hsvColor })
 	}
 
 	#changeInputValue = (event: KeyboardEvent) => {
@@ -544,14 +544,14 @@ export class ColorPicker extends HTMLElement {
 		const hsvColor = Object.assign({}, this.#colors.hsv)
 		hsvColor[channel] = parseInt(input.value) / parseInt(input.max)
 
-		this.#updateColors('hsv', hsvColor)
+		this.#updateColors({ format: 'hsv', color: hsvColor })
 	}
 
 	#updateHexColorValue = (event: Event) => {
 		const input = event.target as HTMLInputElement
 
 		if (isValidHexColor(input.value)) {
-			this.#updateColors('hex', input.value)
+			this.#updateColors({ format: 'hex', color: input.value })
 		}
 	}
 
@@ -568,7 +568,7 @@ export class ColorPicker extends HTMLElement {
 
 		color[channel] = value
 
-		this.#updateColors(this.activeFormat, color)
+		this.#updateColors({ format: this.activeFormat, color })
 	}
 
 	/**
