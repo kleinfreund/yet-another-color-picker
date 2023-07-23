@@ -63,6 +63,17 @@ export class ColorPicker extends HTMLElement {
 	 */
 	static observedAttributes = /** @type {PropName[]} */ (Object.keys(PROPS))
 
+	/**
+	 * Defines the custom element using a static initialization block. Does nothing if the custom element is already defined.
+	 *
+	 * Note that this block needs to come after defining `ColorPicker.observedAttributes`.
+	 */
+	static {
+		if (window.customElements.get('color-picker') === undefined) {
+			window.customElements.define('color-picker', ColorPicker)
+		}
+	}
+
 	/** @type {HTMLElement | null} */ #colorSpace = null
 	/** @type {HTMLElement | null} */ #thumb = null
 

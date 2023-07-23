@@ -1,17 +1,15 @@
 import { afterEach, beforeAll, describe, test, expect, vi } from 'vitest'
 
-import { ColorPicker } from './ColorPicker.js'
+import './ColorPicker.js'
 /** @typedef {import('../types/index.d').ColorChangeDetail} ColorChangeDetail */
 
 /**
  * @typedef {object} RenderOptions
  * @property {Record<string, string>} [props] **Default**: `{}`.
- * @property {boolean} [shouldDefineCustomElement] **Default**: `false`.
  */
 
 /**
  * @param {RenderOptions} options
- * @returns {HTMLElement}
  */
 function render (options = {}) {
 	const props = options.props ?? {}
@@ -21,11 +19,6 @@ function render (options = {}) {
 	}
 
 	document.body.appendChild(colorPicker)
-
-	const shouldDefineCustomElement = options.shouldDefineCustomElement ?? true
-	if (shouldDefineCustomElement && window.customElements.get('color-picker') === undefined) {
-		window.customElements.define('color-picker', ColorPicker)
-	}
 
 	return colorPicker
 }
@@ -39,41 +32,6 @@ describe('ColorPicker', () => {
 	})
 
 	describe('props & attributes', () => {
-		test.each([
-			{},
-			{
-				id: 'color-picker',
-			},
-			{
-				'data-alpha-channel': 'show',
-				'data-color': '#fff',
-				'data-default-format': 'hex',
-				'data-visible-formats': 'hex,rgb,hsl',
-				id: 'color-picker',
-			},
-		])('renders correctly when *not* upgrading to custom element', (props) => {
-			const colorPicker = render({ props, shouldDefineCustomElement: false })
-
-			for (const [attribute, value] of Object.entries(props)) {
-				expect(colorPicker.getAttribute(attribute)).toBe(value)
-			}
-		})
-
-		test('sets attribute default values for optional props once upgraded to custom element', async () => {
-			const colorPicker = render({ shouldDefineCustomElement: false })
-
-			// Before upgrading the element, no attributes will have non-default values (e.g. `id` won't be set)
-			expect(colorPicker.getAttribute('id')).toBe(null)
-
-			window.customElements.define('color-picker', ColorPicker)
-
-			// Awaits one micro task loop because recomputations props changes in the component are processed via `queueMicrotask`.
-			await Promise.resolve()
-
-			// Once upgraded, the component will set attributes for optional props to their corresponding default values.
-			expect(colorPicker.getAttribute('id')).toBe('color-picker')
-		})
-
 		test.each([
 			[
 				{},

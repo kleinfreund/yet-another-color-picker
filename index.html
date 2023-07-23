@@ -16,9 +16,7 @@
 	</main>
 
 	<script type="module">
-		import { ColorPicker } from './src/ColorPicker.js'
-
-		window.customElements.define('color-picker', ColorPicker)
+		import './src/ColorPicker.js'
 
 		const colorPicker = document.querySelector('color-picker')
 		colorPicker.addEventListener('color-change', colorChangeListener)

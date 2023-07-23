@@ -45,7 +45,7 @@ Links:
 	npm install yet-another-color-picker
 	```
 
-2. Import the `ColorPicker` custom element class and define it.
+2. Import the module to define the custom element.
 
 	HTML:
 	```html
@@ -54,9 +54,7 @@ Links:
 
 	JavaScript:
 	```js
-	import { ColorPicker } from 'yet-another-color-picker'
-
-	window.customElements.define('color-picker', ColorPicker)
+	import 'yet-another-color-picker'
 	```
 
 3. Make sure to also load the color picker styles.
@@ -74,7 +72,7 @@ Links:
 	curl --remote-name-all 'https://cdn.jsdelivr.net/npm/yet-another-color-picker@latest/dist/ColorPicker.{js,css}'
 	```
 
-2. Import the `ColorPicker` custom element class and define it.
+2. Import the module to define the custom element.
 
 	HTML:
 	```html
@@ -83,9 +81,7 @@ Links:
 
 	JavaScript:
 	```js
-	import { ColorPicker } from './ColorPicker.js'
-
-	window.customElements.define('color-picker', ColorPicker)
+	import './ColorPicker.js'
 	```
 
 3. Make sure to also load the color picker styles.
@@ -203,10 +199,8 @@ Links:
 
 	JavaScript:
 	```js
-	import { ColorPicker } from 'yet-another-color-picker'
+	import 'yet-another-color-picker'
 	/** @typedef {import('yet-another-color-picker').ColorChangeDetail} ColorChangeDetail */
-
-	window.customElements.define('color-picker', ColorPicker)
 
 	const colorPicker = document.querySelector('color-picker')
 	colorPicker.addEventListener('color-change', colorChangeListener)
@@ -260,5 +254,4 @@ The color picker consists of the following main elements:
 ## To do
 
 - Document browser usage via import maps (https://caniuse.com/import-maps).
-- Consider providing a version that adds `ColorPicker` to `window` so the package can be used via CDNs such as unpkg and jsDelivr.
 - Re-consider how state is recomputed internally.
