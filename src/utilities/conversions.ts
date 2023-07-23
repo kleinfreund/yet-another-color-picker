@@ -9,48 +9,53 @@ import { convertRgbToHsl } from './color-conversions/convertRgbToHsl.js'
 import { convertRgbToHex } from './color-conversions/convertRgbToHex.js'
 import { convertRgbToHwb } from './color-conversions/convertRgbToHwb.js'
 
-import { ColorFormat } from '../ColorPicker.js'
+import { ColorFormat, ColorMap } from '../ColorPicker.js'
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const conversions: { [key in ColorFormat]: Array<[ColorFormat, (color: any) => any]> } = {
-	hex: [
-		['hsl', (hex) => chainConvert(hex, [convertHexToRgb, convertRgbToHsl])],
-		['hsv', (hex) => chainConvert(hex, [convertHexToRgb, convertRgbToHwb, convertHwbToHsv])],
-		['hwb', (hex) => chainConvert(hex, [convertHexToRgb, convertRgbToHwb])],
-		['rgb', convertHexToRgb],
-	],
-	hsl: [
-		['hex', (hsl) => chainConvert(hsl, [convertHslToRgb, convertRgbToHex])],
-		['hsv', convertHslToHsv],
-		['hwb', (hsl) => chainConvert(hsl, [convertHslToRgb, convertRgbToHwb])],
-		['rgb', convertHslToRgb],
-	],
-	hsv: [
-		['hex', (hsv) => chainConvert(hsv, [convertHsvToRgb, convertRgbToHex])],
-		['hsl', convertHsvToHsl],
-		['hwb', convertHsvToHwb],
-		['rgb', convertHsvToRgb],
-	],
-	hwb: [
-		['hex', (hwb) => chainConvert(hwb, [convertHwbToHsv, convertHsvToRgb, convertRgbToHex])],
-		['hsl', (hwb) => chainConvert(hwb, [convertHwbToHsv, convertHsvToRgb, convertRgbToHsl])],
-		['hsv', convertHwbToHsv],
-		['rgb', (hwb) => chainConvert(hwb, [convertHwbToHsv, convertHsvToRgb])],
-	],
-	rgb: [
-		['hex', convertRgbToHex],
-		['hsl', convertRgbToHsl],
-		['hsv', (rgb) => chainConvert(rgb, [convertRgbToHwb, convertHwbToHsv])],
-		['hwb', convertRgbToHwb],
-	],
+type Conversions = {
+	[SourceFormat in ColorFormat]: {
+		[TargetFormat in ColorFormat]: (color: ColorMap[SourceFormat]) => ColorMap[TargetFormat]
+	}
 }
 
-/**
- * Takes a `color` and passes it through a list of conversion functions.
- *
- * This process is necessary when a direct conversion algorithm isn’t known/available for the conversion between two color formats. Then, several conversion functions are chained to get to the result in an indirect manner (e.g. to convert from RGB to HSV, we first convert from RGB to HWB and then from HWB to HSV).
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function chainConvert (sourceColor: any, convertFunctions: Array<(color: any) => any>): any {
-	return convertFunctions.reduce((color, convert) => convert(color), sourceColor)
+export const conversions: Conversions = {
+	hex: {
+		hex: (hex) => hex,
+		hsl: (hex) => convertRgbToHsl(convertHexToRgb(hex)),
+		hsv: (hex) => convertHwbToHsv(convertRgbToHwb(convertHexToRgb(hex))),
+		hwb: (hex) => convertRgbToHwb(convertHexToRgb(hex)),
+		rgb: convertHexToRgb,
+	},
+	hsl: {
+		hex: (hsl) => convertRgbToHex(convertHslToRgb(hsl)),
+		hsl: (hsl) => hsl,
+		hsv: convertHslToHsv,
+		hwb: (hsl) => convertRgbToHwb(convertHslToRgb(hsl)),
+		rgb: convertHslToRgb,
+	},
+	hsv: {
+		hex: (hsv) => convertRgbToHex(convertHsvToRgb(hsv)),
+		hsl: convertHsvToHsl,
+		hsv: (hsv) => hsv,
+		hwb: convertHsvToHwb,
+		rgb: convertHsvToRgb,
+	},
+	hwb: {
+		hex: (hwb) => convertRgbToHex(convertHsvToRgb(convertHwbToHsv(hwb))),
+		hsl: (hwb) => convertRgbToHsl(convertHsvToRgb(convertHwbToHsv(hwb))),
+		hsv: convertHwbToHsv,
+		hwb: (hwb) => hwb,
+		rgb: (hwb) => convertHsvToRgb(convertHwbToHsv(hwb)),
+	},
+	rgb: {
+		hex: convertRgbToHex,
+		hsl: convertRgbToHsl,
+		hsv: (rgb) => convertHwbToHsv(convertRgbToHwb(rgb)),
+		hwb: convertRgbToHwb,
+		rgb: (rgb) => rgb,
+	},
+}
+
+export function convert<SourceFormat extends ColorFormat, TargetFormat extends ColorFormat> (sourceFormat: SourceFormat, targetFormat: TargetFormat, color: ColorMap[SourceFormat]): ColorMap[TargetFormat] {
+	// I tried my best typing this correctly, but that seems almost impossible. Leaving things with this type assertion.
+	return conversions[sourceFormat][targetFormat](color) as ColorMap[TargetFormat]
 }

@@ -4,7 +4,7 @@ import { clamp } from './utilities/clamp.js'
 import { colorChannels } from './utilities/colorChannels.js'
 import { colorPickerTemplate } from './templates/colorPickerTemplate.js'
 import { colorsAreValueEqual } from './utilities/colorsAreValueEqual.js'
-import { conversions } from './utilities/conversions.js'
+import { convert } from './utilities/conversions.js'
 import { formatAsCssColor } from './utilities/formatAsCssColor.js'
 import { getNewThumbPosition } from './utilities/getNewThumbPosition.js'
 import { isValidHexColor } from './utilities/isValidHexColor.js'
@@ -32,6 +32,14 @@ export interface ColorPairRgb { format: 'rgb', color: ColorRgb }
 
 export type VisibleColorPair = ColorPairHex | ColorPairHsl | ColorPairHwb | ColorPairRgb
 export type ColorPair = ColorPairHex | ColorPairHsl | ColorPairHsv | ColorPairHwb | ColorPairRgb
+
+export type ColorMap = {
+	hex: string
+	hsl: ColorHsl
+	hsv: ColorHsv
+	hwb: ColorHwb
+	rgb: ColorRgb
+}
 
 export type ColorChangeDetail = {
 	colors: {
@@ -115,6 +123,8 @@ const ATTRIBUTES: Record<AttributeName, AttributeDefinition> = {
 }
 
 export type ColorPickerProperties = keyof ColorPicker
+
+const COLOR_FORMATS = ['hex', 'hsl', 'hsv', 'hwb', 'rgb'] as const satisfies ReadonlyArray<ColorFormat>
 
 export class ColorPicker extends HTMLElement {
 	static observedAttributes = Object.keys(ATTRIBUTES) as AttributeName[]
@@ -344,8 +354,10 @@ export class ColorPicker extends HTMLElement {
 		if (!colorsAreValueEqual(this.#colors[format], normalizedColor)) {
 			this.#colors[format] = normalizedColor
 
-			for (const [targetFormat, convert] of conversions[format]) {
-				this.#colors[targetFormat] = convert(this.#colors[format])
+			for (const targetFormat of COLOR_FORMATS) {
+				if (targetFormat !== format) {
+					this.#colors[targetFormat] = convert(format, targetFormat, normalizedColor)
+				}
 			}
 
 			// TODO: Find a better way to manage reactivity/recomputations
