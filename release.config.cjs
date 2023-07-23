@@ -26,8 +26,8 @@
 		['@semantic-release/github', {
 			assets: [
 				{ path: 'dist/ColorPicker.css' },
+				{ path: 'dist/ColorPicker.d.ts' },
 				{ path: 'dist/ColorPicker.js' },
-				{ path: 'types/index.d.ts' },
 			],
 		}],
 
@@ -37,4 +37,5 @@
 	],
 }
 
+/* eslint-env node */
 module.exports = options
