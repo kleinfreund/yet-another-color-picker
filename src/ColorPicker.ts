@@ -24,6 +24,15 @@ export type VisibleColorFormat = 'hex' | 'hsl' | 'hwb' | 'rgb'
 export type ColorFormat = 'hex' | 'hsl' | 'hsv' | 'hwb' | 'rgb'
 export type AlphaChannelProp = 'show' | 'hide'
 
+export interface ColorPairHex { format: 'hex', color: string }
+export interface ColorPairHsl { format: 'hsl', color: ColorHsl }
+export interface ColorPairHsv { format: 'hsv', color: ColorHsv }
+export interface ColorPairHwb { format: 'hwb', color: ColorHwb }
+export interface ColorPairRgb { format: 'rgb', color: ColorRgb }
+
+export type VisibleColorPair = ColorPairHex | ColorPairHsl | ColorPairHwb | ColorPairRgb
+export type ColorPair = ColorPairHex | ColorPairHsl | ColorPairHsv | ColorPairHwb | ColorPairRgb
+
 export type ColorChangeDetail = {
 	colors: {
 		hex: string
@@ -354,7 +363,7 @@ export class ColorPicker extends HTMLElement {
 
 	#getColorChangeDetail (): ColorChangeDetail {
 		const excludeAlphaChannel = this.alphaChannel === 'hide'
-		const cssColor = formatAsCssColor(this.#colors[this.activeFormat], this.activeFormat, excludeAlphaChannel)
+		const cssColor = formatAsCssColor({ color: this.#colors[this.activeFormat], format: this.activeFormat }, excludeAlphaChannel)
 
 		return {
 			colors: this.#colors,
@@ -578,7 +587,7 @@ export class ColorPicker extends HTMLElement {
 	#copyColor = () => {
 		const activeColor = this.#colors[this.activeFormat]
 		const excludeAlphaChannel = this.alphaChannel === 'hide'
-		const cssColor = formatAsCssColor(activeColor, this.activeFormat, excludeAlphaChannel)
+		const cssColor = formatAsCssColor({ color: activeColor, format: this.activeFormat }, excludeAlphaChannel)
 
 		// Note: the Clipboard API’s `writeText` method can throw a `DOMException` error in case of insufficient write permissions (see https://w3c.github.io/clipboard-apis/#dom-clipboard-writetext). This error is explicitly not handled here so that users of this package can see the original error in the console.
 		return window.navigator.clipboard.writeText(cssColor)
