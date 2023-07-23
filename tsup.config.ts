@@ -16,5 +16,4 @@ export default defineConfig({
 			ecma: 2020,
 		},
 	},
-	noExternal: ['lit-html'],
 })

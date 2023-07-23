@@ -4,7 +4,7 @@
 
 A color picker web component.
 
-This package’s files are distributed in the ES module format and have not been transpiled.
+This package’s files are distributed in the ES module format and have not been transpiled. It uses [lit-html](https://www.npmjs.com/package/lit-html) which is **not** bundled with the package.
 
 Links:
 
@@ -20,7 +20,7 @@ Links:
 
 - [Installation & usage](#installation-&-usage)
 	- [As npm package](#as-npm-package)
-	- [As plain JS and CSS files](#as-plain-js-and-css-files)
+	- [As plain files directly in the browser (no build step)](#as-plain-files-directly-in-the-browser-no-build-step)
 - [Documentation](#documentation)
 	- [Technical summary](#technical-summary)
 	- [Properties](#properties)
@@ -69,7 +69,7 @@ Links:
 	<link rel="stylesheet" href="./node_modules/yet-another-color-picker/dist/ColorPicker.css">
 	```
 
-### As plain JS and CSS files
+### As plain files directly in the browser (no build step)
 
 1. Download the files.
 
@@ -77,7 +77,24 @@ Links:
 	curl --remote-name-all 'https://cdn.jsdelivr.net/npm/yet-another-color-picker@latest/dist/ColorPicker.{js,css}'
 	```
 
-2. Import the module to define the custom element.
+2. Define an [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap) for lit-html.
+
+	Since this package does not bundle its dependencies (e.g. lit-html), the distribution files contain imports from bare module specifiers (e.g. `import { render } from 'lit-html'`). Browsers don't understand bare module specifiers by default, but with import maps, you can teach them.
+
+	HTML:
+	```html
+	<script type="importmap">
+		{
+			"imports": {
+				"lit-html": "https://unpkg.com/lit-html@latest/lit-html.js?module"
+			}
+		}
+	</script>
+	```
+
+	This will make imports like the one mentioned above behave as if they reference the provided URL (e.g. `import { render } from 'lit-html'` will behave like `import { render } from 'https://unpkg.com/lit-html@latest/lit-html.js?module'`). And that browsers do undertand.
+
+3. Import the module to define the custom element.
 
 	HTML:
 	```html
@@ -331,4 +348,4 @@ The color picker consists of the following main elements:
 
 - Document browser usage via import maps (https://caniuse.com/import-maps).
 - Re-consider how state is recomputed internally.
-- Re-consider bundling and optimization strategy following https://lit.dev/docs/tools/publishing/#don't-bundle-minify-or-optimize-modules (see also https://open-wc.org/guides/developing-components/publishing/#do-not-minify).
+- Re-consider optimization strategy following https://lit.dev/docs/tools/publishing/#don't-bundle-minify-or-optimize-modules (see also https://open-wc.org/guides/developing-components/publishing/#do-not-minify).
