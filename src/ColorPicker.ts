@@ -262,10 +262,6 @@ export class ColorPicker extends HTMLElement {
 		this.ownerDocument.addEventListener('mouseup', this.#stopMovingThumb)
 		this.ownerDocument.addEventListener('touchend', this.#stopMovingThumb)
 
-		for (const attribute of ColorPicker.observedAttributes) {
-			this.#syncAttributeToProperty(attribute)
-		}
-
 		this.activeFormat = !this.visibleFormats.includes(this.defaultFormat)
 			? this.visibleFormats[0] as VisibleColorFormat
 			: this.defaultFormat
