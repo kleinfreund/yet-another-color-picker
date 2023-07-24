@@ -1101,4 +1101,25 @@ describe('ColorPicker', () => {
 			expect(input.value).toBe(expectedHexColor)
 		})
 	})
+
+	describe('document interactions', () => {
+		test('removing from and re-inserting into document adds and removes document event listeners', async () => {
+			const numberOfDocumentLevelListeners = 4
+			vi.spyOn(document, 'addEventListener')
+			vi.spyOn(document, 'removeEventListener')
+
+			const colorPicker = render()
+			await Promise.resolve()
+			expect(document.addEventListener).toHaveBeenCalledTimes(numberOfDocumentLevelListeners)
+			expect(document.removeEventListener).toHaveBeenCalledTimes(0)
+
+			const removedColorPicker = document.body.removeChild(colorPicker)
+			expect(document.addEventListener).toHaveBeenCalledTimes(numberOfDocumentLevelListeners)
+			expect(document.removeEventListener).toHaveBeenCalledTimes(numberOfDocumentLevelListeners)
+
+			document.body.appendChild(removedColorPicker)
+			expect(document.addEventListener).toHaveBeenCalledTimes(2 * numberOfDocumentLevelListeners)
+			expect(document.removeEventListener).toHaveBeenCalledTimes(numberOfDocumentLevelListeners)
+		})
+	})
 })
