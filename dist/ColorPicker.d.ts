@@ -6,19 +6,7 @@ declare global {
         'color-picker': ColorPicker;
     }
 }
-type VisibleColorFormat = 'hex' | 'hsl' | 'hwb' | 'rgb';
-type ColorFormat = 'hex' | 'hsl' | 'hsv' | 'hwb' | 'rgb';
 type AlphaChannelProp = 'show' | 'hide';
-type ColorChangeDetail = {
-    colors: {
-        hex: string;
-        hsl: ColorHsl;
-        hsv: ColorHsv;
-        hwb: ColorHwb;
-        rgb: ColorRgb;
-    };
-    cssColor: string;
-};
 type ColorHsl = {
     h: number;
     s: number;
@@ -43,18 +31,46 @@ type ColorRgb = {
     b: number;
     a: number;
 };
-type AttributeTypeMap = {
-    id: string;
-    color: string;
-    'visible-formats': VisibleColorFormat[];
-    'default-format': VisibleColorFormat;
-    'alpha-channel': AlphaChannelProp;
+type ColorMap = {
+    hex: string;
+    hsl: ColorHsl;
+    hsv: ColorHsv;
+    hwb: ColorHwb;
+    rgb: ColorRgb;
 };
-type AttributeName = keyof AttributeTypeMap;
+type ColorChangeDetail = {
+    colors: ColorMap;
+    cssColor: string;
+};
+type ColorFormat = keyof ColorMap;
+type VisibleColorFormat = Exclude<ColorFormat, 'hsv'>;
+interface ColorPairHex {
+    format: 'hex';
+    color: string;
+}
+interface ColorPairHsl {
+    format: 'hsl';
+    color: ColorHsl;
+}
+interface ColorPairHsv {
+    format: 'hsv';
+    color: ColorHsv;
+}
+interface ColorPairHwb {
+    format: 'hwb';
+    color: ColorHwb;
+}
+interface ColorPairRgb {
+    format: 'rgb';
+    color: ColorRgb;
+}
+type ColorPair = ColorPairHex | ColorPairHsl | ColorPairHsv | ColorPairHwb | ColorPairRgb;
+type VisibleColorPair = Exclude<ColorPair, ColorPairHsv>;
+type AttributeName = 'alpha-channel' | 'color' | 'default-format' | 'id' | 'visible-formats';
 type ColorPickerProperties = keyof ColorPicker;
 declare class ColorPicker extends HTMLElement {
     #private;
-    static observedAttributes: (keyof AttributeTypeMap)[];
+    static observedAttributes: AttributeName[];
     get [Symbol.toStringTag](): string;
     /**
      * The currently active format. Changed by interacting with the “Switch format” button.
@@ -105,4 +121,4 @@ declare class ColorPicker extends HTMLElement {
     switchFormat(): void;
 }
 
-export { AlphaChannelProp, ColorChangeDetail, ColorFormat, ColorHsl, ColorHsv, ColorHwb, ColorPicker, ColorPickerProperties, ColorRgb, VisibleColorFormat };
+export { AlphaChannelProp, ColorChangeDetail, ColorFormat, ColorHsl, ColorHsv, ColorHwb, ColorMap, ColorPair, ColorPairHex, ColorPairHsl, ColorPairHsv, ColorPairHwb, ColorPairRgb, ColorPicker, ColorPickerProperties, ColorRgb, VisibleColorFormat, VisibleColorPair };
