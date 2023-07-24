@@ -143,14 +143,14 @@ Each of the following properties can also be set via its corresponding attribute
 - **Attribute**: `alpha-channel`
 - **Usage**:
 
-	HTML:
-	```html
-	<color-picker alpha-channel="hide"></color-picker>
-	```
-
 	JavaScript:
 	```js
 	colorPicker.alphaChannel = 'hide'
+	```
+
+	HTML:
+	```html
+	<color-picker alpha-channel="hide"></color-picker>
 	```
 
 #### `color`
@@ -162,16 +162,6 @@ Each of the following properties can also be set via its corresponding attribute
 - **Attribute**: `color`
 - **Usage**:
 
-	HTML:
-	```html
-	<color-picker color="hsl(270 100% 50% / 0.8)"></color-picker>
-	```
-
-	HTML:
-	```html
-	<color-picker color="#f80b"></color-picker>
-	```
-
 	JavaScript:
 	```js
 	colorPicker.color = 'hsl(270 100% 50% / 0.8)'
@@ -180,6 +170,16 @@ Each of the following properties can also be set via its corresponding attribute
 	JavaScript:
 	```js
 	colorPicker.color = { h: 0.75, s: 1, l: 0.5, a: 0.8 }
+	```
+
+	HTML:
+	```html
+	<color-picker color="hsl(270 100% 50% / 0.8)"></color-picker>
+	```
+
+	HTML:
+	```html
+	<color-picker color="#f80b"></color-picker>
 	```
 
 #### `defaultFormat`
@@ -191,14 +191,14 @@ Each of the following properties can also be set via its corresponding attribute
 - **Attribute**: `default-format`
 - **Usage**:
 
-	HTML:
-	```html
-	<color-picker default-format="hwb"></color-picker>
-	```
-
 	JavaScript:
 	```js
 	colorPicker.defaultFormat = 'hwb'
+	```
+
+	HTML:
+	```html
+	<color-picker default-format="hwb"></color-picker>
 	```
 
 #### `id`
@@ -210,14 +210,14 @@ Each of the following properties can also be set via its corresponding attribute
 - **Attribute**: `id`
 - **Usage**:
 
-	HTML:
-	```html
-	<color-picker id="color-picker-1"></color-picker>
-	```
-
 	JavaScript:
 	```js
 	colorPicker.id = 'color-picker-1'
+	```
+
+	HTML:
+	```html
+	<color-picker id="color-picker-1"></color-picker>
 	```
 
 #### `visibleFormats`
@@ -229,14 +229,14 @@ Each of the following properties can also be set via its corresponding attribute
 - **Attribute**: `visible-formats`
 - **Usage**:
 
-	HTML:
-	```html
-	<color-picker visible-formats="hsl,hwb"></color-picker>
-	```
-
 	JavaScript:
 	```js
 	colorPicker.visibleFormats = ['hsl', 'hwb']
+	```
+
+	HTML:
+	```html
+	<color-picker visible-formats="hsl,hwb"></color-picker>
 	```
 
 ### Methods
