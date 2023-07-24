@@ -22,7 +22,6 @@ Links:
 	- [As npm package](#as-npm-package)
 	- [As plain files directly in the browser (no build step)](#as-plain-files-directly-in-the-browser-no-build-step)
 - [Documentation](#documentation)
-	- [Technical summary](#technical-summary)
 	- [Properties](#properties)
 		- [`activeFormat`](#activeformat)
 		- [`alphaChannel`](#alphachannel)
