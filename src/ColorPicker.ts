@@ -20,37 +20,7 @@ declare global {
 	}
 }
 
-export type VisibleColorFormat = 'hex' | 'hsl' | 'hwb' | 'rgb'
-export type ColorFormat = 'hex' | 'hsl' | 'hsv' | 'hwb' | 'rgb'
 export type AlphaChannelProp = 'show' | 'hide'
-
-export interface ColorPairHex { format: 'hex', color: string }
-export interface ColorPairHsl { format: 'hsl', color: ColorHsl }
-export interface ColorPairHsv { format: 'hsv', color: ColorHsv }
-export interface ColorPairHwb { format: 'hwb', color: ColorHwb }
-export interface ColorPairRgb { format: 'rgb', color: ColorRgb }
-
-export type VisibleColorPair = ColorPairHex | ColorPairHsl | ColorPairHwb | ColorPairRgb
-export type ColorPair = ColorPairHex | ColorPairHsl | ColorPairHsv | ColorPairHwb | ColorPairRgb
-
-export type ColorMap = {
-	hex: string
-	hsl: ColorHsl
-	hsv: ColorHsv
-	hwb: ColorHwb
-	rgb: ColorRgb
-}
-
-export type ColorChangeDetail = {
-	colors: {
-		hex: string
-		hsl: ColorHsl
-		hsv: ColorHsv
-		hwb: ColorHwb
-		rgb: ColorRgb
-	}
-	cssColor: string
-}
 
 export type ColorHsl = {
 	h: number
@@ -80,20 +50,37 @@ export type ColorRgb = {
 	a: number
 }
 
+export type ColorMap = {
+	hex: string
+	hsl: ColorHsl
+	hsv: ColorHsv
+	hwb: ColorHwb
+	rgb: ColorRgb
+}
+
+export type ColorChangeDetail = {
+	colors: ColorMap
+	cssColor: string
+}
+
+export type ColorFormat = keyof ColorMap
+export type VisibleColorFormat = Exclude<ColorFormat, 'hsv'>
+
+export interface ColorPairHex { format: 'hex', color: string }
+export interface ColorPairHsl { format: 'hsl', color: ColorHsl }
+export interface ColorPairHsv { format: 'hsv', color: ColorHsv }
+export interface ColorPairHwb { format: 'hwb', color: ColorHwb }
+export interface ColorPairRgb { format: 'rgb', color: ColorRgb }
+
+export type ColorPair = ColorPairHex | ColorPairHsl | ColorPairHsv | ColorPairHwb | ColorPairRgb
+export type VisibleColorPair = Exclude<ColorPair, ColorPairHsv>
+
 type AttributeDefinition = {
 	type: StringConstructor | ArrayConstructor
 	property: ColorPickerProperties
 }
 
-type AttributeTypeMap = {
-	id: string
-	color: string
-	'visible-formats': VisibleColorFormat[]
-	'default-format': VisibleColorFormat
-	'alpha-channel': AlphaChannelProp
-}
-
-type AttributeName = keyof AttributeTypeMap
+type AttributeName = 'alpha-channel' | 'color' | 'default-format' | 'id' | 'visible-formats'
 
 const ATTRIBUTES: Record<AttributeName, AttributeDefinition> = {
 	'alpha-channel': {
