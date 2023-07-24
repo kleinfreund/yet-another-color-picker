@@ -346,6 +346,5 @@ The color picker consists of the following main elements:
 
 ## To do
 
-- Document browser usage via import maps (https://caniuse.com/import-maps).
 - Re-consider how state is recomputed internally.
-- Re-consider optimization strategy following https://lit.dev/docs/tools/publishing/#don't-bundle-minify-or-optimize-modules (see also https://open-wc.org/guides/developing-components/publishing/#do-not-minify).
+- Re-consider minification strategy following https://lit.dev/docs/tools/publishing/#don't-bundle-minify-or-optimize-modules (see also https://open-wc.org/guides/developing-components/publishing/#do-not-minify).
