@@ -226,7 +226,7 @@ Each of the following properties can also be set via its corresponding attribute
 - **Type**: `VisibleColorFormat` (an array of `VisibleColorFormat`s)
 - **Required**: `false`
 - **Default**: `['hex', 'hsl', 'hwb', 'rgb']`
-- **Attribute**: `visibleFormats`
+- **Attribute**: `visible-formats`
 - **Usage**:
 
 	HTML:
