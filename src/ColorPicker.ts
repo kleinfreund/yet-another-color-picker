@@ -222,6 +222,22 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	/**
+	 * The internal color representation for all formats.
+	 */
+	get colors () {
+		return this.#colors as ColorMap
+	}
+
+	set colors (colors: ColorMap) {
+		this.#colors = colors
+
+		// TODO: Tie this into the render queue.
+		this.#recomputeHexInputValue()
+		this.#render()
+		this.#emitColorChangeEvent()
+	}
+
+	/**
 	 * The color format to show by default when rendering the color picker. Must be one of the formats specified in `visibleFormats`.
 	 */
 	get defaultFormat () {
@@ -338,19 +354,18 @@ export class ColorPicker extends HTMLElement {
 			}
 		}
 
-		if (!colorsAreValueEqual(this.#colors[format], normalizedColor)) {
-			this.#colors[format] = normalizedColor
+		if (!colorsAreValueEqual(this.colors[format], normalizedColor)) {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const updatedColors: any = {}
+			updatedColors[format] = normalizedColor
 
 			for (const targetFormat of COLOR_FORMATS) {
 				if (targetFormat !== format) {
-					this.#colors[targetFormat] = convert(format, targetFormat, normalizedColor)
+					updatedColors[targetFormat] = convert(format, targetFormat, normalizedColor)
 				}
 			}
 
-			// TODO: Find a better way to manage reactivity/recomputations
-			this.#recomputeHexInputValue()
-			this.#render()
-			this.#emitColorChangeEvent()
+			this.colors = updatedColors
 		}
 	}
 
@@ -365,16 +380,16 @@ export class ColorPicker extends HTMLElement {
 		const cssColor = formatAsCssColor({ color: this.#colors[this.activeFormat], format: this.activeFormat }, excludeAlphaChannel)
 
 		return {
-			colors: this.#colors,
+			colors: this.colors,
 			cssColor,
 		}
 	}
 
 	#setCssProps () {
-		this.style.setProperty('--cp-hsl-h', String(this.#colors.hsl.h))
-		this.style.setProperty('--cp-hsl-s', String(this.#colors.hsl.s))
-		this.style.setProperty('--cp-hsl-l', String(this.#colors.hsl.l))
-		this.style.setProperty('--cp-hsl-a', String(this.#colors.hsl.a))
+		this.style.setProperty('--cp-hsl-h', String(this.colors.hsl.h))
+		this.style.setProperty('--cp-hsl-s', String(this.colors.hsl.s))
+		this.style.setProperty('--cp-hsl-l', String(this.colors.hsl.l))
+		this.style.setProperty('--cp-hsl-a', String(this.colors.hsl.a))
 
 		if (this.#colorSpace === null || this.#thumb === null) {
 			return
@@ -387,19 +402,19 @@ export class ColorPicker extends HTMLElement {
 
 		this.#thumb.style.boxSizing = 'border-box'
 		this.#thumb.style.position = 'absolute'
-		this.#thumb.style.left = `${this.#colors.hsv.s * 100}%`
-		this.#thumb.style.bottom = `${this.#colors.hsv.v * 100}%`
+		this.#thumb.style.left = `${this.colors.hsv.s * 100}%`
+		this.#thumb.style.bottom = `${this.colors.hsv.v * 100}%`
 	}
 
 	#recomputeVisibleChannels () {
-		const allChannels = Object.keys(this.#colors[this.activeFormat])
+		const allChannels = Object.keys(this.colors[this.activeFormat])
 		this.#visibleChannels = this.activeFormat !== 'hex' && this.alphaChannel === 'hide'
 			? allChannels.slice(0, 3)
 			: allChannels
 	}
 
 	#recomputeHexInputValue () {
-		const hex = this.#colors.hex
+		const hex = this.colors.hex
 		this.#hexInputValue = this.alphaChannel === 'hide' && [5, 9].includes(hex.length)
 			? hex.substring(0, hex.length - (hex.length - 1) / 4)
 			: hex
@@ -433,7 +448,7 @@ export class ColorPicker extends HTMLElement {
 			this.id,
 			this.activeFormat,
 			this.#visibleChannels,
-			this.#colors,
+			this.colors,
 			this.#hexInputValue,
 			this.alphaChannel,
 			this.visibleFormats,
@@ -497,7 +512,7 @@ export class ColorPicker extends HTMLElement {
 
 	#moveThumb (colorSpace: HTMLElement, clientX: number, clientY: number) {
 		const newThumbPosition = getNewThumbPosition(colorSpace, clientX, clientY)
-		const hsvColor = Object.assign({}, this.#colors.hsv)
+		const hsvColor = Object.assign({}, this.colors.hsv)
 		hsvColor.s = newThumbPosition.x
 		hsvColor.v = newThumbPosition.y
 
@@ -517,8 +532,8 @@ export class ColorPicker extends HTMLElement {
 		const direction = ['ArrowLeft', 'ArrowDown'].includes(event.key) ? -1 : 1
 		const channel = ['ArrowLeft', 'ArrowRight'].includes(event.key) ? 's' : 'v'
 		const step = event.shiftKey ? 10 : 1
-		const newColorValue = this.#colors.hsv[channel] + direction * step * 0.01
-		const hsvColor = Object.assign({}, this.#colors.hsv)
+		const newColorValue = this.colors.hsv[channel] + direction * step * 0.01
+		const hsvColor = Object.assign({}, this.colors.hsv)
 		hsvColor[channel] = clamp(newColorValue, 0, 1)
 
 		this.#updateColors({ format: 'hsv', color: hsvColor })
@@ -544,7 +559,7 @@ export class ColorPicker extends HTMLElement {
 
 	#handleSliderInput = (event: Event, channel: 'h' | 'a') => {
 		const input = event.currentTarget as HTMLInputElement
-		const hsvColor = Object.assign({}, this.#colors.hsv)
+		const hsvColor = Object.assign({}, this.colors.hsv)
 		hsvColor[channel] = parseInt(input.value) / parseInt(input.max)
 
 		this.#updateColors({ format: 'hsv', color: hsvColor })
