@@ -166,7 +166,10 @@ export class ColorPicker extends HTMLElement {
 	 */
 	#hexInputValue: string = '#ffffffff'
 
-	#isRendering: boolean = false
+	/**
+	 * Tracks queued updates.
+	 */
+	#updateCount = 0
 
 	get [Symbol.toStringTag] () {
 		return 'ColorPicker'
@@ -420,18 +423,24 @@ export class ColorPicker extends HTMLElement {
 			: hex
 	}
 
-	#queueUpdate (handler: VoidFunction) {
-		queueMicrotask(handler)
+	/**
+	 * Queues an update using `queueMicrotask`.
+	 *
+	 * The `callback` must call `this.#renderIfIdle()` which guarantees that `this.#updateCount` is tracked correctly.
+	 *
+	 * Using `queueMicrotask` ensures that multiple changes to writeable properties can be processed before applying their effects.
+	 */
+	#queueUpdate (callback: VoidFunction) {
+		this.#updateCount++
+		queueMicrotask(callback)
 	}
 
 	#renderIfIdle () {
-		if (this.#isRendering) {
-			return
-		}
+		this.#updateCount--
 
-		this.#isRendering = true
-		this.#render()
-		this.#isRendering = false
+		if (this.#updateCount === 0) {
+			this.#render()
+		}
 	}
 
 	/**
