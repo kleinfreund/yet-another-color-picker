@@ -31,6 +31,13 @@ function render (options: RenderOptions = {}) {
 	return colorPicker
 }
 
+/**
+ * Await this function in a test to wait for one set of recomputations to be processed in the web component.
+ *
+ * This function doesn't actually do anything right now. That's because the key to this is *awaiting* the function, not what happens in the function. All we need to accomplish is to jump over the micro tasks (triggered using `queueMicrotask`) handling recomputations. I decided to put this into a function so that I can easily swap it out with a different mechanism (like jumping to the next even loop cycle with the help of `setTimeout`).
+ */
+function waitForRecomputations () {}
+
 describe('ColorPicker', () => {
 	afterEach(() => {
 		// Empties the document after each test in order to isolate tests.
@@ -83,9 +90,7 @@ describe('ColorPicker', () => {
 			],
 		])('syncs attributes to properties on render', async (attributes, property, propertyValue) => {
 			const colorPicker = render({ attributes })
-
-			// Awaits one micro task loop because recomputations attribute changes in the component are processed via `queueMicrotask`.
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(colorPicker[property]).toEqual(propertyValue)
 		})
@@ -123,12 +128,12 @@ describe('ColorPicker', () => {
 			],
 		])('syncs attributes to properties post render', async (attributes, property, propertyValue) => {
 			const colorPicker = render()
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			for (const [attribute, value] of Object.entries(attributes)) {
 				colorPicker.setAttribute(attribute, value)
 			}
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(colorPicker[property]).toEqual(propertyValue)
 		})
@@ -145,8 +150,7 @@ describe('ColorPicker', () => {
 					'default-format': 'hex',
 				},
 			})
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const input = colorPicker.querySelector('.cp-color-input') as HTMLInputElement
 			expect(input.value).toBe(expectedHexInputValue)
@@ -164,8 +168,7 @@ describe('ColorPicker', () => {
 					defaultFormat: 'hex',
 				},
 			})
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const input = colorPicker.querySelector('.cp-color-input') as HTMLInputElement
 			expect(input.value).toBe(expectedHexInputValue)
@@ -178,8 +181,7 @@ describe('ColorPicker', () => {
 					'default-format': 'hex',
 				},
 			})
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(colorPicker.color).toBe('#ff')
 
@@ -194,8 +196,7 @@ describe('ColorPicker', () => {
 					defaultFormat: 'hex',
 				},
 			})
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(colorPicker.color).toBe('#ff')
 
@@ -211,8 +212,7 @@ describe('ColorPicker', () => {
 					'visible-formats': 'hex',
 				},
 			})
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const input = colorPicker.querySelector('.cp-color-input') as HTMLInputElement
 			expect(input.value).toBe('#ffffffff')
@@ -226,8 +226,7 @@ describe('ColorPicker', () => {
 			[{ 'default-format': 'rgb' }, ['R', 'G', 'B']],
 		])('sets active color format correctly when providing default-format attribute', async (attributes, expectedLabels) => {
 			const colorPicker = render({ attributes })
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const inputGroupMarkup = (colorPicker.querySelector('.cp-color-input-group') as HTMLElement).innerHTML
 			for (const expectedLabel of expectedLabels) {
@@ -242,8 +241,7 @@ describe('ColorPicker', () => {
 			[{ defaultFormat: 'rgb' }, ['R', 'G', 'B']],
 		])('sets active color format correctly when providing defaultFormat property', async (properties, expectedLabels) => {
 			const colorPicker = render({ properties })
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const inputGroupMarkup = (colorPicker.querySelector('.cp-color-input-group') as HTMLElement).innerHTML
 			for (const expectedLabel of expectedLabels) {
@@ -262,7 +260,7 @@ describe('ColorPicker', () => {
 			],
 		])('recomputes colors when color attribute changes', async (color, expectedRgbColor) => {
 			const colorPicker = render()
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const rgbColorSpy = vi.fn()
 			function colorChangeListener (event: CustomEvent<ColorChangeDetail>) {
@@ -271,11 +269,11 @@ describe('ColorPicker', () => {
 			colorPicker.addEventListener('color-change', colorChangeListener)
 
 			colorPicker.setAttribute('color', color)
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(rgbColorSpy).toHaveBeenCalledWith(expectedRgbColor)
 
 			colorPicker.setAttribute('color', '#fffc')
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(rgbColorSpy).toHaveBeenCalledWith({ r: 1, g: 1, b: 1, a: 0.8 })
 		})
 
@@ -290,7 +288,7 @@ describe('ColorPicker', () => {
 			],
 		])('recomputes colors when color property changes', async (color, expectedRgbColor) => {
 			const colorPicker = render()
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const rgbColorSpy = vi.fn()
 			function colorChangeListener (event: CustomEvent<ColorChangeDetail>) {
@@ -299,11 +297,11 @@ describe('ColorPicker', () => {
 			colorPicker.addEventListener('color-change', colorChangeListener)
 
 			colorPicker.color = color
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(rgbColorSpy).toHaveBeenCalledWith(expectedRgbColor)
 
 			colorPicker.color = '#fffc'
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(rgbColorSpy).toHaveBeenCalledWith({ r: 1, g: 1, b: 1, a: 0.8 })
 		})
 
@@ -314,8 +312,7 @@ describe('ColorPicker', () => {
 					id,
 				},
 			})
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(colorPicker.querySelector(`#${id}-hue-slider`)).not.toBe(null)
 			expect(colorPicker.querySelector(`#${id}-alpha-slider`)).not.toBe(null)
@@ -338,7 +335,7 @@ describe('ColorPicker', () => {
 				expect(colorPicker.querySelector(`[for="${id}-color-${format}-a"]`)).not.toBe(null)
 
 				formatSwitchButton.click()
-				await Promise.resolve()
+				await waitForRecomputations()
 			}
 		})
 
@@ -346,14 +343,13 @@ describe('ColorPicker', () => {
 			const defaultId = 'color-picker'
 			const updatedId = 'test-color-picker'
 			const colorPicker = render()
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(colorPicker.querySelector(`#${defaultId}-hue-slider`)).not.toBe(null)
 			expect(colorPicker.querySelector(`#${updatedId}-hue-slider`)).toBe(null)
 
 			colorPicker.id = updatedId
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(colorPicker.querySelector(`#${defaultId}-hue-slider`)).toBe(null)
 			expect(colorPicker.querySelector(`#${updatedId}-hue-slider`)).not.toBe(null)
@@ -376,8 +372,7 @@ describe('ColorPicker', () => {
 				cssColorSpy(event.detail.cssColor)
 			}
 			colorPicker.addEventListener('color-change', colorChangeListener)
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const alphaInput = colorPicker.querySelector(`#${id}-alpha-slider`)
 			expect(alphaInput !== null).toBe(isElementVisible)
@@ -396,8 +391,7 @@ describe('ColorPicker', () => {
 	describe('color space thumb interactions', () => {
 		test('removes event listeners on unmount', async () => {
 			const colorPicker = render()
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
@@ -481,8 +475,7 @@ describe('ColorPicker', () => {
 					...attributes,
 				},
 			})
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(colorPicker.style.getPropertyValue('--cp-hsl-h')).toBe('0')
 			expect(colorPicker.style.getPropertyValue('--cp-hsl-s')).toBe('0')
@@ -503,16 +496,14 @@ describe('ColorPicker', () => {
 
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(1)
 
 			const colorSpace = colorPicker.querySelector('.cp-color-space') as HTMLElement
 			colorSpace.dispatchEvent(new MouseEvent('mousedown', { buttons: 1 }))
 			colorPicker.ownerDocument.dispatchEvent(new MouseEvent('mousemove', { buttons: 1 }))
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(2)
 		})
@@ -526,8 +517,7 @@ describe('ColorPicker', () => {
 
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(1)
 
@@ -579,8 +569,7 @@ describe('ColorPicker', () => {
 			}
 
 			const colorPicker = render()
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const thumb = colorPicker.querySelector('.cp-thumb') as HTMLElement
 			thumb.dispatchEvent(new KeyboardEvent('keydown', keydownEvent))
@@ -609,8 +598,7 @@ describe('ColorPicker', () => {
 					color: 'hwb(180, 25%, 50%, 1)',
 				},
 			})
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const spy = vi.fn()
 			function colorChangeListener (event: CustomEvent<ColorChangeDetail>) {
@@ -632,8 +620,7 @@ describe('ColorPicker', () => {
 	describe('hue & alpha range inputs', () => {
 		test('can not increment/decrement in big steps without holding down shift', async () => {
 			const colorPicker = render()
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const hueRangeInput = colorPicker.querySelector('#color-picker-hue-slider') as HTMLInputElement
 			const originalInputValue = hueRangeInput.value
@@ -655,8 +642,7 @@ describe('ColorPicker', () => {
 			['increment', 3, 'ArrowRight', '27'],
 		])('can %s range inputs %dx in big steps with %s', async (_, numberOfPresses, key, expectedValue) => {
 			const colorPicker = render()
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const hueRangeInput = colorPicker.querySelector('#color-picker-hue-slider') as HTMLInputElement
 			expect(hueRangeInput !== null).toBe(true)
@@ -676,8 +662,7 @@ describe('ColorPicker', () => {
 			const expectedHueValue = hueAngle / 360
 
 			const colorPicker = render()
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			let channel = ''
 			const spy = vi.fn()
@@ -742,8 +727,7 @@ describe('ColorPicker', () => {
 			vi.spyOn(global.navigator.clipboard, 'writeText').mockImplementation(vi.fn(() => Promise.resolve()))
 
 			const colorPicker = render({ attributes })
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const copyButton = colorPicker.querySelector('.cp-copy-button') as HTMLButtonElement
 			copyButton.click()
@@ -755,51 +739,49 @@ describe('ColorPicker', () => {
 	describe('switch format button', () => {
 		test('clicking switch format button cycles through active formats correctly', async () => {
 			const colorPicker = render()
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const switchFormatButton = colorPicker.querySelector('.cp-switch-format-button') as HTMLButtonElement
 
 			expect(colorPicker.querySelector('#color-picker-color-hsl-l') !== null).toBe(true)
 
 			switchFormatButton.click()
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-hwb-w') !== null).toBe(true)
 
 			switchFormatButton.click()
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-rgb-r') !== null).toBe(true)
 
 			switchFormatButton.click()
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-hex') !== null).toBe(true)
 
 			switchFormatButton.click()
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-hsl-l') !== null).toBe(true)
 		})
 
 		test('setting active format through property works', async () => {
 			const colorPicker = render()
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(colorPicker.querySelector('#color-picker-color-hsl-l') !== null).toBe(true)
 
 			colorPicker.activeFormat = 'hwb'
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-hwb-w') !== null).toBe(true)
 
 			colorPicker.activeFormat = 'rgb'
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-rgb-r') !== null).toBe(true)
 
 			colorPicker.activeFormat = 'hex'
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-hex') !== null).toBe(true)
 
 			colorPicker.activeFormat = 'hsl'
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-hsl-l') !== null).toBe(true)
 		})
 	})
@@ -811,8 +793,8 @@ describe('ColorPicker', () => {
 			[{ 'default-format': 'hwb' }, 'b', '25.%'],
 		])('updating a color input with an invalid value does not update the internal color data', async (attributes, channel, channelValue) => {
 			const colorPicker = render({ attributes })
+			await waitForRecomputations()
 
-			await Promise.resolve()
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
 
@@ -832,8 +814,8 @@ describe('ColorPicker', () => {
 					'default-format': 'hex',
 				},
 			})
+			await waitForRecomputations()
 
-			await Promise.resolve()
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
 
@@ -850,8 +832,8 @@ describe('ColorPicker', () => {
 			[{ 'default-format': 'hwb' }, 'b', '25.5%'],
 		])('updating a %s color input with a valid value updates the internal color data', async (attributes, channel, channelValue) => {
 			const colorPicker = render({ attributes })
+			await waitForRecomputations()
 
-			await Promise.resolve()
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
 
@@ -870,8 +852,8 @@ describe('ColorPicker', () => {
 					'default-format': 'hex',
 				},
 			})
+			await waitForRecomputations()
 
-			await Promise.resolve()
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
 
@@ -1046,8 +1028,7 @@ describe('ColorPicker', () => {
 				spy(event.detail)
 			}
 			colorPicker.addEventListener('color-change', colorChangeListener)
-
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledWith(expectedData)
 		})
@@ -1095,7 +1076,7 @@ describe('ColorPicker', () => {
 				},
 			})
 
-			await Promise.resolve()
+			await waitForRecomputations()
 
 			const input = colorPicker.querySelector('#color-picker-color-hex') as HTMLInputElement
 			expect(input.value).toBe(expectedHexColor)
@@ -1109,7 +1090,7 @@ describe('ColorPicker', () => {
 			vi.spyOn(document, 'removeEventListener')
 
 			const colorPicker = render()
-			await Promise.resolve()
+			await waitForRecomputations()
 			expect(document.addEventListener).toHaveBeenCalledTimes(numberOfDocumentLevelListeners)
 			expect(document.removeEventListener).toHaveBeenCalledTimes(0)
 

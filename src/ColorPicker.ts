@@ -182,7 +182,7 @@ export class ColorPicker extends HTMLElement {
 	set activeFormat (activeFormat) {
 		this.#activeFormat = activeFormat
 
-		queueMicrotask(() => {
+		this.#queueUpdate(() => {
 			this.#recomputeVisibleChannels()
 			this.#queueRender()
 		})
@@ -198,7 +198,7 @@ export class ColorPicker extends HTMLElement {
 	set alphaChannel (alphaChannel) {
 		this.#alphaChannel = alphaChannel
 
-		queueMicrotask(() => {
+		this.#queueUpdate(() => {
 			this.#recomputeVisibleChannels()
 			this.#recomputeHexInputValue()
 			this.#queueRender()
@@ -215,7 +215,7 @@ export class ColorPicker extends HTMLElement {
 	set color (color) {
 		this.#color = color
 
-		queueMicrotask(() => {
+		this.#queueUpdate(() => {
 			this.#recomputeColors()
 			this.#queueRender()
 		})
@@ -242,7 +242,7 @@ export class ColorPicker extends HTMLElement {
 	set id (id) {
 		this.#id = id
 
-		queueMicrotask(() => {
+		this.#queueUpdate(() => {
 			this.#queueRender()
 		})
 	}
@@ -403,6 +403,10 @@ export class ColorPicker extends HTMLElement {
 		this.#hexInputValue = this.alphaChannel === 'hide' && [5, 9].includes(hex.length)
 			? hex.substring(0, hex.length - (hex.length - 1) / 4)
 			: hex
+	}
+
+	#queueUpdate (handler: VoidFunction) {
+		queueMicrotask(handler)
 	}
 
 	#queueRender () {
