@@ -166,7 +166,7 @@ export class ColorPicker extends HTMLElement {
 	 */
 	#hexInputValue: string = '#ffffffff'
 
-	#isProcessingRenderQueue: boolean = false
+	#isRendering: boolean = false
 
 	get [Symbol.toStringTag] () {
 		return 'ColorPicker'
@@ -184,7 +184,7 @@ export class ColorPicker extends HTMLElement {
 
 		this.#queueUpdate(() => {
 			this.#recomputeVisibleChannels()
-			this.#queueRender()
+			this.#renderIfIdle()
 		})
 	}
 
@@ -201,7 +201,7 @@ export class ColorPicker extends HTMLElement {
 		this.#queueUpdate(() => {
 			this.#recomputeVisibleChannels()
 			this.#recomputeHexInputValue()
-			this.#queueRender()
+			this.#renderIfIdle()
 		})
 	}
 
@@ -217,7 +217,7 @@ export class ColorPicker extends HTMLElement {
 
 		this.#queueUpdate(() => {
 			this.#recomputeColors()
-			this.#queueRender()
+			this.#renderIfIdle()
 		})
 	}
 
@@ -259,7 +259,7 @@ export class ColorPicker extends HTMLElement {
 		this.#id = id
 
 		this.#queueUpdate(() => {
-			this.#queueRender()
+			this.#renderIfIdle()
 		})
 	}
 
@@ -424,14 +424,14 @@ export class ColorPicker extends HTMLElement {
 		queueMicrotask(handler)
 	}
 
-	#queueRender () {
-		if (this.#isProcessingRenderQueue) {
+	#renderIfIdle () {
+		if (this.#isRendering) {
 			return
 		}
 
-		this.#isProcessingRenderQueue = true
+		this.#isRendering = true
 		this.#render()
-		this.#isProcessingRenderQueue = false
+		this.#isRendering = false
 	}
 
 	/**
