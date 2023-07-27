@@ -345,5 +345,4 @@ The color picker consists of the following main elements:
 
 ## To do
 
-- Re-consider how state is recomputed internally.
 - Re-consider minification strategy following https://lit.dev/docs/tools/publishing/#don't-bundle-minify-or-optimize-modules (see also https://open-wc.org/guides/developing-components/publishing/#do-not-minify).

@@ -32,11 +32,13 @@ function render (options: RenderOptions = {}) {
 }
 
 /**
- * Await this function in a test to wait for one set of recomputations to be processed in the web component.
+ * Await this function in a test to wait for the component's recomputations to be processed.
  *
- * This function doesn't actually do anything right now. That's because the key to this is *awaiting* the function, not what happens in the function. All we need to accomplish is to jump over the micro tasks (triggered using `queueMicrotask`) handling recomputations. I decided to put this into a function so that I can easily swap it out with a different mechanism (like jumping to the next even loop cycle with the help of `setTimeout`).
+ * This function returns a promise that resolves immediately in the callback of a `window.setImmediate`. Awaiting it will cause the code execution in the test to effectively wait until the next event loop cycle (i.e. the next task). By then, the component's updates have been processed via micro task queues.
  */
-function waitForRecomputations () {}
+function waitForRecomputations () {
+	return new Promise((resolve) => window.setImmediate(resolve, 0))
+}
 
 describe('ColorPicker', () => {
 	afterEach(() => {
@@ -383,6 +385,7 @@ describe('ColorPicker', () => {
 			const inputElement = colorPicker.querySelector(`#${id}-color-hsl-h`) as HTMLInputElement
 			inputElement.value = '180'
 			inputElement.dispatchEvent(new InputEvent('input'))
+			await waitForRecomputations()
 
 			expect(cssColorSpy).toHaveBeenCalledWith(expectedCssColor)
 		})
@@ -411,17 +414,21 @@ describe('ColorPicker', () => {
 			}))
 
 			colorSpace.dispatchEvent(new MouseEvent('mousedown', { buttons: 1, clientX: 0 }))
+			await waitForRecomputations()
 			expect(spy).toHaveBeenCalledTimes(0)
 
 			colorPicker.ownerDocument.dispatchEvent(new MouseEvent('mousemove', { buttons: 1, clientX: 1 }))
+			await waitForRecomputations()
 			expect(spy).toHaveBeenCalledTimes(1)
 
 			colorPicker.ownerDocument.dispatchEvent(new MouseEvent('mousemove', { buttons: 1, clientX: 2 }))
+			await waitForRecomputations()
 			expect(spy).toHaveBeenCalledTimes(2)
 
 			colorPicker.remove()
 
 			colorPicker.ownerDocument.dispatchEvent(new MouseEvent('mousemove', { buttons: 1, clientX: 3 }))
+			await waitForRecomputations()
 			// Note that we assert here that the method hasn’t been called *again*.
 			expect(spy).toHaveBeenCalledTimes(2)
 		})
@@ -545,6 +552,7 @@ describe('ColorPicker', () => {
 					{ clientX: 1, clientY: 0 } as Touch,
 				],
 			}))
+			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(3)
 
@@ -558,6 +566,7 @@ describe('ColorPicker', () => {
 					{ clientX: 3, clientY: 0 } as Touch,
 				],
 			}))
+			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(5)
 		})
@@ -611,6 +620,7 @@ describe('ColorPicker', () => {
 
 			const thumb = colorPicker.querySelector('.cp-thumb') as HTMLElement
 			thumb.dispatchEvent(new KeyboardEvent('keydown', keydownEvent))
+			await waitForRecomputations()
 
 			// expect(keydownEvent.preventDefault).toHaveBeenCalled()
 			expect(spy).toHaveBeenCalledWith(expectedColorValue)
@@ -676,6 +686,7 @@ describe('ColorPicker', () => {
 			hueRangeInput.value = String(hueAngle)
 			channel = 'h'
 			hueRangeInput.dispatchEvent(new InputEvent('input'))
+			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(1)
 			expect(spy).toHaveBeenLastCalledWith(expectedHueValue)
@@ -687,6 +698,7 @@ describe('ColorPicker', () => {
 			alphaRangeInput.value = String(alpha)
 			channel = 'a'
 			alphaRangeInput.dispatchEvent(new InputEvent('input'))
+			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(2)
 			expect(spy).toHaveBeenLastCalledWith(expectedAlphaValue)
@@ -840,6 +852,7 @@ describe('ColorPicker', () => {
 			const input = colorPicker.querySelector(`#${colorPicker.id}-color-${attributes['default-format']}-${channel}`) as HTMLInputElement
 			input.value = channelValue
 			input.dispatchEvent(new InputEvent('input'))
+			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(1)
 		})
@@ -860,6 +873,7 @@ describe('ColorPicker', () => {
 			const input = colorPicker.querySelector('#color-picker-color-hex') as HTMLInputElement
 			input.value = channelValue
 			input.dispatchEvent(new InputEvent('input'))
+			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(1)
 		})

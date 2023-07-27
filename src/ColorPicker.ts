@@ -234,10 +234,11 @@ export class ColorPicker extends HTMLElement {
 	set colors (colors: ColorMap) {
 		this.#colors = colors
 
-		// TODO: Tie this into the render queue.
-		this.#recomputeHexInputValue()
-		this.#render()
-		this.#emitColorChangeEvent()
+		this.#queueUpdate(() => {
+			this.#recomputeHexInputValue()
+			this.#renderIfIdle()
+			this.#emitColorChangeEvent()
+		})
 	}
 
 	/**
