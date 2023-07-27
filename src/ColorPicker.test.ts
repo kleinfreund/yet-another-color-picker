@@ -34,10 +34,10 @@ function render (options: RenderOptions = {}) {
 /**
  * Await this function in a test to wait for the component's recomputations to be processed.
  *
- * This function returns a promise that resolves immediately in the callback of a `window.setImmediate`. Awaiting it will cause the code execution in the test to effectively wait until the next event loop cycle (i.e. the next task). By then, the component's updates have been processed via micro task queues.
+ * This function returns a promise that resolves after a 0 delay in the callback of a `window.setTimeout`. Awaiting it will cause the code execution in the test to effectively wait until the next event loop cycle (i.e. the next task). By then, the component's updates have been processed via micro task queues.
  */
 function waitForRecomputations () {
-	return new Promise((resolve) => window.setImmediate(resolve, 0))
+	return new Promise((resolve) => window.setTimeout(resolve, 0))
 }
 
 describe('ColorPicker', () => {
