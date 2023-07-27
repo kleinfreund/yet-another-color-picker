@@ -92,7 +92,7 @@ export function colorPickerTemplate (
 			type="button"
 			@click="${copyColor}"
 		>
-			<span class="cp-visually-hidden">Copy coloy</span>
+			<span class="cp-visually-hidden">Copy color</span>
 
 			<svg
 				xmlns="http://www.w3.org/2000/svg"
