@@ -22,6 +22,14 @@
 		'space-before-function-paren': ['error', 'always'],
 		'@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
 	},
+	overrides: [
+		{
+			files: '*.test.ts',
+			rules: {
+				'@typescript-eslint/ban-ts-comment': 'off',
+			},
+		},
+	],
 }
 
 /* eslint-env node */

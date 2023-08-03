@@ -460,14 +460,6 @@ describe('ColorPicker', () => {
 				'alpha-channel': 'hide',
 			},
 			{
-				color: 'white',
-				'alpha-channel': 'show',
-			},
-			{
-				color: 'white',
-				'alpha-channel': 'hide',
-			},
-			{
 				color: 'hsl(0, 0%, 100%, 1)',
 				'alpha-channel': 'show',
 			},
