@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/kleinfreund/yet-another-color-picker/compare/v2.0.0...v2.0.1) (2023-08-03)
+
+
+### Bug Fixes
+
+* copy button being labelled as "Copy coloy" ([fd3348e](https://github.com/kleinfreund/yet-another-color-picker/commit/fd3348e97dfb2d406be96ef266742277384cee51))
+
 ## [2.0.0](https://github.com/kleinfreund/yet-another-color-picker/compare/v1.0.1...v2.0.0) (2023-07-24)
 
 
