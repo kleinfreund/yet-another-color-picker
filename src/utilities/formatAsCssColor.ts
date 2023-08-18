@@ -12,25 +12,25 @@ export function formatAsCssColor ({ format, color }: VisibleColorPair, excludeAl
 		}
 
 		case 'hsl': {
-			const h = round(color.h * 360)
-			const s = round(color.s * 100)
-			const l = round(color.l * 100)
+			const h = round(color.h)
+			const s = round(color.s)
+			const l = round(color.l)
 
 			return `hsl(${h} ${s}% ${l}%` + (excludeAlphaChannel ? ')' : ` / ${round(color.a)})`)
 		}
 
 		case 'hwb': {
-			const h = round(color.h * 360)
-			const w = round(color.w * 100)
-			const b = round(color.b * 100)
+			const h = round(color.h)
+			const w = round(color.w)
+			const b = round(color.b)
 
 			return `hwb(${h} ${w}% ${b}%` + (excludeAlphaChannel ? ')' : ` / ${round(color.a)})`)
 		}
 
 		case 'rgb': {
-			const r = round(color.r * 255)
-			const g = round(color.g * 255)
-			const b = round(color.b * 255)
+			const r = round(color.r)
+			const g = round(color.g)
+			const b = round(color.b)
 
 			return `rgb(${r} ${g} ${b}` + (excludeAlphaChannel ? ')' : ` / ${round(color.a)})`)
 		}

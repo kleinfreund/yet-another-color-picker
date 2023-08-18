@@ -51,7 +51,7 @@ export function colorPickerTemplate (
 				min="0"
 				max="360"
 				step="1"
-				.value="${colors.hsv.h * 360}"
+				.value="${colors.hsv.h}"
 				@keydown="${changeInputValue}"
 				@input="${(event: Event) => handleSliderInput(event, 'h')}"
 			>
@@ -70,9 +70,9 @@ export function colorPickerTemplate (
 				id="${id}-alpha-slider"
 				type="range"
 				min="0"
-				max="100"
-				step="1"
-				.value="${colors.hsv.a * 100}"
+				max="1"
+				step="0.01"
+				.value="${colors.hsv.a}"
 				@keydown="${changeInputValue}"
 				@input="${(event: Event) => handleSliderInput(event, 'a')}"
 			>

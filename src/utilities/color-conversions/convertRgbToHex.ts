@@ -5,6 +5,6 @@ import { ColorRgb } from '../../ColorPicker.js'
  */
 export function convertRgbToHex (rgb: ColorRgb): string {
 	return '#' + Object.values(rgb)
-		.map(channel => Math.round(channel * 255).toString(16).padStart(2, '0'))
+		.map((channel, i) => Math.round(i === 3 ? channel * 255 : channel).toString(16).padStart(2, '0'))
 		.join('')
 }

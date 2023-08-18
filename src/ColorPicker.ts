@@ -150,10 +150,10 @@ export class ColorPicker extends HTMLElement {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	#colors: any = {
 		hex: '#ffffffff',
-		hsl: { h: 0, s: 0, l: 1, a: 1 },
-		hsv: { h: 0, s: 0, v: 1, a: 1 },
-		hwb: { h: 0, w: 1, b: 0, a: 1 },
-		rgb: { r: 1, g: 1, b: 1, a: 1 },
+		hsl: { h: 0, s: 0, l: 100, a: 1 },
+		hsv: { h: 0, s: 0, v: 100, a: 1 },
+		hwb: { h: 0, w: 100, b: 0, a: 1 },
+		rgb: { r: 255, g: 255, b: 255, a: 1 },
 	}
 
 	/**
@@ -401,13 +401,13 @@ export class ColorPicker extends HTMLElement {
 
 		// Sets a few CSS properties as inline styles because they're essential for the operation of the color picker.
 		this.#colorSpace.style.position = 'relative'
-		this.#colorSpace.style.backgroundColor = 'hsl(calc(var(--cp-hsl-h) * 360) 100% 50%)'
+		this.#colorSpace.style.backgroundColor = 'hsl(var(--cp-hsl-h) 100% 50%)'
 		this.#colorSpace.style.backgroundImage = 'linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent)'
 
 		this.#thumb.style.boxSizing = 'border-box'
 		this.#thumb.style.position = 'absolute'
-		this.#thumb.style.left = `${this.colors.hsv.s * 100}%`
-		this.#thumb.style.bottom = `${this.colors.hsv.v * 100}%`
+		this.#thumb.style.left = `${this.colors.hsv.s}%`
+		this.#thumb.style.bottom = `${this.colors.hsv.v}%`
 	}
 
 	#recomputeVisibleChannels () {
@@ -542,9 +542,9 @@ export class ColorPicker extends HTMLElement {
 		const direction = ['ArrowLeft', 'ArrowDown'].includes(event.key) ? -1 : 1
 		const channel = ['ArrowLeft', 'ArrowRight'].includes(event.key) ? 's' : 'v'
 		const step = event.shiftKey ? 10 : 1
-		const newColorValue = this.colors.hsv[channel] + direction * step * 0.01
+		const newColorValue = this.colors.hsv[channel] + direction * step
 		const hsvColor = Object.assign({}, this.colors.hsv)
-		hsvColor[channel] = clamp(newColorValue, 0, 1)
+		hsvColor[channel] = clamp(newColorValue, 0, 100)
 
 		this.#updateColors({ format: 'hsv', color: hsvColor })
 	}
@@ -570,7 +570,7 @@ export class ColorPicker extends HTMLElement {
 	#handleSliderInput = (event: Event, channel: 'h' | 'a') => {
 		const input = event.currentTarget as HTMLInputElement
 		const hsvColor = Object.assign({}, this.colors.hsv)
-		hsvColor[channel] = parseInt(input.value) / parseInt(input.max)
+		hsvColor[channel] = parseFloat(input.value)
 
 		this.#updateColors({ format: 'hsv', color: hsvColor })
 	}

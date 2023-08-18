@@ -19,15 +19,15 @@ describe('getNewThumbPosition', () => {
 	test.each([
 		[
 			{ clientX: 0, clientY: 0 },
-			{ x: 0, y: 1 },
+			{ x: 0, y: 100 },
 		],
 		[
 			{ clientX: 1137, clientY: 17 },
-			{ x: 1, y: 0.9611111111111111 },
+			{ x: 100, y: 96.11111111111111 },
 		],
 		[
 			{ clientX: 100, clientY: 20 },
-			{ x: 0, y: 0.9444444444444444 },
+			{ x: 0, y: 94.44444444444444 },
 		],
 	])('works', ({ clientX, clientY }, expectedThumbPosition) => {
 		expect(getNewThumbPosition(el, clientX, clientY)).toEqual(expectedThumbPosition)

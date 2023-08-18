@@ -14,7 +14,8 @@ export function convertHexToRgb (hex: string): ColorRgb {
 	for (let i = 1; i < hex.length; i += step) {
 		// Repeat the character twice for shorthand and once for longhand hex color strings.
 		const channel = hex.substring(i, i + step).repeat(step % 2 + 1)
-		channels.push(parseInt(channel, 16) / 255)
+		const value = parseInt(channel, 16)
+		channels.push(i === 3 * step + 1 ? value / 255 : value)
 	}
 
 	if (channels.length === 3) {
