@@ -1,6 +1,7 @@
-import { describe, test, expect } from 'vitest'
+import { describe, test } from 'vitest'
 
 import { convertRgbToHsl } from './convertRgbToHsl.js'
+import { expectColorToEqual } from './../../test-utilities/expectColorToEqual.js'
 
 describe('convertRgbToHsl', () => {
 	test.each([
@@ -13,6 +14,6 @@ describe('convertRgbToHsl', () => {
 		[{ r: 204, g: 0, b: 0, a: 0.8 }, { h: 0, s: 100, l: 40, a: 0.8 }],
 		[{ r: 127.5, g: 0, b: 255, a: 0.8 }, { h: 270, s: 100, l: 50, a: 0.8 }],
 	])('works', (rgb, hsl) => {
-		expect(convertRgbToHsl(rgb)).toEqual(hsl)
+		expectColorToEqual(convertRgbToHsl(rgb), hsl)
 	})
 })
