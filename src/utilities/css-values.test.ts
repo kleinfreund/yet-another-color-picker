@@ -3,11 +3,33 @@ import { describe, test, expect } from 'vitest'
 import {
 	alpha,
 	angle,
+	number,
 	percentage,
 	rgbNumber,
 } from './css-values.js'
 
 describe('CssValues', () => {
+	describe('alpha', () => {
+		test.each([
+			['0', 0],
+			['0.5555', 0.5555],
+			['1', 1],
+			['0%', 0],
+			['55.55%', 0.5555],
+			['100%', 1],
+		])('alpha.from(%s) = %s', (value, expected) => {
+			expect(alpha.from(value)).toEqual(expected)
+		})
+
+		test.each([
+			[0, '0'],
+			[0.5555, '0.5555'],
+			[1, '1'],
+		])('alpha.to(%s) = %s', (value, expected) => {
+			expect(alpha.to(value)).toEqual(expected)
+		})
+	})
+
 	describe('angle', () => {
 		test.each([
 			['-30', -30],
@@ -21,6 +43,7 @@ describe('CssValues', () => {
 			['1.5707963267948966rad', 90],
 			['0.25turn', 90],
 			['90xdeg', NaN],
+			['90.deg', NaN],
 		])('hue.from(%s) = %s', (value, expected) => {
 			expect(angle.from(value)).toEqual(expected)
 		})
@@ -37,6 +60,28 @@ describe('CssValues', () => {
 		})
 	})
 
+	describe('number', () => {
+		test.each([
+			['0', 0],
+			['10.', NaN],
+			['a', NaN],
+			['-13', -13],
+			['55.55', 55.55],
+			['100', 100],
+			['1300', 1300],
+		])('number.from(%s) = %s', (value, expected) => {
+			expect(number.from(value)).toEqual(expected)
+		})
+
+		test.each([
+			[0, '0'],
+			[55.55, '55.55'],
+			[100, '100'],
+		])('number.to(%s) = %s', (value, expected) => {
+			expect(number.to(value)).toEqual(expected)
+		})
+	})
+
 	describe('percentage', () => {
 		test.each([
 			['0%', 100, 0],
@@ -49,8 +94,10 @@ describe('CssValues', () => {
 			['1300%', 100, 100],
 			['100%', 255, 255],
 			['50%', 255, 127.5],
+			['0%', 255, 0],
 			['100%', 1, 1],
 			['50%', 1, 0.5],
+			['0%', 1, 0],
 		])('percentage.from(%s, %s) = %s', (value, referenceValue, expected) => {
 			expect(percentage.from(value, { referenceValue })).toEqual(expected)
 		})
@@ -64,7 +111,7 @@ describe('CssValues', () => {
 		})
 	})
 
-	describe('8 bit decimal', () => {
+	describe('rgbNumber', () => {
 		test.each([
 			['0', 0],
 			['0%', 0],
@@ -85,27 +132,6 @@ describe('CssValues', () => {
 			[255, '255'],
 		])('rgbNumber.to(%s) = %s', (value, expected) => {
 			expect(rgbNumber.to(value)).toEqual(expected)
-		})
-	})
-
-	describe('alpha', () => {
-		test.each([
-			['0', 0],
-			['0.5555', 0.5555],
-			['1', 1],
-			['0%', 0],
-			['55.55%', 0.5555],
-			['100%', 1],
-		])('alpha.from(%s) = %s', (value, expected) => {
-			expect(alpha.from(value)).toEqual(expected)
-		})
-
-		test.each([
-			[0, '0'],
-			[0.5555, '0.5555'],
-			[1, '1'],
-		])('alpha.to(%s) = %s', (value, expected) => {
-			expect(alpha.to(value)).toEqual(expected)
 		})
 	})
 })

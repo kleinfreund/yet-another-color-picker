@@ -592,8 +592,8 @@ export class ColorPicker extends HTMLElement {
 		const cssValue = colorChannels[format][channel] as CssValue
 		const value = cssValue.from(input.value)
 
-		if (Number.isNaN(value) || value === undefined) {
-			// This means that the input value does not result in a valid CSS value.
+		if (Number.isNaN(value)) {
+			// A `NaN` value is used as a signal for an invalid or incomplete user input. In either case, we don't want to continue updating the processing color value and risk overriding the input element's value while the user is still inputting data.
 			return
 		}
 

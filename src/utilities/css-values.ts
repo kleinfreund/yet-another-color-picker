@@ -9,11 +9,16 @@ export type CssValue<
 	to: (value: number, options?: ToOptions) => string
 }
 
-export type CssValuePercentage = CssValue<{ referenceValue?: number }>
+export type CssValueNumber = CssValue<{
+	min?: number
+	max?: number
+}>
 
-function toNumber (value: number): string {
-	return round(value)
-}
+export type CssValuePercentage = CssValue<{
+	referenceValue?: number
+	min?: number
+	max?: number
+}>
 
 const angleFactor = {
 	deg: 1,
@@ -31,7 +36,7 @@ export const alpha: CssValue = {
 			return percentage.from(value, { referenceValue: 1 })
 		}
 
-		return clamp(Number(value), 0, 1)
+		return clamp(number.from(value), 0, 1)
 	},
 
 	to (value) {
@@ -44,27 +49,34 @@ export const alpha: CssValue = {
  */
 export const angle: CssValue = {
 	from (value) {
+		const match = value.match(/deg|g?rad|turn$/)
+		if (match === null) {
+			return number.from(value)
+		}
+
+		const unit = match[0] as 'deg' | 'grad' | 'rad' | 'turn'
+		const numberValue = number.from(value.slice(0, -unit.length))
+
+		return numberValue*angleFactor[unit]
+	},
+
+	to (value) {
+		return number.to(value)
+	},
+}
+
+export const number: CssValueNumber = {
+	from (value, { min = Number.NEGATIVE_INFINITY, max = Number.POSITIVE_INFINITY } = {}) {
 		if (value.endsWith('.')) {
 			// Returns `NaN` so we can avoid processing something as a color while the user is making an input. For example, typing "1" and then "." should only commit a color value at the input of "1" but not the input of ".". This allows us to avoid changing the corresponding input element's value while the user is typing.
 			return NaN
 		}
 
-		const match = value.match(/deg|g?rad|turn$/)
-		if (match === null) {
-			return Number(value)
-		}
-
-		const unit = match[0] as 'deg' | 'grad' | 'rad' | 'turn'
-		const number = Number(value.substring(0, value.length - unit.length))
-		if (Number.isNaN(number)) {
-			return NaN
-		}
-
-		return angleFactor[unit] * number
+		return clamp(Number(value), min, max)
 	},
 
 	to (value) {
-		return toNumber(value)
+		return round(value)
 	},
 }
 
@@ -72,26 +84,18 @@ export const angle: CssValue = {
  * Reference: https://www.w3.org/TR/css-values-4/#percentage-value
  */
 export const percentage: CssValuePercentage = {
-	from (value, { referenceValue = 100 } = {}) {
+	from (value, { referenceValue = 100, min = 0, max = 100 } = {}) {
 		if (!value.endsWith('%')) {
 			return NaN
 		}
 
-		const numberString = value.substring(0, value.length - 1)
-		if (numberString.endsWith('.')) {
-			return NaN
-		}
+		const numberValue = number.from(value.slice(0, -1), { min, max })
 
-		const numberValue = Number(numberString)
-		if (Number.isNaN(numberValue)) {
-			return NaN
-		}
-
-		return clamp(numberValue, 0, 100)*referenceValue/100
+		return numberValue*referenceValue/100
 	},
 
 	to (value) {
-		return toNumber(value) + '%'
+		return number.to(value) + '%'
 	},
 }
 
@@ -104,19 +108,10 @@ export const rgbNumber: CssValue = {
 			return percentage.from(value, { referenceValue: 255 })
 		}
 
-		if (value.endsWith('.')) {
-			return NaN
-		}
-
-		const numberValue = Number(value)
-		if (Number.isNaN(numberValue)) {
-			return NaN
-		}
-
-		return clamp(numberValue, 0, 255)
+		return number.from(value, { min: 0, max: 255 })
 	},
 
 	to (value) {
-		return toNumber(value)
+		return number.to(value)
 	},
 }
