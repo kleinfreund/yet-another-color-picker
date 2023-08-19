@@ -1,73 +1,122 @@
 import { clamp } from './clamp.js'
 import { round } from './round.js'
 
-export function fromHueAngle (value: string): number {
-	if (value.endsWith('.')) {
-		return NaN
-	}
-
-	// Maps the angle to the range [0, 360] (e.g. -30 becomes 330, 385 becomes 15, etc).
-	return ((parseFloat(value) % 360) + 360) % 360
+export type CssValue<
+	FromOptions = Record<string, never>,
+	ToOptions = Record<string, never>,
+> = {
+	from: (value: string, options?: FromOptions) => number
+	to: (value: number, options?: ToOptions) => string
 }
 
-export function toHueAngle (value: number): string {
+export type CssValuePercentage = CssValue<{ referenceValue?: number }>
+
+function toNumber (value: number): string {
 	return round(value)
 }
 
-export function fromPercentage (value: string): number {
-	if (!value.endsWith('%')) {
-		return NaN
-	}
-
-	const numberString = value.substring(0, value.length - 1)
-
-	if (numberString.endsWith('.')) {
-		return NaN
-	}
-
-	const numberValue = parseFloat(numberString)
-
-	if (Number.isNaN(numberValue)) {
-		return NaN
-	}
-
-	return clamp(numberValue, 0, 100)
+const angleFactor = {
+	deg: 1,
+	grad: 0.9,
+	rad: 180/Math.PI,
+	turn: 360,
 }
 
-export function toPercentage (value: number): string {
-	return round(value) + '%'
+/**
+ * Reference: https://www.w3.org/TR/css-color-4/#typedef-alpha-value
+ */
+export const alpha: CssValue = {
+	from (value) {
+		if (value.endsWith('%')) {
+			return percentage.from(value, { referenceValue: 1 })
+		}
+
+		return clamp(Number(value), 0, 1)
+	},
+
+	to (value) {
+		return String(value)
+	},
 }
 
-export function from8BitDecimal (value: string): number {
-	if (value.endsWith('%')) {
-		return fromPercentage(value)/100*255
-	}
+/**
+ * Reference: https://www.w3.org/TR/css-values-4/#angle-value
+ */
+export const angle: CssValue = {
+	from (value) {
+		if (value.endsWith('.')) {
+			// Returns `NaN` so we can avoid processing something as a color while the user is making an input. For example, typing "1" and then "." should only commit a color value at the input of "1" but not the input of ".". This allows us to avoid changing the corresponding input element's value while the user is typing.
+			return NaN
+		}
 
-	if (value.endsWith('.')) {
-		return NaN
-	}
+		const match = value.match(/deg|g?rad|turn$/)
+		if (match === null) {
+			return Number(value)
+		}
 
-	const numberValue = parseFloat(value)
+		const unit = match[0] as 'deg' | 'grad' | 'rad' | 'turn'
+		const number = Number(value.substring(0, value.length - unit.length))
+		if (Number.isNaN(number)) {
+			return NaN
+		}
 
-	if (Number.isNaN(numberValue)) {
-		return NaN
-	}
+		return angleFactor[unit] * number
+	},
 
-	return clamp(numberValue, 0, 255)
+	to (value) {
+		return toNumber(value)
+	},
 }
 
-export function to8BitDecimal (value: number): string {
-	return round(value)
+/**
+ * Reference: https://www.w3.org/TR/css-values-4/#percentage-value
+ */
+export const percentage: CssValuePercentage = {
+	from (value, { referenceValue = 100 } = {}) {
+		if (!value.endsWith('%')) {
+			return NaN
+		}
+
+		const numberString = value.substring(0, value.length - 1)
+		if (numberString.endsWith('.')) {
+			return NaN
+		}
+
+		const numberValue = Number(numberString)
+		if (Number.isNaN(numberValue)) {
+			return NaN
+		}
+
+		return clamp(numberValue, 0, 100)*referenceValue/100
+	},
+
+	to (value) {
+		return toNumber(value) + '%'
+	},
 }
 
-export function fromAlpha (value: string): number {
-	if (value.endsWith('%')) {
-		return fromPercentage(value)/100
-	} else {
-		return clamp(parseFloat(value), 0, 1)
-	}
-}
+/**
+ * Reference: https://www.w3.org/TR/css-color-4/#funcdef-rgb
+ */
+export const rgbNumber: CssValue = {
+	from (value) {
+		if (value.endsWith('%')) {
+			return percentage.from(value, { referenceValue: 255 })
+		}
 
-export function toAlpha (value: number): string {
-	return String(value)
+		if (value.endsWith('.')) {
+			return NaN
+		}
+
+		const numberValue = Number(value)
+		if (Number.isNaN(numberValue)) {
+			return NaN
+		}
+
+		return clamp(numberValue, 0, 255)
+	},
+
+	to (value) {
+		return toNumber(value)
+	},
 }

@@ -5,6 +5,7 @@ import { colorChannels } from './utilities/colorChannels.js'
 import { colorPickerTemplate } from './templates/colorPickerTemplate.js'
 import { colorsAreValueEqual } from './utilities/colorsAreValueEqual.js'
 import { convert } from './utilities/convert.js'
+import { CssValue } from './utilities/css-values.js'
 import { formatAsCssColor } from './utilities/formatAsCssColor.js'
 import { getNewThumbPosition } from './utilities/getNewThumbPosition.js'
 import { isValidHexColor } from './utilities/isValidHexColor.js'
@@ -558,10 +559,10 @@ export class ColorPicker extends HTMLElement {
 		}
 
 		const input = event.currentTarget as HTMLInputElement
-		const step = parseFloat(input.step)
+		const step = Number(input.step)
 		const direction = ['ArrowLeft', 'ArrowDown'].includes(event.key) ? -1 : 1
-		const value = parseFloat(input.value) + direction * step * 10
-		const newValue = clamp(value, parseInt(input.min), parseInt(input.max))
+		const value = Number(input.value) + direction * step * 10
+		const newValue = clamp(value, Number(input.min), Number(input.max))
 
 		// Intentionally removes a single step from `newValue` because the default action associated with an `input` element’s `keydown` event will add one itself.
 		input.value = String(newValue - direction * step)
@@ -570,7 +571,7 @@ export class ColorPicker extends HTMLElement {
 	#handleSliderInput = (event: Event, channel: 'h' | 'a') => {
 		const input = event.currentTarget as HTMLInputElement
 		const hsvColor = Object.assign({}, this.colors.hsv)
-		hsvColor[channel] = parseFloat(input.value)
+		hsvColor[channel] = Number(input.value)
 
 		this.#updateColors({ format: 'hsv', color: hsvColor })
 	}
@@ -586,8 +587,10 @@ export class ColorPicker extends HTMLElement {
 	#updateColorValue = (event: Event, channel: string) => {
 		const input = event.target as HTMLInputElement
 
-		const color = Object.assign({}, this.#colors[this.activeFormat])
-		const value = colorChannels[this.activeFormat][channel].from(input.value)
+		const format = this.#activeFormat as Exclude<ColorFormat, 'hex' | 'hsv'>
+		const color = Object.assign({}, this.#colors[format])
+		const cssValue = colorChannels[format][channel] as CssValue
+		const value = cssValue.from(input.value)
 
 		if (Number.isNaN(value) || value === undefined) {
 			// This means that the input value does not result in a valid CSS value.
@@ -639,7 +642,8 @@ export class ColorPicker extends HTMLElement {
 	 * Wrapper function. Converts a color channel’s value into its CSS value representation.
 	 */
 	#getChannelAsCssValue = (channel: string): string => {
-		const format = this.activeFormat
-		return colorChannels[format][channel].to(this.#colors[format][channel])
+		const format = this.activeFormat as Exclude<ColorFormat, 'hex' | 'hsv'>
+		const cssValue = colorChannels[format][channel] as CssValue
+		return cssValue.to(this.#colors[format][channel])
 	}
 }

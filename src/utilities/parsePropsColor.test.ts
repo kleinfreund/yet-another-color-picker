@@ -2,7 +2,7 @@ import { describe, test, expect, vi } from 'vitest'
 
 import { parsePropsColor } from './parsePropsColor.js'
 
-describe('getCssColorAsRgbString', () => {
+describe('parsePropsColor', () => {
 	test.each([
 		['rgb(255, 0, 0)', { format: 'rgb', color: { r: 255, g: 0, b: 0, a: 1 } }],
 		['rgba(255, 0, 0, 1)', { format: 'rgb', color: { r: 255, g: 0, b: 0, a: 1 } }],
@@ -15,7 +15,11 @@ describe('getCssColorAsRgbString', () => {
 		['hsl(127.5, 0%, 100%)', { format: 'hsl', color: { h: 127.5, s: 0, l: 100, a: 1 } }],
 		['hsl(127.5 0% 100%)', { format: 'hsl', color: { h: 127.5, s: 0, l: 100, a: 1 } }],
 		['hsl(127.5 0% 100% / 0.5)', { format: 'hsl', color: { h: 127.5, s: 0, l: 100, a: 0.5 } }],
-		['hsl(360 0% 100% / 0.5)', { format: 'hsl', color: { h: 0, s: 0, l: 100, a: 0.5 } }],
+		['hsl(360 0% 100% / 0.5)', { format: 'hsl', color: { h: 360, s: 0, l: 100, a: 0.5 } }],
+		['hsl(90deg 0% 100% / 0.5)', { format: 'hsl', color: { h: 90, s: 0, l: 100, a: 0.5 } }],
+		['hsl(100grad 0% 100% / 0.5)', { format: 'hsl', color: { h: 90, s: 0, l: 100, a: 0.5 } }],
+		['hsl(1.5707963267948966rad 0% 100% / 0.5)', { format: 'hsl', color: { h: 90, s: 0, l: 100, a: 0.5 } }],
+		['hsl(0.25turn 0% 100% / 0.5)', { format: 'hsl', color: { h: 90, s: 0, l: 100, a: 0.5 } }],
 		[{ r: 127.5, g: 0, b: 255, a: 1 }, { format: 'rgb', color: { r: 127.5, g: 0, b: 255, a: 1 } }],
 		[{ h: 127.5, s: 0, l: 255, a: 0.5 }, { format: 'hsl', color: { h: 127.5, s: 0, l: 255, a: 0.5 } }],
 		['#1234', { format: 'hex', color: '#1234' }],

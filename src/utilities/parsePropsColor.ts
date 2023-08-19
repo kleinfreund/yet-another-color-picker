@@ -1,7 +1,6 @@
 import { colorChannels } from './colorChannels.js'
 import { detectFormat } from './detectFormat.js'
 import { isValidHexColor } from './isValidHexColor.js'
-
 import {
 	ColorPair,
 	ColorFormat,
@@ -10,6 +9,7 @@ import {
 	ColorHwb,
 	ColorRgb,
 } from '../ColorPicker.js'
+import { CssValue } from './css-values.js'
 
 /**
  * Parses a color as it can be provided to the color picker’s `color` prop.
@@ -49,7 +49,7 @@ export function parsePropsColor (propsColor: string | ColorHsl | ColorHsv | Colo
 	// 4. Strings: functional
 	// Split a color string like `rgba(255 255 128 / .5)` into `rgba` and `255 255 128 / .5)`.
 	const [cssFormat, rest] = propsColor.split('(') as [string, string]
-	const format = cssFormat.substring(0, 3) as ColorFormat
+	const format = cssFormat.substring(0, 3) as Exclude<ColorFormat, 'hex' | 'hsv'>
 	const parameters = rest
 		// Replace all characters that aren’t needed any more, leaving a string like `255 255 128 .5`.
 		.replace(/[,/)]/g, ' ')
@@ -64,10 +64,14 @@ export function parsePropsColor (propsColor: string | ColorHsl | ColorHsv | Colo
 	}
 
 	const channels = (format + 'a').split('')
-	const color = Object.fromEntries(channels.map((channel, index) => [
-		channel,
-		colorChannels[format][channel].from(parameters[index]),
-	])) as ColorHsl | ColorHsv | ColorHwb | ColorRgb
+	const color = Object.fromEntries(channels.map((channel, index) => {
+		const cssValue = colorChannels[format][channel] as CssValue
+
+		return [
+			channel,
+			cssValue.from(parameters[index] as string),
+		]
+	})) as ColorHsl | ColorHsv | ColorHwb | ColorRgb
 
 	return { format, color } as ColorPair
 }

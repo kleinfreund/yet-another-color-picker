@@ -1,27 +1,28 @@
 import { describe, test, expect } from 'vitest'
 
 import {
-	from8BitDecimal,
-	fromAlpha,
-	fromHueAngle,
-	fromPercentage,
-	to8BitDecimal,
-	toAlpha,
-	toHueAngle,
-	toPercentage,
+	alpha,
+	angle,
+	percentage,
+	rgbNumber,
 } from './css-values.js'
 
 describe('CssValues', () => {
-	describe('hue angle', () => {
+	describe('angle', () => {
 		test.each([
-			['-30', 330],
+			['-30', -30],
 			['0', 0],
-			['360', 0],
-			['450', 90],
+			['360', 360],
+			['450', 450],
 			['270', 270],
 			['270.', NaN],
-		])('fromHueAngle', (value, expected) => {
-			expect(fromHueAngle(value)).toEqual(expected)
+			['90deg', 90],
+			['100grad', 90],
+			['1.5707963267948966rad', 90],
+			['0.25turn', 90],
+			['90xdeg', NaN],
+		])('hue.from(%s) = %s', (value, expected) => {
+			expect(angle.from(value)).toEqual(expected)
 		})
 
 		test.each([
@@ -31,31 +32,35 @@ describe('CssValues', () => {
 			[120, '120'],
 			[180, '180'],
 			[270, '270'],
-		])('toHueAngle', (value, expected) => {
-			expect(toHueAngle(value)).toEqual(expected)
+		])('hue.to(%s) = %s', (value, expected) => {
+			expect(angle.to(value)).toEqual(expected)
 		})
 	})
 
 	describe('percentage', () => {
 		test.each([
-			['0%', 0],
-			['0', NaN],
-			['10.%', NaN],
-			['a%', NaN],
-			['-13%', 0],
-			['55.55%', 55.55],
-			['100%', 100],
-			['1300%', 100],
-		])('fromPercentage', (value, expected) => {
-			expect(fromPercentage(value)).toEqual(expected)
+			['0%', 100, 0],
+			['0', 100, NaN],
+			['10.%', 100, NaN],
+			['a%', 100, NaN],
+			['-13%', 100, 0],
+			['55.55%', 100, 55.55],
+			['100%', 100, 100],
+			['1300%', 100, 100],
+			['100%', 255, 255],
+			['50%', 255, 127.5],
+			['100%', 1, 1],
+			['50%', 1, 0.5],
+		])('percentage.from(%s, %s) = %s', (value, referenceValue, expected) => {
+			expect(percentage.from(value, { referenceValue })).toEqual(expected)
 		})
 
 		test.each([
 			[0, '0%'],
 			[55.55, '55.55%'],
 			[100, '100%'],
-		])('toPercentage', (value, expected) => {
-			expect(toPercentage(value)).toEqual(expected)
+		])('percentage.to(%s) = %s', (value, expected) => {
+			expect(percentage.to(value)).toEqual(expected)
 		})
 	})
 
@@ -70,16 +75,16 @@ describe('CssValues', () => {
 			['255', 255],
 			['100%', 255],
 			['50%', 127.5],
-		])('from8BitDecimal', (value, expected) => {
-			expect(from8BitDecimal(value)).toEqual(expected)
+		])('rgbNumber.from(%s) = %s', (value, expected) => {
+			expect(rgbNumber.from(value)).toEqual(expected)
 		})
 
 		test.each([
 			[0, '0'],
 			[141.6525, '141.65'],
 			[255, '255'],
-		])('to8BitDecimal', (value, expected) => {
-			expect(to8BitDecimal(value)).toEqual(expected)
+		])('rgbNumber.to(%s) = %s', (value, expected) => {
+			expect(rgbNumber.to(value)).toEqual(expected)
 		})
 	})
 
@@ -91,16 +96,16 @@ describe('CssValues', () => {
 			['0%', 0],
 			['55.55%', 0.5555],
 			['100%', 1],
-		])('fromAlpha', (value, expected) => {
-			expect(fromAlpha(value)).toEqual(expected)
+		])('alpha.from(%s) = %s', (value, expected) => {
+			expect(alpha.from(value)).toEqual(expected)
 		})
 
 		test.each([
 			[0, '0'],
 			[0.5555, '0.5555'],
 			[1, '1'],
-		])('toAlpha', (value, expected) => {
-			expect(toAlpha(value)).toEqual(expected)
+		])('alpha.to(%s) = %s', (value, expected) => {
+			expect(alpha.to(value)).toEqual(expected)
 		})
 	})
 })
