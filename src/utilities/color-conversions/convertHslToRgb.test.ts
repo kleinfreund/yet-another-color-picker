@@ -12,6 +12,7 @@ describe('convertHslToRgb', () => {
 		[{ h: 0, s: 0, l: 0, a: 1 }, { r: 0, g: 0, b: 0, a: 1 }],
 		[{ h: 0, s: 100, l: 40, a: 0.8 }, { r: 204, g: 0, b: 0, a: 0.8 }],
 		[{ h: 270, s: 100, l: 50, a: 0.8 }, { r: 127.5, g: 0, b: 255, a: 0.8 }],
+		[{ h: -90, s: 100, l: 50, a: 0.8 }, { r: 127.5, g: 0, b: 255, a: 0.8 }],
 	])('works', (hslColor, rgbColor) => {
 		expect(convertHslToRgb(hslColor)).toEqual(rgbColor)
 	})
