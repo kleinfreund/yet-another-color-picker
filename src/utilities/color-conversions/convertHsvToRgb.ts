@@ -8,8 +8,5 @@ import { convertHsvToHsl } from './convertHsvToHsl.js'
  * Source: https://en.m.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB
  */
 export function convertHsvToRgb (hsv: ColorHsv): ColorRgb {
-	// TODO: inline
-	const hsl = convertHsvToHsl(hsv)
-
-	return convertHslToRgb(hsl)
+	return convertHslToRgb(convertHsvToHsl(hsv))
 }
