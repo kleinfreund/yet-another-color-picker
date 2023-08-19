@@ -17,7 +17,7 @@ export function convertHwbToHsv (hwb: ColorHwb): ColorHsv {
 		v = w/sum
 	} else {
 		v = 1 - b
-		s = v === 0 ? 0 : (1 - w/v)*100
+		s = (1 - w/v)*100
 	}
 
 	return {
