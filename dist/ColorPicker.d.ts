@@ -85,8 +85,8 @@ declare class ColorPicker extends HTMLElement {
     /**
      * Sets the color of the color picker. You can pass any valid CSS color string.
      */
-    get color(): string | ColorHsl | ColorHsv | ColorHwb | ColorRgb;
-    set color(color: string | ColorHsl | ColorHsv | ColorHwb | ColorRgb);
+    get color(): string | ColorHsl | ColorHwb | ColorRgb;
+    set color(color: string | ColorHsl | ColorHwb | ColorRgb);
     /**
      * The internal color representation for all formats.
      */

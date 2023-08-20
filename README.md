@@ -156,7 +156,7 @@ Each of the following properties can also be set via its corresponding attribute
 #### `color`
 
 - **Description**: Sets the color of the color picker. You can pass any valid CSS color string.
-- **Type**: `string | ColorHsl | ColorHsv | ColorHwb | ColorRgb` (for `string`, any valid CSS color string will work)
+- **Type**: `string | ColorHsl | ColorHwb | ColorRgb` (for `string`, any valid CSS color string will work)
 - **Required**: `false`
 - **Default**: `'#ffffffff'`
 - **Attribute**: `color`

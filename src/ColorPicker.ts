@@ -130,7 +130,7 @@ export class ColorPicker extends HTMLElement {
 
 	#activeFormat: VisibleColorFormat = 'hsl'
 	#alphaChannel: AlphaChannelProp = 'show'
-	#color: string | ColorHsl | ColorHsv | ColorHwb | ColorRgb = '#ffffffff'
+	#color: string | ColorHsl | ColorHwb | ColorRgb = '#ffffffff'
 	#defaultFormat: VisibleColorFormat = 'hsl'
 	#id: string = 'color-picker'
 	#visibleFormats: VisibleColorFormat[] = ['hex', 'hsl', 'hwb', 'rgb']
