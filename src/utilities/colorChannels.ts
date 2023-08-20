@@ -1,4 +1,4 @@
-import { ColorFormat } from '../ColorPicker.js'
+import { VisibleColorFormat } from '../ColorPicker.js'
 import {
 	alpha,
 	angle,
@@ -7,7 +7,7 @@ import {
 	rgbNumber,
 } from './css-values.js'
 
-export const colorChannels: Record<Exclude<ColorFormat, 'hex' | 'hsv'>, Record<string, CssValue>> = {
+export const colorChannels: Record<Exclude<VisibleColorFormat, 'hex'>, Record<string, CssValue>> = {
 	hsl: {
 		h: angle,
 		s: percentage,

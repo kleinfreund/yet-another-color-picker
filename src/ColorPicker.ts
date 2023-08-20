@@ -158,16 +158,6 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	/**
-	 * A list of color channels rendered as part of the color picker. Only used out of convenience for simplifying rendering of the channel-specific color inputs.
-	 */
-	#visibleChannels: string[] = ['h', 's', 'l', 'a']
-
-	/**
-	 * Input value of the color `input` element for the hexadecimal representation of the current color.
-	 */
-	#hexInputValue: string = '#ffffffff'
-
-	/**
 	 * Tracks queued updates.
 	 */
 	#updateCount = 0
@@ -187,7 +177,6 @@ export class ColorPicker extends HTMLElement {
 		this.#activeFormat = activeFormat
 
 		this.#queueUpdate(() => {
-			this.#recomputeVisibleChannels()
 			this.#renderIfIdle()
 		})
 	}
@@ -203,8 +192,6 @@ export class ColorPicker extends HTMLElement {
 		this.#alphaChannel = alphaChannel
 
 		this.#queueUpdate(() => {
-			this.#recomputeVisibleChannels()
-			this.#recomputeHexInputValue()
 			this.#renderIfIdle()
 		})
 	}
@@ -236,7 +223,6 @@ export class ColorPicker extends HTMLElement {
 		this.#colors = colors
 
 		this.#queueUpdate(() => {
-			this.#recomputeHexInputValue()
 			this.#renderIfIdle()
 			this.#emitColorChangeEvent()
 		})
@@ -411,20 +397,6 @@ export class ColorPicker extends HTMLElement {
 		this.#thumb.style.bottom = `${this.colors.hsv.v}%`
 	}
 
-	#recomputeVisibleChannels () {
-		const allChannels = Object.keys(this.colors[this.activeFormat])
-		this.#visibleChannels = this.activeFormat !== 'hex' && this.alphaChannel === 'hide'
-			? allChannels.slice(0, 3)
-			: allChannels
-	}
-
-	#recomputeHexInputValue () {
-		const hex = this.colors.hex
-		this.#hexInputValue = this.alphaChannel === 'hide' && [5, 9].includes(hex.length)
-			? hex.substring(0, hex.length - (hex.length - 1) / 4)
-			: hex
-	}
-
 	/**
 	 * Queues an update using `queueMicrotask`.
 	 *
@@ -458,13 +430,10 @@ export class ColorPicker extends HTMLElement {
 			// Data
 			this.id,
 			this.activeFormat,
-			this.#visibleChannels,
 			this.colors,
-			this.#hexInputValue,
 			this.alphaChannel,
 			this.visibleFormats,
 			// Listeners
-			this.#getChannelAsCssValue,
 			this.#changeInputValue,
 			this.#copyColor,
 			this.#handleSliderInput,
@@ -586,8 +555,7 @@ export class ColorPicker extends HTMLElement {
 
 	#updateColorValue = (event: Event, channel: string) => {
 		const input = event.target as HTMLInputElement
-
-		const format = this.#activeFormat as Exclude<ColorFormat, 'hex' | 'hsv'>
+		const format = this.activeFormat as Exclude<VisibleColorFormat, 'hex'>
 		const color = Object.assign({}, this.#colors[format])
 		const cssValue = colorChannels[format][channel] as CssValue
 		const value = cssValue.from(input.value)
@@ -599,7 +567,7 @@ export class ColorPicker extends HTMLElement {
 
 		color[channel] = value
 
-		this.#updateColors({ format: this.activeFormat, color })
+		this.#updateColors({ format, color })
 	}
 
 	/**
@@ -636,14 +604,5 @@ export class ColorPicker extends HTMLElement {
 		const newFormatIndex = (activeFormatIndex + 1) % this.visibleFormats.length
 
 		this.activeFormat = this.visibleFormats[newFormatIndex] as VisibleColorFormat
-	}
-
-	/**
-	 * Wrapper function. Converts a color channel’s value into its CSS value representation.
-	 */
-	#getChannelAsCssValue = (channel: string): string => {
-		const format = this.activeFormat as Exclude<ColorFormat, 'hex' | 'hsv'>
-		const cssValue = colorChannels[format][channel] as CssValue
-		return cssValue.to(this.#colors[format][channel])
 	}
 }

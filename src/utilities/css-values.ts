@@ -1,6 +1,31 @@
 import { clamp } from './clamp.js'
 import { round } from './round.js'
 
+interface CssValueNumberFromOptions {
+	/**
+	 * Minimum to clamp a number to.
+	 *
+	 * **Default**: `Number.NEGATIVE_INFINITY`
+	 */
+	min?: number
+
+	/**
+	 * Maximum to clamp a number to.
+	 *
+	 * **Default**: `Number.POSITIVE_INFINITY`
+	 */
+	max?: number
+}
+
+interface CssValuePercentageFromOptions extends CssValueNumberFromOptions {
+	/**
+	 * Value to which the percentage is in reference with (e.g. for RGB number values, this would be `255` meaning that `100%` will correspond to 255).
+	 *
+	 * **Default**: `100`
+	 */
+	referenceValue?: number
+}
+
 export type CssValue<
 	FromOptions = Record<string, never>,
 	ToOptions = Record<string, never>,
@@ -9,16 +34,8 @@ export type CssValue<
 	to: (value: number, options?: ToOptions) => string
 }
 
-export type CssValueNumber = CssValue<{
-	min?: number
-	max?: number
-}>
-
-export type CssValuePercentage = CssValue<{
-	referenceValue?: number
-	min?: number
-	max?: number
-}>
+export type CssValueNumber = CssValue<CssValueNumberFromOptions>
+export type CssValuePercentage = CssValue<CssValuePercentageFromOptions>
 
 const angleFactor = {
 	deg: 1,

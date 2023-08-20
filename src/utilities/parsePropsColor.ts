@@ -3,11 +3,11 @@ import { detectFormat } from './detectFormat.js'
 import { isValidHexColor } from './isValidHexColor.js'
 import {
 	ColorPair,
-	ColorFormat,
 	ColorHsl,
 	ColorHsv,
 	ColorHwb,
 	ColorRgb,
+	VisibleColorFormat,
 } from '../ColorPicker.js'
 import { CssValue } from './css-values.js'
 
@@ -49,7 +49,7 @@ export function parsePropsColor (propsColor: string | ColorHsl | ColorHsv | Colo
 	// 4. Strings: functional
 	// Split a color string like `rgba(255 255 128 / .5)` into `rgba` and `255 255 128 / .5)`.
 	const [cssFormat, rest] = propsColor.split('(') as [string, string]
-	const format = cssFormat.substring(0, 3) as Exclude<ColorFormat, 'hex' | 'hsv'>
+	const format = cssFormat.substring(0, 3) as Exclude<VisibleColorFormat, 'hex'>
 	const parameters = rest
 		// Replace all characters that aren’t needed any more, leaving a string like `255 255 128 .5`.
 		.replace(/[,/)]/g, ' ')

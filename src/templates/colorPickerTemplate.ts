@@ -1,17 +1,16 @@
 import { html } from 'lit-html'
 
 import { AlphaChannelProp, VisibleColorFormat } from '../ColorPicker.js'
+import { colorChannels } from '../utilities/colorChannels.js'
+import { CssValue } from '../utilities/css-values.js'
 
 export function colorPickerTemplate (
 	id: string,
 	activeFormat: VisibleColorFormat,
-	visibleChannels: string[],
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	colors: any,
-	hexInputValue: string,
 	alphaChannel: AlphaChannelProp,
 	visibleFormats: VisibleColorFormat[],
-	getChannelAsCssValue: (channel: string) => string,
 	changeInputValue: (event: KeyboardEvent) => void,
 	copyColor: (event: Event) => void,
 	handleSliderInput: (event: Event, channel: 'h' | 'a') => void,
@@ -109,40 +108,54 @@ export function colorPickerTemplate (
 		</button>
 	`
 
-	const hexColorInputTemplate = () => html`
-		<label
-			class="cp-hex-input-label"
-			for="${id}-color-hex"
-		>
-			<span class="cp-color-input-label-text">Hex</span>
+	const hexColorInputTemplate = () => {
+		const hexInputValue = alphaChannel === 'hide' && [5, 9].includes(colors.hex.length)
+			? colors.hex.slice(0, -(colors.hex.length - 1)/4)
+			: colors.hex
 
-			<input
-				class="cp-color-input"
-				id="${id}-color-hex"
-				type="text"
-				.value="${hexInputValue}"
-				@input="${updateHexColorValue}"
+		return html`
+			<label
+				class="cp-hex-input-label"
+				for="${id}-color-hex"
 			>
-		</label>
-	`
+				<span class="cp-color-input-label-text">Hex</span>
 
-	const colorInputTemplate = () => visibleChannels.map((channel) => html`
-		<label
-			class="cp-color-input-label"
-			id="${id}-color-${activeFormat}-${channel}-label"
-			for="${id}-color-${activeFormat}-${channel}"
-		>
-			<span class="cp-color-input-label-text">${channel.toUpperCase()}</span>
+				<input
+					class="cp-color-input"
+					id="${id}-color-hex"
+					type="text"
+					.value="${hexInputValue}"
+					@input="${updateHexColorValue}"
+				>
+			</label>
+		`
+	}
 
-			<input
-				class="cp-color-input"
-				id="${id}-color-${activeFormat}-${channel}"
-				type="text"
-				.value="${getChannelAsCssValue(channel)}"
-				@input="${(event: Event) => updateColorValue(event, channel)}"
-			>
-		</label>
-	`)
+	const colorInputTemplate = (format: Exclude<VisibleColorFormat, 'hex'>) => {
+		const channels = format.split('').concat(alphaChannel === 'show' ? ['a'] : [])
+		return channels.map((channel) => {
+			const cssValue = colorChannels[format][channel] as CssValue
+			const value = cssValue.to(colors[format][channel])
+
+			return html`
+				<label
+					class="cp-color-input-label"
+					id="${id}-color-${format}-${channel}-label"
+					for="${id}-color-${format}-${channel}"
+				>
+					<span class="cp-color-input-label-text">${channel.toUpperCase()}</span>
+
+					<input
+						class="cp-color-input"
+						id="${id}-color-${format}-${channel}"
+						type="text"
+						.value="${value}"
+						@input="${(event: Event) => updateColorValue(event, channel)}"
+					>
+				</label>
+			`
+		})
+	}
 
 	const switchFormatButtonTemplate = () => html`
 		<button
@@ -170,7 +183,7 @@ export function colorPickerTemplate (
 	const colorInputWrapperTemplate = () => html`
 		<div class="cp-color-input-wrapper">
 			<div class="cp-color-input-group">
-				${activeFormat === 'hex' ? hexColorInputTemplate() : colorInputTemplate()}
+				${activeFormat === 'hex' ? hexColorInputTemplate() : colorInputTemplate(activeFormat)}
 			</div>
 			${visibleFormats.length > 1 ? switchFormatButtonTemplate() : ''}
 		</div>
