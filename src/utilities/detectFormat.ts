@@ -11,12 +11,12 @@ import {
  *
  * Doesn’t handle invalid formats.
  */
-export function detectFormat (color: ColorHsl | ColorHsv | ColorHwb | ColorRgb): ColorFormat {
-	if (Object.prototype.hasOwnProperty.call(color, 'r')) {
+export function detectFormat (color: ColorHsl | ColorHsv | ColorHwb | ColorRgb): Exclude<ColorFormat, 'hex'> {
+	if ('r' in color) {
 		return 'rgb'
-	} else if (Object.prototype.hasOwnProperty.call(color, 'w')) {
+	} else if ('w' in color) {
 		return 'hwb'
-	} else if (Object.prototype.hasOwnProperty.call(color, 'v')) {
+	} else if ('v' in color) {
 		return 'hsv'
 	} else {
 		return 'hsl'
