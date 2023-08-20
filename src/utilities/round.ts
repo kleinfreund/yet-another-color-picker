@@ -6,5 +6,6 @@
  * The default decimal precision is 2 (e.g. `10.333` results in `'10.33'`).
  */
 export function round (value: number, decimalPrecision: number = 2): string {
-	return value.toFixed(decimalPrecision).replace(/\.?0+$/, '')
+	const string = value.toFixed(decimalPrecision)
+	return string.includes('.') ? string.replace(/\.?0+$/, '') : string
 }
