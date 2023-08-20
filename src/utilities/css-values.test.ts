@@ -23,7 +23,7 @@ describe('CssValues', () => {
 
 		test.each([
 			[0, '0'],
-			[0.5555, '0.5555'],
+			[0.5555, '0.56'],
 			[1, '1'],
 		])('alpha.to(%s) = %s', (value, expected) => {
 			expect(alpha.to(value)).toEqual(expected)

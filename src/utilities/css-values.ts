@@ -47,17 +47,17 @@ const angleFactor = {
 /**
  * Reference: https://www.w3.org/TR/css-color-4/#typedef-alpha-value
  */
-export const alpha: CssValue = {
+export const alpha: CssValueNumber = {
 	from (value) {
 		if (value.endsWith('%')) {
 			return percentage.from(value, { referenceValue: 1 })
 		}
 
-		return clamp(number.from(value), 0, 1)
+		return number.from(value, { min: 0, max: 1 })
 	},
 
 	to (value) {
-		return String(value)
+		return number.to(value)
 	},
 }
 
@@ -93,7 +93,7 @@ export const number: CssValueNumber = {
 	},
 
 	to (value) {
-		return round(value)
+		return round(value, 2)
 	},
 }
 
