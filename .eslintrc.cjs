@@ -18,9 +18,9 @@
 		indent: 'off',
 		'@typescript-eslint/indent': ['error', 'tab'],
 		// Other rules.
-		'comma-dangle': ['error', 'always-multiline'],
-		'space-before-function-paren': ['error', 'always'],
+		'comma-dangle': 'off',
 		'@typescript-eslint/comma-dangle': ['error', 'always-multiline'],
+		'space-before-function-paren': ['error', 'always'],
 	},
 	overrides: [
 		{
