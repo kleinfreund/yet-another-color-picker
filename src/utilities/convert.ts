@@ -17,7 +17,7 @@ type Conversions = {
 	}
 }
 
-export const conversions: Conversions = {
+const conversions: Conversions = {
 	hex: {
 		hex: (hex) => hex,
 		hsl: (hex) => convertRgbToHsl(convertHexToRgb(hex)),
