@@ -88,6 +88,11 @@ declare class ColorPicker extends HTMLElement {
     get color(): string | ColorHsl | ColorHsv | ColorHwb | ColorRgb;
     set color(color: string | ColorHsl | ColorHsv | ColorHwb | ColorRgb);
     /**
+     * The internal color representation for all formats.
+     */
+    get colors(): ColorMap;
+    set colors(colors: ColorMap);
+    /**
      * The color format to show by default when rendering the color picker. Must be one of the formats specified in `visibleFormats`.
      */
     get defaultFormat(): VisibleColorFormat;
@@ -121,4 +126,4 @@ declare class ColorPicker extends HTMLElement {
     switchFormat(): void;
 }
 
-export { AlphaChannelProp, ColorChangeDetail, ColorFormat, ColorHsl, ColorHsv, ColorHwb, ColorMap, ColorPair, ColorPairHex, ColorPairHsl, ColorPairHsv, ColorPairHwb, ColorPairRgb, ColorPicker, ColorPickerProperties, ColorRgb, VisibleColorFormat, VisibleColorPair };
+export { type AlphaChannelProp, type ColorChangeDetail, type ColorFormat, type ColorHsl, type ColorHsv, type ColorHwb, type ColorMap, type ColorPair, type ColorPairHex, type ColorPairHsl, type ColorPairHsv, type ColorPairHwb, type ColorPairRgb, ColorPicker, type ColorPickerProperties, type ColorRgb, type VisibleColorFormat, type VisibleColorPair };
