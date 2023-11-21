@@ -6,7 +6,7 @@ import {
 	number,
 	percentage,
 	rgbNumber,
-} from './css-values.js'
+} from './CssValues.js'
 
 describe('CssValues', () => {
 	describe('alpha', () => {

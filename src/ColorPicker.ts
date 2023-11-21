@@ -1,11 +1,10 @@
 import { render } from 'lit-html'
 
 import { clamp } from './utilities/clamp.js'
-import { colorChannels } from './utilities/colorChannels.js'
+import { getCssValue } from './utilities/CssValues.js'
 import { colorPickerTemplate } from './templates/colorPickerTemplate.js'
 import { colorsAreValueEqual } from './utilities/colorsAreValueEqual.js'
 import { convert } from './utilities/convert.js'
-import { CssValue } from './utilities/css-values.js'
 import { formatAsCssColor } from './utilities/formatAsCssColor.js'
 import { getNewThumbPosition } from './utilities/getNewThumbPosition.js'
 import { isValidHexColor } from './utilities/isValidHexColor.js'
@@ -557,7 +556,7 @@ export class ColorPicker extends HTMLElement {
 		const input = event.target as HTMLInputElement
 		const format = this.activeFormat as Exclude<VisibleColorFormat, 'hex'>
 		const color = Object.assign({}, this.#colors[format])
-		const cssValue = colorChannels[format][channel] as CssValue
+		const cssValue = getCssValue(format, channel)
 		const value = cssValue.from(input.value)
 
 		if (Number.isNaN(value)) {

@@ -1,8 +1,7 @@
 import { html } from 'lit-html'
 
 import { AlphaChannelProp, VisibleColorFormat } from '../ColorPicker.js'
-import { colorChannels } from '../utilities/colorChannels.js'
-import { CssValue } from '../utilities/css-values.js'
+import { getCssValue } from '../utilities/CssValues.js'
 
 export function colorPickerTemplate (
 	id: string,
@@ -134,7 +133,7 @@ export function colorPickerTemplate (
 	const colorInputTemplate = (format: Exclude<VisibleColorFormat, 'hex'>) => {
 		const channels = format.split('').concat(alphaChannel === 'show' ? ['a'] : [])
 		return channels.map((channel) => {
-			const cssValue = colorChannels[format][channel] as CssValue
+			const cssValue = getCssValue(format, channel)
 			const value = cssValue.to(colors[format][channel])
 
 			return html`
