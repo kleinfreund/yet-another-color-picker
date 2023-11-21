@@ -27,7 +27,7 @@
 			"types": "./dist/ColorPicker.d.ts",
 			"default": "./dist/ColorPicker.js"
 		},
-		"./dist/ColorPicker.css": "./dist/ColorPicker.css"
+		"./styles": "./dist/ColorPicker.css"
 	},
 	"main": "./dist/ColorPicker.js",
 	"module": "./dist/ColorPicker.js",

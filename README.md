@@ -61,11 +61,11 @@ Links:
 	import 'yet-another-color-picker'
 	```
 
-3. Make sure to also load the color picker styles.
+3. Make sure to load the color picker styles.
 
 	HTML:
 	```html
-	<link rel="stylesheet" href="./node_modules/yet-another-color-picker/dist/ColorPicker.css">
+	<link rel="stylesheet" href="yet-another-color-picker/styles">
 	```
 
 ### As plain files directly in the browser (no build step)
