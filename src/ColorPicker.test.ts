@@ -476,10 +476,7 @@ describe('ColorPicker', () => {
 			})
 			await waitForRecomputations()
 
-			expect(colorPicker.style.getPropertyValue('--cp-hsl-h')).toBe('0')
-			expect(colorPicker.style.getPropertyValue('--cp-hsl-s')).toBe('0')
-			expect(colorPicker.style.getPropertyValue('--cp-hsl-l')).toBe('100')
-			expect(colorPicker.style.getPropertyValue('--cp-hsl-a')).toBe('1')
+			expect(colorPicker.style.getPropertyValue('--cp-color')).toBe('hsl(0 0% 100% / 1)')
 
 			const thumb = colorPicker.querySelector('.cp-thumb') as HTMLElement
 			expect(thumb.style.getPropertyValue('left')).toBe('0%')

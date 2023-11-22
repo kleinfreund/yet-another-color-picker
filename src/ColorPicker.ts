@@ -375,23 +375,29 @@ export class ColorPicker extends HTMLElement {
 		}
 	}
 
+	/**
+	 * Sets the essential properties of the color picker as inline styles so that they can't be overridden.
+	 */
 	#setCssProps () {
-		this.style.setProperty('--cp-hsl-h', String(this.colors.hsl.h))
-		this.style.setProperty('--cp-hsl-s', String(this.colors.hsl.s))
-		this.style.setProperty('--cp-hsl-l', String(this.colors.hsl.l))
-		this.style.setProperty('--cp-hsl-a', String(this.colors.hsl.a))
+		// Use the current color as the *opaque* end of the the alpha channel slider. For this purpose, we use the current color with its alpha channel set to 1.
+		const opaqueColor = formatAsCssColor({ format: 'hsl', color: this.colors.hsl }, false)
+		this.style.setProperty('--cp-color', opaqueColor)
 
 		if (this.#colorSpace === null || this.#thumb === null) {
 			return
 		}
 
-		// Sets a few CSS properties as inline styles because they're essential for the operation of the color picker.
+		// Allows the color space thumb to be positioned relative to this element.
 		this.#colorSpace.style.position = 'relative'
-		this.#colorSpace.style.backgroundColor = 'hsl(var(--cp-hsl-h) 100% 50%)'
+		// Sets the background color of the color space. The color space shows a *slice* through the HSV color cylinder's center. The slice's angle represents the color's *hue* (i.e. rotating the angle of the HSV slice changes the color's hue). We want this color at 100% *saturation* and 100% *value* (which is the same as 50% lightness of the corresponding HSL color).
+		this.#colorSpace.style.backgroundColor = `hsl(${this.colors.hsl.h} 100% 50%)`
+		// Adds two gradients on top of the solid background color of the color space. This creates the final image of the HSV slice. The first gradient goes from fully opaque black at the bottom to fully transparent at the top. The second gradient goes from full opaque white at the left to fully transparent at the right.
 		this.#colorSpace.style.backgroundImage = 'linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent)'
 
 		this.#thumb.style.boxSizing = 'border-box'
+		// Allows positioning the color space thumb.
 		this.#thumb.style.position = 'absolute'
+		// Sets the X and Y coordinates of the color space thumb. Having chosen the color space to be a slice through the HSV cylinder allows us to map the saturation and value of the current color in HSV representation directly to the thumb's coordinates. In other words: the thumb controls the saturation (X coordinate) and value (Y coordinate) linearly.
 		this.#thumb.style.left = `${this.colors.hsv.s}%`
 		this.#thumb.style.bottom = `${this.colors.hsv.v}%`
 	}

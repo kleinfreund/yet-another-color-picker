@@ -34,6 +34,7 @@ Links:
 		- [`switchFormat()`](#switchformat)
 	- [Events](#events)
 		- [`color-change`](#color-change)
+	- [Theming](#theming)
 - [Versioning](#versioning)
 - [Contributing](#contributing)
 - [Design](#design)
@@ -304,6 +305,33 @@ Each of the following properties can also be set via its corresponding attribute
 		console.log(event.detail)
 	})
 	```
+
+## Theming
+
+You can customize the GUI of the color picker using CSS custom properties:
+
+```css
+:root {
+	--cp-color-focus: tomato;
+	--cp-width-border: 2px;
+}
+```
+
+Available custom properties and their default values:
+
+| Custom property               | Default value |
+| ----------------------------- | ------------- |
+| `--cp-color-background-input` | `#fff`
+| `--cp-color-background`       | `#fff`
+| `--cp-color-border`           | `#000`
+| `--cp-color-focus`            | `#19f`
+| `--cp-color-text-input`       | `currentColor`
+| `--cp-color-text`             | `currentColor`
+| `--cp-font-family`            | `-apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif`
+| `--cp-font-size`              | `0.8em`
+| `--cp-spacing`                | `6px`
+| `--cp-width-border`           | `1px`
+| `--cp-width-color-space`      | `300px`
 
 ## Versioning
 
