@@ -1,3 +1,12 @@
+## [3.0.1](https://github.com/kleinfreund/yet-another-color-picker/compare/v3.0.0...v3.0.1) (2023-11-23)
+
+
+### Bug Fixes
+
+* cannot find module TypeScript error ([9872519](https://github.com/kleinfreund/yet-another-color-picker/commit/987251931308a5339d246ab54ba47dd976e1e468))
+
+  Adds the types field back to the package.json file to prevent the "Cannot find module 'yet-another-color-picker' or its corresponding type declarations." error.
+
 ## [3.0.0](https://github.com/kleinfreund/yet-another-color-picker/compare/v2.0.1...v3.0.0) (2023-11-23)
 
 
