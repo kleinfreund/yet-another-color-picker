@@ -170,7 +170,7 @@ Each of the following properties can also be set via its corresponding attribute
 
 	JavaScript:
 	```js
-	colorPicker.color = { h: 0.75, s: 1, l: 0.5, a: 0.8 }
+	colorPicker.color = { h: 270, s: 100, l: 50, a: 0.8 }
 	```
 
 	HTML:
