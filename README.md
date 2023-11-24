@@ -4,7 +4,7 @@
 
 A color picker web component.
 
-This package’s files are distributed in the ES module format and have not been transpiled. It uses [lit-html](https://www.npmjs.com/package/lit-html) which is **not** bundled with the package.
+This package’s files are distributed in the ES module format and have not been transpiled. It uses [lit-html](https://www.npmjs.com/package/lit-html).
 
 Links:
 
@@ -46,8 +46,10 @@ Links:
 1. Install the package.
 
 	```sh
-	npm install yet-another-color-picker
+	npm install yet-another-color-picker lit-html
 	```
+
+	Note: this web component is rendered using lit-html which will have to be installed as well.
 
 2. Import the module to define the custom element.
 
