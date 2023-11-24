@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+	<title>color picker demo</title>
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/yet-another-color-picker@latest/dist/ColorPicker.css">
+</head>
+
+<body>
+	<color-picker></color-picker>
+
+	<script type="importmap">
+		{
+			"imports": {
+				"lit-html": "https://cdn.jsdelivr.net/npm/lit-html@%5E3.1.0"
+			}
+		}
+	</script>
+	<script type="module">
+		import 'https://cdn.jsdelivr.net/npm/yet-another-color-picker@latest/dist/ColorPicker.js'
+
+		const colorPicker = document.querySelector('color-picker')
+		colorPicker.addEventListener('color-change', function (event) {
+			console.log(event.detail)
+		})
+	</script>
+</body>
+
+</html>
