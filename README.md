@@ -10,7 +10,6 @@ Links:
 
 - [demo](https://yet-another-color-picker.netlify.app)
 - [**npmjs.com**/package/yet-another-color-picker](https://www.npmjs.com/package/yet-another-color-picker)
-	- [on BundlePhobia](https://bundlephobia.com/result?p=yet-another-color-picker)
 - [**github.com**/kleinfreund/yet-another-color-picker](https://github.com/kleinfreund/yet-another-color-picker)
 	- [code of conduct](https://github.com/kleinfreund/yet-another-color-picker/blob/main/CODE_OF_CONDUCT.md)
 	- [contributing guidelines](https://github.com/kleinfreund/yet-another-color-picker/blob/main/CONTRIBUTING.md)
