@@ -53,22 +53,55 @@ Links:
 
 2. Import the module to define the custom element.
 
-	HTML:
-	```html
-	<color-picker></color-picker>
-	```
-
 	JavaScript:
 	```js
 	import 'yet-another-color-picker'
 	```
 
-3. Make sure to load the color picker styles.
+3. Load the stylesheet.
 
 	HTML:
 	```html
-	<link rel="stylesheet" href="yet-another-color-picker/styles">
+	<link rel="stylesheet" href="./node_modules/yet-another-color-picker/dist/ColorPicker.css">
 	```
+
+4. Use the `color-picker` custom element.
+
+	HTML:
+	```html
+	<color-picker></color-picker>
+	```
+
+**Complete example**:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+	<title>color picker demo</title>
+
+	<link rel="stylesheet" href="./node_modules/yet-another-color-picker/dist/ColorPicker.css">
+</head>
+
+<body>
+	<color-picker></color-picker>
+
+	<script type="module">
+		import 'yet-another-color-picker'
+
+		const colorPicker = document.querySelector('color-picker')
+		colorPicker.addEventListener('color-change', function (event) {
+			console.log(event.detail)
+		})
+	</script>
+</body>
+
+</html>
+```
 
 ### As plain files directly in the browser (no build step)
 
@@ -78,47 +111,89 @@ Links:
 	curl --remote-name-all 'https://cdn.jsdelivr.net/npm/yet-another-color-picker@latest/dist/ColorPicker.{js,css}'
 	```
 
-2. Define an [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap) for lit-html.
+	1. Define an [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap) for lit-html.
 
-	Since this package does not bundle its dependencies (e.g. lit-html), the distribution files contain imports from bare module specifiers (e.g. `import { render } from 'lit-html'`). Browsers don't understand bare module specifiers by default, but with import maps, you can teach them.
+		Since this package does not bundle its dependencies (e.g. lit-html), the distribution files contain imports from bare module specifiers (e.g. `import { render } from 'lit-html'`). Browsers don't understand bare module specifiers by default, but with import maps, you can teach them.
 
-	HTML:
-	```html
-	<script type="importmap">
-		{
-			"imports": {
-				"lit-html": "https://unpkg.com/lit-html@latest/lit-html.js?module"
+		Add the following to your HTML:
+
+		HTML:
+		```html
+		<script type="importmap">
+			{
+				"imports": {
+					"lit-html": "https://cdn.jsdelivr.net/npm/lit-html@%5E3.1.0"
+				}
 			}
-		}
-	</script>
-	```
+		</script>
+		```
 
-	This will make imports like the one mentioned above behave as if they reference the provided URL (e.g. `import { render } from 'lit-html'` will behave like `import { render } from 'https://unpkg.com/lit-html@latest/lit-html.js?module'`). And that browsers do undertand.
+		This will make imports like the one mentioned above behave as if they reference the provided URL (e.g. `import { render } from 'lit-html'` will behave like `import { render } from 'https://cdn.jsdelivr.net/npm/lit-html@%5E3.1.0'`).
 
-3. Import the module to define the custom element.
-
-	HTML:
-	```html
-	<color-picker></color-picker>
-	```
+2. Import the module to define the custom element.
 
 	JavaScript:
 	```js
 	import './ColorPicker.js'
 	```
 
-3. Make sure to also load the color picker styles.
+3. Load the stylesheet.
 
 	HTML:
 	```html
 	<link rel="stylesheet" href="./ColorPicker.css">
 	```
 
+4. Use the `color-picker` custom element.
+
+	HTML:
+	```html
+	<color-picker></color-picker>
+	```
+
+**Complete example**:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+	<title>color picker demo</title>
+
+	<link rel="stylesheet" href="./ColorPicker.css">
+</head>
+
+<body>
+	<color-picker></color-picker>
+
+	<script type="importmap">
+		{
+			"imports": {
+				"lit-html": "https://cdn.jsdelivr.net/npm/lit-html@%5E3.0.0"
+			}
+		}
+	</script>
+	<script type="module">
+		import './ColorPicker.js'
+
+		const colorPicker = document.querySelector('color-picker')
+		colorPicker.addEventListener('color-change', function (event) {
+			console.log(event.detail)
+		})
+	</script>
+</body>
+
+</html>
+```
+
 ## Documentation
 
 ### Properties
 
-Each of the following properties can also be set via its corresponding attribute.
+Most of the following properties can also be set via its corresponding attribute.
 
 **Note**: Changing an attribute will be synced to its corresponding property; however, changing a property will *not* be synced to its corresponding attribute.
 
