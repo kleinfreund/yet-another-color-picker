@@ -5,11 +5,9 @@ import { afterEach, beforeAll, describe, test, expect, vi } from 'vitest'
 import './ColorPicker.js'
 import type { ColorChangeDetail, ColorPickerProperties } from './ColorPicker.js'
 
-type Properties = Partial<Record<ColorPickerProperties, string>>
-
 type RenderOptions = {
 	attributes?: Record<string, string>
-	properties?: Properties
+	properties?: Partial<Record<ColorPickerProperties, string>>
 }
 
 function render (options: RenderOptions = {}) {
@@ -59,35 +57,35 @@ describe('ColorPicker', () => {
 			expect(colorPicker.visibleFormats).toEqual(['hex', 'hsl', 'hwb', 'rgb'])
 		})
 
-		test.each([
+		test.each<[Record<string, string>, ColorPickerProperties, string | string[]]>([
 			[
 				{ 'alpha-channel': 'show' },
-				'alphaChannel' as ColorPickerProperties,
+				'alphaChannel',
 				'show',
 			],
 			[
 				{ 'alpha-channel': 'hide' },
-				'alphaChannel' as ColorPickerProperties,
+				'alphaChannel',
 				'hide',
 			],
 			[
 				{ color: '#fff' },
-				'color' as ColorPickerProperties,
+				'color',
 				'#fff',
 			],
 			[
 				{ 'default-format': 'hex' },
-				'defaultFormat' as ColorPickerProperties,
+				'defaultFormat',
 				'hex',
 			],
 			[
 				{ 'visible-formats': 'hex,rgb,hsl' },
-				'visibleFormats' as ColorPickerProperties,
+				'visibleFormats',
 				['hex', 'rgb', 'hsl'],
 			],
 			[
 				{ id: 'color-picker' },
-				'id' as ColorPickerProperties,
+				'id',
 				'color-picker',
 			],
 		])('syncs attributes to properties on render', async (attributes, property, propertyValue) => {
@@ -97,35 +95,35 @@ describe('ColorPicker', () => {
 			expect(colorPicker[property]).toEqual(propertyValue)
 		})
 
-		test.each([
+		test.each<[Record<string, string>, ColorPickerProperties, string | string[]]>([
 			[
 				{ 'alpha-channel': 'show' },
-				'alphaChannel' as ColorPickerProperties,
+				'alphaChannel',
 				'show',
 			],
 			[
 				{ 'alpha-channel': 'hide' },
-				'alphaChannel' as ColorPickerProperties,
+				'alphaChannel',
 				'hide',
 			],
 			[
 				{ color: '#fff' },
-				'color' as ColorPickerProperties,
+				'color',
 				'#fff',
 			],
 			[
 				{ 'default-format': 'hex' },
-				'defaultFormat' as ColorPickerProperties,
+				'defaultFormat',
 				'hex',
 			],
 			[
 				{ 'visible-formats': 'hex,rgb,hsl' },
-				'visibleFormats' as ColorPickerProperties,
+				'visibleFormats',
 				['hex', 'rgb', 'hsl'],
 			],
 			[
 				{ id: 'color-picker' },
-				'id' as ColorPickerProperties,
+				'id',
 				'color-picker',
 			],
 		])('syncs attributes to properties post render', async (attributes, property, propertyValue) => {
@@ -433,7 +431,7 @@ describe('ColorPicker', () => {
 			expect(spy).toHaveBeenCalledTimes(2)
 		})
 
-		test.each([
+		test.each<Record<string, string>>([
 			{},
 			{
 				color: '#ffffffff',
@@ -467,7 +465,7 @@ describe('ColorPicker', () => {
 				color: 'hsl(0, 0%, 100%, 1)',
 				'alpha-channel': 'hide',
 			},
-		] as Array<Record<string, string>>)('initializes color space and thumb correctly with default color value', async (attributes) => {
+		])('initializes color space and thumb correctly with default color value', async (attributes) => {
 			const colorPicker = render({
 				attributes: {
 					'default-format': 'hex',
