@@ -432,12 +432,7 @@ export class ColorPicker extends HTMLElement {
 		}
 
 		const templateResult = colorPickerTemplate(
-			// Data
-			this.id,
-			this.activeFormat,
-			this.colors,
-			this.alphaChannel,
-			this.visibleFormats,
+			this,
 			// Listeners
 			this.#changeInputValue,
 			this.#copyColor,

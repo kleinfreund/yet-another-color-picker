@@ -1,15 +1,10 @@
 import { html } from 'lit-html'
 
-import { AlphaChannelProp, VisibleColorFormat } from '../ColorPicker.js'
+import { ColorPicker, VisibleColorFormat } from '../ColorPicker.js'
 import { getCssValue } from '../utilities/CssValues.js'
 
 export function colorPickerTemplate (
-	id: string,
-	activeFormat: VisibleColorFormat,
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	colors: any,
-	alphaChannel: AlphaChannelProp,
-	visibleFormats: VisibleColorFormat[],
+	colorPicker: ColorPicker,
 	changeInputValue: (event: KeyboardEvent) => void,
 	copyColor: (event: Event) => void,
 	handleSliderInput: (event: Event, channel: 'h' | 'a') => void,
@@ -20,6 +15,14 @@ export function colorPickerTemplate (
 	updateColorValue: (event: Event, channel: string) => void,
 	updateHexColorValue: (event: Event) => void,
 ) {
+	const {
+		activeFormat,
+		alphaChannel,
+		colors,
+		id,
+		visibleFormats,
+	} = colorPicker
+
 	const colorSpaceTemplate = () => html`
 		<div
 			class="cp-color-space"
@@ -134,6 +137,8 @@ export function colorPickerTemplate (
 		const channels = format.split('').concat(alphaChannel === 'show' ? ['a'] : [])
 		return channels.map((channel) => {
 			const cssValue = getCssValue(format, channel)
+			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+			// @ts-ignore No idea how to type `colors` to avoid this.
 			const value = cssValue.to(colors[format][channel])
 
 			return html`
