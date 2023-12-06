@@ -573,7 +573,7 @@ describe('ColorPicker', () => {
 			expect(keydownEvent.preventDefault).not.toHaveBeenCalled()
 		})
 
-		test.each([
+		test.each<[string, boolean, 'v' | 's', number]>([
 			['ArrowDown', false, 'v', 49],
 			['ArrowDown', true, 'v', 40],
 			['ArrowUp', false, 'v', 51],
@@ -598,7 +598,6 @@ describe('ColorPicker', () => {
 
 			const spy = vi.fn()
 			function colorChangeListener (event: CustomEvent<ColorChangeDetail>) {
-				// @ts-ignore
 				spy(event.detail.colors.hsv[channel])
 			}
 			colorPicker.addEventListener('color-change', colorChangeListener)
@@ -660,10 +659,9 @@ describe('ColorPicker', () => {
 			const colorPicker = render()
 			await waitForRecomputations()
 
-			let channel = ''
+			let channel: 'h' | 'a'
 			const spy = vi.fn()
 			function colorChangeListener (event: CustomEvent<ColorChangeDetail>) {
-				// @ts-ignore
 				spy(event.detail.colors.hsv[channel])
 			}
 			colorPicker.addEventListener('color-change', colorChangeListener)
