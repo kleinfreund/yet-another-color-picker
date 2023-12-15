@@ -70,7 +70,7 @@
 		"clean-css-cli": "^5.6.3",
 		"eslint": "^8.55.0",
 		"husky": "^8.0.3",
-		"jsdom": "^22.1.0",
+		"jsdom": "^23.0.1",
 		"lockfile-lint": "^4.12.1",
 		"postcss": "^8.4.32",
 		"publint": "^0.2.6",
