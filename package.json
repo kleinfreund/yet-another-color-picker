@@ -49,6 +49,7 @@
 		"lint:code:fix": "npm run lint:code -- --fix",
 		"lint:lockfile": "lockfile-lint --path package-lock.json --validate-hosts --allowed-hosts npm",
 		"lint:package": "publint",
+		"lint:types": "tsc --noEmit",
 		"release": "semantic-release",
 		"prepare": "husky install",
 		"prepublishOnly": "npm run build"
@@ -79,6 +80,7 @@
 		"semantic-release": "^22.0.12",
 		"terser": "^5.30.3",
 		"tsup": "^8.0.2",
+		"typescript": "^5.4.4",
 		"vite": "^5.2.8",
 		"vitest": "^1.4.0"
 	}
