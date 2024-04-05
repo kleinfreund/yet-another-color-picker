@@ -44,6 +44,7 @@
 		"postbuild": "npm run build:css",
 		"start": "vite",
 		"test": "vitest run --coverage",
+		"test:watch": "vitest watch",
 		"lint:code": "eslint --ext .ts .",
 		"lint:code:fix": "npm run lint:code -- --fix",
 		"lint:lockfile": "lockfile-lint --path package-lock.json --validate-hosts --allowed-hosts npm",
