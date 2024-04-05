@@ -20,7 +20,7 @@ The following software will be required to contribute to this project:
 npm install
 ```
 
-### Stard development server with a small demo
+### Start development server with a small demo
 
 ```sh
 npm start
@@ -45,15 +45,15 @@ This project follows the [Angular convention](https://github.com/conventional-ch
 **Examples**:
 
 ```
-feat: adds support for Lab/LCH color formats
+feat: add support for Lab/LCH color formats
 ```
 
 ```
-fix: fixes a bug with color conversions to RGB
+fix: color conversions to RGB not working
 ```
 
 ```
-docs: expands examples
+docs: expand examples
 ```
 
 ## Pull request guidelines
