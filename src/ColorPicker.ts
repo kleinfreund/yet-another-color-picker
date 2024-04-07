@@ -79,7 +79,7 @@ type AttributeDefinition = {
 	property: ColorPickerProperties
 }
 
-type AttributeName = 'alpha-channel' | 'color' | 'default-format' | 'id' | 'visible-formats'
+type AttributeName = 'alpha-channel' | 'color' | 'format' | 'id' | 'visible-formats'
 
 const ATTRIBUTES: Record<AttributeName, AttributeDefinition> = {
 	'alpha-channel': {
@@ -92,9 +92,9 @@ const ATTRIBUTES: Record<AttributeName, AttributeDefinition> = {
 		property: 'color',
 	},
 
-	'default-format': {
+	format: {
 		type: String,
-		property: 'defaultFormat',
+		property: 'format',
 	},
 
 	id: {
@@ -126,10 +126,9 @@ export class ColorPicker extends HTMLElement {
 		}
 	}
 
-	#activeFormat: VisibleColorFormat = 'hsl'
 	#alphaChannel: AlphaChannelProp = 'show'
 	#color: string | ColorHsl | ColorHwb | ColorRgb = '#ffffffff'
-	#defaultFormat: VisibleColorFormat = 'hsl'
+	#format: VisibleColorFormat = 'hsl'
 	#id: string = 'color-picker'
 	#visibleFormats: VisibleColorFormat[] = ['hex', 'hsl', 'hwb', 'rgb']
 
@@ -165,14 +164,14 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	/**
-	 * The currently active format. Changed by interacting with the “Switch format” button.
+	 * The current color format. Changed by interacting with the “Switch format” button.
 	 */
-	get activeFormat () {
-		return this.#activeFormat
+	get format () {
+		return this.#format
 	}
 
-	set activeFormat (activeFormat) {
-		this.#activeFormat = activeFormat
+	set format (format) {
+		this.#format = this.visibleFormats.includes(format) ? format : this.visibleFormats[0]!
 
 		this.#queueUpdate(() => {
 			this.#renderIfIdle()
@@ -227,17 +226,6 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	/**
-	 * The color format to show by default when rendering the color picker. Must be one of the formats specified in `visibleFormats`.
-	 */
-	get defaultFormat () {
-		return this.#defaultFormat
-	}
-
-	set defaultFormat (defaultFormat) {
-		this.#defaultFormat = defaultFormat
-	}
-
-	/**
 	 * The ID value will be used to prefix all `input` elements’ `id` and `label` elements’ `for` attribute values. Make sure to set this if you use multiple instances of the component on a page.
 	 */
 	get id () {
@@ -261,6 +249,9 @@ export class ColorPicker extends HTMLElement {
 
 	set visibleFormats (visibleFormats) {
 		this.#visibleFormats = visibleFormats
+
+		// Set `format` to its current value to trigger the validation logic for whether it's one of the visible formats.
+		this.format = this.#format
 	}
 
 	connectedCallback () {
@@ -273,9 +264,7 @@ export class ColorPicker extends HTMLElement {
 		this.ownerDocument.addEventListener('mouseup', this.#stopMovingThumb)
 		this.ownerDocument.addEventListener('touchend', this.#stopMovingThumb)
 
-		this.activeFormat = !this.visibleFormats.includes(this.defaultFormat)
-			? this.visibleFormats[0] as VisibleColorFormat
-			: this.defaultFormat
+		this.#render()
 	}
 
 	disconnectedCallback () {
@@ -366,7 +355,7 @@ export class ColorPicker extends HTMLElement {
 
 	#getColorChangeDetail (): ColorChangeDetail {
 		const excludeAlphaChannel = this.alphaChannel === 'hide'
-		const cssColor = formatAsCssColor({ color: this.#colors[this.activeFormat], format: this.activeFormat }, excludeAlphaChannel)
+		const cssColor = formatAsCssColor({ color: this.#colors[this.format], format: this.format }, excludeAlphaChannel)
 
 		return {
 			colors: this.colors,
@@ -584,7 +573,7 @@ export class ColorPicker extends HTMLElement {
 
 		const colorInputWrapperTemplate = () => html`<div class="cp-color-input-wrapper">
 			<div class="cp-color-input-group">
-				${this.activeFormat === 'hex' ? hexColorInputTemplate() : colorInputTemplate(this.activeFormat)}
+				${this.format === 'hex' ? hexColorInputTemplate() : colorInputTemplate(this.format)}
 			</div>
 			${this.visibleFormats.length > 1 ? switchFormatButtonTemplate() : ''}
 		</div>`
@@ -630,7 +619,7 @@ export class ColorPicker extends HTMLElement {
 		// Prevents touch events from dragging the page.
 		event.preventDefault()
 
-		const touchPoint = event.touches[0] as Touch
+		const touchPoint = event.touches[0]!
 
 		this.#moveThumb(this.#colorSpace, touchPoint.clientX, touchPoint.clientY)
 	}
@@ -700,7 +689,7 @@ export class ColorPicker extends HTMLElement {
 
 	#updateColorValue = (event: Event, channel: string) => {
 		const input = event.target as HTMLInputElement
-		const format = this.activeFormat as Exclude<VisibleColorFormat, 'hex'>
+		const format = this.format as Exclude<VisibleColorFormat, 'hex'>
 		const color = Object.assign({}, this.#colors[format])
 		const cssValue = getCssValue(format, channel)
 		const value = cssValue.from(input.value)
@@ -729,9 +718,9 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	#copyColor = () => {
-		const activeColor = this.#colors[this.activeFormat]
+		const color = this.#colors[this.format]
 		const excludeAlphaChannel = this.alphaChannel === 'hide'
-		const cssColor = formatAsCssColor({ color: activeColor, format: this.activeFormat }, excludeAlphaChannel)
+		const cssColor = formatAsCssColor({ color, format: this.format }, excludeAlphaChannel)
 
 		// Note: the Clipboard API’s `writeText` method can throw a `DOMException` error in case of insufficient write permissions (see https://w3c.github.io/clipboard-apis/#dom-clipboard-writetext). This error is explicitly not handled here so that users of this package can see the original error in the console.
 		return window.navigator.clipboard.writeText(cssColor)
@@ -745,9 +734,9 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	#switchFormat = () => {
-		const activeFormatIndex = this.visibleFormats.findIndex((format) => format === this.activeFormat)
-		const newFormatIndex = (activeFormatIndex + 1) % this.visibleFormats.length
+		const formatIndex = this.visibleFormats.findIndex((format) => format === this.format)
+		const newFormatIndex = (formatIndex + 1) % this.visibleFormats.length
 
-		this.activeFormat = this.visibleFormats[newFormatIndex] as VisibleColorFormat
+		this.format = this.visibleFormats[newFormatIndex]!
 	}
 }

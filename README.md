@@ -22,10 +22,9 @@ Links:
 	- [As plain files directly in the browser (no build step)](#as-plain-files-directly-in-the-browser-no-build-step)
 - [Documentation](#documentation)
 	- [Properties](#properties)
-		- [`activeFormat`](#activeformat)
 		- [`alphaChannel`](#alphachannel)
 		- [`color`](#color)
-		- [`defaultFormat`](#defaultformat)
+		- [`format`](#format)
 		- [`id`](#id)
 		- [`visibleFormats`](#visibleformats)
 	- [Methods](#methods)
@@ -197,20 +196,6 @@ Most of the following properties can also be set via its corresponding attribute
 
 **Note**: Changing an attribute will be synced to its corresponding property; however, changing a property will *not* be synced to its corresponding attribute.
 
-#### `activeFormat`
-
-- **Description**: The currently active format. Changes when interacting with the “Switch format” button or when calling [`switchFormat()`](#switchformat).
-- **Type**: `VisibleColorFormat`
-- **Required**: `false`
-- **Default**: `'hsl'`
-- **Attribute**: —
-- **Usage**:
-
-	JavaScript:
-	```js
-	colorPicker.activeFormat = 'hwb'
-	```
-
 #### `alphaChannel`
 
 - **Description**: Whether to show input controls for a color’s alpha channel. If set to `'hide'`, the alpha range input and the alpha channel input are hidden, the “Copy color” button will copy a CSS color value without alpha channel, and the object emitted in a `color-change` event will have a `cssColor` property value without alpha channel.
@@ -259,23 +244,23 @@ Most of the following properties can also be set via its corresponding attribute
 	<color-picker color="#f80b"></color-picker>
 	```
 
-#### `defaultFormat`
+#### `format`
 
-- **Description**: The color format to show by default when rendering the color picker. Must be one of the formats specified in [`visibleFormats`](#visibleformats).
+- **Description**: The current color format. Also changes when interacting with the “Switch format” button or when calling [`switchFormat()`](#switchformat).
 - **Type**: `VisibleColorFormat`
 - **Required**: `false`
 - **Default**: `'hsl'`
-- **Attribute**: `default-format`
+- **Attribute**: `format`
 - **Usage**:
 
 	JavaScript:
 	```js
-	colorPicker.defaultFormat = 'hwb'
+	colorPicker.format = 'hwb'
 	```
 
 	HTML:
 	```html
-	<color-picker default-format="hwb"></color-picker>
+	<color-picker format="hwb"></color-picker>
 	```
 
 #### `id`
@@ -335,7 +320,7 @@ Most of the following properties can also be set via its corresponding attribute
 
 #### `switchFormat()`
 
-- **Description**: Sets the next active color format by cycling through `colorPicker.visibleFormats`. This method behaves the same as activating the “Switch format” button. To set a specific color format, use the [`activeFormat` property](#activeformat).
+- **Description**: Sets the next active color format by cycling through `colorPicker.visibleFormats`. This method behaves the same as activating the “Switch format” button. To set a specific color format, use the [`format` property](#format).
 - **Return type**: `void`
 - **Usage**:
 

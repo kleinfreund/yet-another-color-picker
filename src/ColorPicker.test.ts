@@ -53,7 +53,7 @@ describe('ColorPicker', () => {
 			expect(colorPicker.id).toBe('color-picker')
 			expect(colorPicker.alphaChannel).toBe('show')
 			expect(colorPicker.color).toBe('#ffffffff')
-			expect(colorPicker.defaultFormat).toBe('hsl')
+			expect(colorPicker.format).toBe('hsl')
 			expect(colorPicker.visibleFormats).toEqual(['hex', 'hsl', 'hwb', 'rgb'])
 		})
 
@@ -74,8 +74,8 @@ describe('ColorPicker', () => {
 				'#fff',
 			],
 			[
-				{ 'default-format': 'hex' },
-				'defaultFormat',
+				{ format: 'hex' },
+				'format',
 				'hex',
 			],
 			[
@@ -112,8 +112,8 @@ describe('ColorPicker', () => {
 				'#fff',
 			],
 			[
-				{ 'default-format': 'hex' },
-				'defaultFormat',
+				{ format: 'hex' },
+				'format',
 				'hex',
 			],
 			[
@@ -147,7 +147,7 @@ describe('ColorPicker', () => {
 			const colorPicker = render({
 				attributes: {
 					color,
-					'default-format': 'hex',
+					format: 'hex',
 				},
 			})
 			await waitForRecomputations()
@@ -165,7 +165,7 @@ describe('ColorPicker', () => {
 			const colorPicker = render({
 				properties: {
 					color,
-					defaultFormat: 'hex',
+					format: 'hex',
 				},
 			})
 			await waitForRecomputations()
@@ -178,7 +178,7 @@ describe('ColorPicker', () => {
 			const colorPicker = render({
 				attributes: {
 					color: '#ff',
-					'default-format': 'hex',
+					format: 'hex',
 				},
 			})
 			await waitForRecomputations()
@@ -193,7 +193,7 @@ describe('ColorPicker', () => {
 			const colorPicker = render({
 				properties: {
 					color: '#ff',
-					defaultFormat: 'hex',
+					format: 'hex',
 				},
 			})
 			await waitForRecomputations()
@@ -204,11 +204,11 @@ describe('ColorPicker', () => {
 			expect(input.value).toBe('#ffffffff')
 		})
 
-		test('falls back to visible color format when defaultFormat isn\'t a visible format', async () => {
+		test('falls back to visible color format when format isn\'t a visible format', async () => {
 			const colorPicker = render({
 				attributes: {
 					color: '#ff',
-					'default-format': 'hsl',
+					format: 'hsl',
 					'visible-formats': 'hex',
 				},
 			})
@@ -220,11 +220,11 @@ describe('ColorPicker', () => {
 
 		test.each([
 			[{}, ['H', 'S', 'L']],
-			[{ 'default-format': 'hex' }, ['Hex']],
-			[{ 'default-format': 'hsl' }, ['H', 'S', 'L']],
-			[{ 'default-format': 'hwb' }, ['H', 'W', 'B']],
-			[{ 'default-format': 'rgb' }, ['R', 'G', 'B']],
-		])('sets active color format correctly when providing default-format attribute', async (attributes, expectedLabels) => {
+			[{ format: 'hex' }, ['Hex']],
+			[{ format: 'hsl' }, ['H', 'S', 'L']],
+			[{ format: 'hwb' }, ['H', 'W', 'B']],
+			[{ format: 'rgb' }, ['R', 'G', 'B']],
+		])('sets active color format correctly when providing format attribute', async (attributes, expectedLabels) => {
 			const colorPicker = render({ attributes })
 			await waitForRecomputations()
 
@@ -235,11 +235,11 @@ describe('ColorPicker', () => {
 		})
 
 		test.each([
-			[{ defaultFormat: 'hex' }, ['Hex']],
-			[{ defaultFormat: 'hsl' }, ['H', 'S', 'L']],
-			[{ defaultFormat: 'hwb' }, ['H', 'W', 'B']],
-			[{ defaultFormat: 'rgb' }, ['R', 'G', 'B']],
-		])('sets active color format correctly when providing defaultFormat property', async (properties, expectedLabels) => {
+			[{ format: 'hex' }, ['Hex']],
+			[{ format: 'hsl' }, ['H', 'S', 'L']],
+			[{ format: 'hwb' }, ['H', 'W', 'B']],
+			[{ format: 'rgb' }, ['R', 'G', 'B']],
+		])('sets active color format correctly when providing format property', async (properties, expectedLabels) => {
 			const colorPicker = render({ properties })
 			await waitForRecomputations()
 
@@ -468,7 +468,7 @@ describe('ColorPicker', () => {
 		])('initializes color space and thumb correctly with default color value', async (attributes) => {
 			const colorPicker = render({
 				attributes: {
-					'default-format': 'hex',
+					format: 'hex',
 					...attributes,
 				},
 			})
@@ -699,23 +699,23 @@ describe('ColorPicker', () => {
 
 		test.each([
 			[
-				{ 'default-format': 'rgb', 'alpha-channel': 'show' },
+				{ format: 'rgb', 'alpha-channel': 'show' },
 				'rgb(255 255 255 / 1)',
 			],
 			[
-				{ 'default-format': 'hsl', 'alpha-channel': 'show' },
+				{ format: 'hsl', 'alpha-channel': 'show' },
 				'hsl(0 0% 100% / 1)',
 			],
 			[
-				{ 'default-format': 'hwb', 'alpha-channel': 'show' },
+				{ format: 'hwb', 'alpha-channel': 'show' },
 				'hwb(0 100% 0% / 1)',
 			],
 			[
-				{ 'default-format': 'hex', 'alpha-channel': 'show' },
+				{ format: 'hex', 'alpha-channel': 'show' },
 				'#ffffffff',
 			],
 			[
-				{ 'default-format': 'hex', 'alpha-channel': 'hide' },
+				{ format: 'hex', 'alpha-channel': 'hide' },
 				'#ffffff',
 			],
 		])('copy button copies %s format as %s', async (attributes, cssColor) => {
@@ -763,19 +763,19 @@ describe('ColorPicker', () => {
 
 			expect(colorPicker.querySelector('#color-picker-color-hsl-l') !== null).toBe(true)
 
-			colorPicker.activeFormat = 'hwb'
+			colorPicker.format = 'hwb'
 			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-hwb-w') !== null).toBe(true)
 
-			colorPicker.activeFormat = 'rgb'
+			colorPicker.format = 'rgb'
 			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-rgb-r') !== null).toBe(true)
 
-			colorPicker.activeFormat = 'hex'
+			colorPicker.format = 'hex'
 			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-hex') !== null).toBe(true)
 
-			colorPicker.activeFormat = 'hsl'
+			colorPicker.format = 'hsl'
 			await waitForRecomputations()
 			expect(colorPicker.querySelector('#color-picker-color-hsl-l') !== null).toBe(true)
 		})
@@ -783,9 +783,9 @@ describe('ColorPicker', () => {
 
 	describe('color value inputs', () => {
 		test.each([
-			[{ 'default-format': 'rgb' }, 'r', '127.'],
-			[{ 'default-format': 'hsl' }, 's', 'a'],
-			[{ 'default-format': 'hwb' }, 'b', '25.%'],
+			[{ format: 'rgb' }, 'r', '127.'],
+			[{ format: 'hsl' }, 's', 'a'],
+			[{ format: 'hwb' }, 'b', '25.%'],
 		])('updating a color input with an invalid value does not update the internal color data', async (attributes, channel, channelValue) => {
 			const colorPicker = render({ attributes })
 			await waitForRecomputations()
@@ -793,7 +793,7 @@ describe('ColorPicker', () => {
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
 
-			const input = colorPicker.querySelector(`#${colorPicker.id}-color-${attributes['default-format']}-${channel}`) as HTMLInputElement
+			const input = colorPicker.querySelector(`#${colorPicker.id}-color-${attributes.format}-${channel}`) as HTMLInputElement
 			input.value = channelValue
 			input.dispatchEvent(new InputEvent('input'))
 
@@ -806,7 +806,7 @@ describe('ColorPicker', () => {
 		])('updating a hex color input with an invalid value does not update the internal color data', async (invalidHexColorString) => {
 			const colorPicker = render({
 				attributes: {
-					'default-format': 'hex',
+					format: 'hex',
 				},
 			})
 			await waitForRecomputations()
@@ -822,9 +822,9 @@ describe('ColorPicker', () => {
 		})
 
 		test.each([
-			[{ 'default-format': 'rgb' }, 'r', '127.5'],
-			[{ 'default-format': 'hsl' }, 's', '75%'],
-			[{ 'default-format': 'hwb' }, 'b', '25.5%'],
+			[{ format: 'rgb' }, 'r', '127.5'],
+			[{ format: 'hsl' }, 's', '75%'],
+			[{ format: 'hwb' }, 'b', '25.5%'],
 		])('updating a %s color input with a valid value updates the internal color data', async (attributes, channel, channelValue) => {
 			const colorPicker = render({ attributes })
 			await waitForRecomputations()
@@ -832,7 +832,7 @@ describe('ColorPicker', () => {
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
 
-			const input = colorPicker.querySelector(`#${colorPicker.id}-color-${attributes['default-format']}-${channel}`) as HTMLInputElement
+			const input = colorPicker.querySelector(`#${colorPicker.id}-color-${attributes.format}-${channel}`) as HTMLInputElement
 			input.value = channelValue
 			input.dispatchEvent(new InputEvent('input'))
 			await waitForRecomputations()
@@ -845,7 +845,7 @@ describe('ColorPicker', () => {
 		])('updating a %s color input with a valid value updates the internal color data', async (channelValue) => {
 			const colorPicker = render({
 				attributes: {
-					'default-format': 'hex',
+					format: 'hex',
 				},
 			})
 			await waitForRecomputations()
@@ -867,7 +867,7 @@ describe('ColorPicker', () => {
 			[
 				{
 					color: '#ff99aacc',
-					'default-format': 'hsl',
+					format: 'hsl',
 					'alpha-channel': 'show',
 				},
 				{
@@ -884,7 +884,7 @@ describe('ColorPicker', () => {
 			[
 				{
 					color: '#f9ac',
-					'default-format': 'hsl',
+					format: 'hsl',
 					'alpha-channel': 'show',
 				},
 				{
@@ -901,7 +901,7 @@ describe('ColorPicker', () => {
 			[
 				{
 					color: '#ff99aacc',
-					'default-format': 'hex',
+					format: 'hex',
 					'alpha-channel': 'show',
 				},
 				{
@@ -918,7 +918,7 @@ describe('ColorPicker', () => {
 			[
 				{
 					color: '#f9ac',
-					'default-format': 'hex',
+					format: 'hex',
 					'alpha-channel': 'show',
 				},
 				{
@@ -935,7 +935,7 @@ describe('ColorPicker', () => {
 			[
 				{
 					color: '#ff99aacc',
-					'default-format': 'hsl',
+					format: 'hsl',
 					'alpha-channel': 'hide',
 				},
 				{
@@ -952,7 +952,7 @@ describe('ColorPicker', () => {
 			[
 				{
 					color: '#f9ac',
-					'default-format': 'hsl',
+					format: 'hsl',
 					'alpha-channel': 'hide',
 				},
 				{
@@ -969,7 +969,7 @@ describe('ColorPicker', () => {
 			[
 				{
 					color: '#ff99aacc',
-					'default-format': 'hex',
+					format: 'hex',
 					'alpha-channel': 'hide',
 				},
 				{
@@ -986,7 +986,7 @@ describe('ColorPicker', () => {
 			[
 				{
 					color: '#f9ac',
-					'default-format': 'hex',
+					format: 'hex',
 					'alpha-channel': 'hide',
 				},
 				{
@@ -1003,7 +1003,7 @@ describe('ColorPicker', () => {
 			[
 				{
 					color: '#23a96a',
-					'default-format': 'hex',
+					format: 'hex',
 					'alpha-channel': 'hide',
 				},
 				{
@@ -1068,7 +1068,7 @@ describe('ColorPicker', () => {
 		])('shows expected color for hex colors', async (attributes, expectedHexColor) => {
 			const colorPicker = render({
 				attributes: {
-					'default-format': 'hex',
+					format: 'hex',
 					...attributes,
 				},
 			})
