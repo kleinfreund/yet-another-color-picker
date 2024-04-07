@@ -275,7 +275,7 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	attributeChangedCallback (attribute: AttributeName, oldValue: string | null, newValue: string | null) {
-		// Returns early if the prop has changed.
+		// Returns early if the prop hasn't changed.
 		if (oldValue === newValue) {
 			return
 		}
