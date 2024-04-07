@@ -43,10 +43,10 @@ Links:
 
 ### As npm package
 
-1. Install the package.
+1. Install the package (and its peer dependencies).
 
 	```sh
-	npm install yet-another-color-picker lit-html
+	npm install yet-another-color-picker lit-html@^3.0.0
 	```
 
 	Note: this web component is rendered using lit-html which will have to be installed as well.
@@ -122,13 +122,13 @@ Links:
 		<script type="importmap">
 			{
 				"imports": {
-					"lit-html": "https://cdn.jsdelivr.net/npm/lit-html@%5E3.1.0"
+					"lit-html": "https://cdn.jsdelivr.net/npm/lit-html@^3.0.0"
 				}
 			}
 		</script>
 		```
 
-		This will make imports like the one mentioned above behave as if they reference the provided URL (e.g. `import { render } from 'lit-html'` will behave like `import { render } from 'https://cdn.jsdelivr.net/npm/lit-html@%5E3.1.0'`).
+		This will make imports like the one mentioned above behave as if they reference the provided URL (e.g. `import { render } from 'lit-html'` will behave like `import { render } from 'https://cdn.jsdelivr.net/npm/lit-html@^3.0.0'`).
 
 2. Import the module to define the custom element.
 
@@ -172,7 +172,7 @@ Links:
 	<script type="importmap">
 		{
 			"imports": {
-				"lit-html": "https://cdn.jsdelivr.net/npm/lit-html@%5E3.0.0"
+				"lit-html": "https://cdn.jsdelivr.net/npm/lit-html@^3.0.0"
 			}
 		}
 	</script>

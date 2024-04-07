@@ -55,8 +55,8 @@
 		"prepare": "husky",
 		"prepublishOnly": "npm run build"
 	},
-	"dependencies": {
-		"lit-html": "^3.1.2"
+	"peerDependencies": {
+		"lit-html": "^3.0.0"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^19.2.1",
@@ -74,6 +74,7 @@
 		"eslint": "^8.57.0",
 		"husky": "^9.0.11",
 		"jsdom": "^24.0.0",
+		"lit-html": "^3.1.2",
 		"lockfile-lint": "^4.13.2",
 		"postcss": "^8.4.38",
 		"publint": "^0.2.7",
