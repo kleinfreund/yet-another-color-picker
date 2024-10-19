@@ -49,7 +49,7 @@ export type ColorRgb = {
 	a: number
 }
 
-export type ColorMap = {
+export interface ColorMap {
 	hex: string
 	hsl: ColorHsl
 	hsv: ColorHsv
@@ -57,7 +57,7 @@ export type ColorMap = {
 	rgb: ColorRgb
 }
 
-export type ColorChangeDetail = {
+export interface ColorChangeDetail {
 	colors: ColorMap
 	cssColor: string
 }
@@ -74,7 +74,7 @@ export interface ColorPairRgb { format: 'rgb', color: ColorRgb }
 export type ColorPair = ColorPairHex | ColorPairHsl | ColorPairHsv | ColorPairHwb | ColorPairRgb
 export type VisibleColorPair = Exclude<ColorPair, ColorPairHsv>
 
-type AttributeDefinition = {
+interface AttributeDefinition {
 	type: StringConstructor | ArrayConstructor
 	property: ColorPickerProperties
 }
@@ -110,7 +110,7 @@ const ATTRIBUTES: Record<AttributeName, AttributeDefinition> = {
 
 export type ColorPickerProperties = keyof ColorPicker
 
-const COLOR_FORMATS = ['hex', 'hsl', 'hsv', 'hwb', 'rgb'] as const satisfies ReadonlyArray<ColorFormat>
+const COLOR_FORMATS = ['hex', 'hsl', 'hsv', 'hwb', 'rgb'] as const satisfies readonly ColorFormat[]
 
 export class ColorPicker extends HTMLElement {
 	static observedAttributes = Object.keys(ATTRIBUTES) as AttributeName[]
@@ -129,7 +129,7 @@ export class ColorPicker extends HTMLElement {
 	#alphaChannel: AlphaChannelProp = 'show'
 	#color: string | ColorHsl | ColorHwb | ColorRgb = '#ffffffff'
 	#format: VisibleColorFormat = 'hsl'
-	#id: string = 'color-picker'
+	#id = 'color-picker'
 	#visibleFormats: VisibleColorFormat[] = ['hex', 'hsl', 'hwb', 'rgb']
 
 	#colorSpace: HTMLElement | null = null
@@ -140,7 +140,7 @@ export class ColorPicker extends HTMLElement {
 	 *
 	 * Only if it did do we want to run the logic of dragging the color space thumb around.
 	 */
-	#hasPointerOriginatedInColorSpace: boolean = false
+	#hasPointerOriginatedInColorSpace = false
 
 	/**
 	 * The current color represented in all supported color formats.

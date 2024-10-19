@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-
 import { afterEach, beforeAll, describe, test, expect, vi } from 'vitest'
 
 import './ColorPicker.js'
@@ -692,7 +690,8 @@ describe('ColorPicker', () => {
 		beforeAll(() => {
 			Object.defineProperty(global.navigator, 'clipboard', {
 				value: {
-					writeText: () => { },
+					// eslint-disable-next-line @typescript-eslint/no-empty-function
+					writeText: () => {},
 				},
 			})
 		})

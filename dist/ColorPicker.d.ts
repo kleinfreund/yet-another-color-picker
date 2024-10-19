@@ -31,17 +31,17 @@ type ColorRgb = {
     b: number;
     a: number;
 };
-type ColorMap = {
+interface ColorMap {
     hex: string;
     hsl: ColorHsl;
     hsv: ColorHsv;
     hwb: ColorHwb;
     rgb: ColorRgb;
-};
-type ColorChangeDetail = {
+}
+interface ColorChangeDetail {
     colors: ColorMap;
     cssColor: string;
-};
+}
 type ColorFormat = keyof ColorMap;
 type VisibleColorFormat = Exclude<ColorFormat, 'hsv'>;
 interface ColorPairHex {
