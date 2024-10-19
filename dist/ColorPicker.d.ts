@@ -66,17 +66,17 @@ interface ColorPairRgb {
 }
 type ColorPair = ColorPairHex | ColorPairHsl | ColorPairHsv | ColorPairHwb | ColorPairRgb;
 type VisibleColorPair = Exclude<ColorPair, ColorPairHsv>;
-type AttributeName = 'alpha-channel' | 'color' | 'default-format' | 'id' | 'visible-formats';
+type AttributeName = 'alpha-channel' | 'color' | 'format' | 'id' | 'visible-formats';
 type ColorPickerProperties = keyof ColorPicker;
 declare class ColorPicker extends HTMLElement {
     #private;
     static observedAttributes: AttributeName[];
     get [Symbol.toStringTag](): string;
     /**
-     * The currently active format. Changed by interacting with the “Switch format” button.
+     * The current color format. Changed by interacting with the “Switch format” button.
      */
-    get activeFormat(): VisibleColorFormat;
-    set activeFormat(activeFormat: VisibleColorFormat);
+    get format(): VisibleColorFormat;
+    set format(format: VisibleColorFormat);
     /**
      * Whether to show input controls for a color’s alpha channel. If set to `'hide'`, the alpha range input and the alpha channel input are hidden, the “Copy color” button will copy a CSS color value without alpha channel, and the object emitted in a `color-change` event will have a `cssColor` property value without alpha channel.
      */
@@ -92,11 +92,6 @@ declare class ColorPicker extends HTMLElement {
      */
     get colors(): ColorMap;
     set colors(colors: ColorMap);
-    /**
-     * The color format to show by default when rendering the color picker. Must be one of the formats specified in `visibleFormats`.
-     */
-    get defaultFormat(): VisibleColorFormat;
-    set defaultFormat(defaultFormat: VisibleColorFormat);
     /**
      * The ID value will be used to prefix all `input` elements’ `id` and `label` elements’ `for` attribute values. Make sure to set this if you use multiple instances of the component on a page.
      */
