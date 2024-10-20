@@ -1162,6 +1162,38 @@ describe('ColorPicker', () => {
 		})
 	})
 
+	describe('color-copy event', () => {
+		test.each([
+			[
+				{
+					value: '#ff99aacc',
+					format: 'hsl',
+					'alpha-channel': 'show',
+				},
+				{
+					cssColor: 'hsl(350 100% 80% / 0.8)',
+					colors: {
+						hex: '#ff99aacc',
+						hsl: { h: 350, s: 100, l: 80, a: 0.8 },
+						hwb: { h: 350, w: 60.00000000000001, b: 0, a: 0.8 },
+						rgb: { r: 255, g: 153, b: 170, a: 0.8 },
+					},
+				},
+			],
+		])('emits correct data', async (attributes, expectedData) => {
+			const colorPicker = render({ attributes })
+
+			const spy = vi.fn()
+			function colorCopyListener (event: CustomEvent<ColorChangeDetail>) {
+				spy(event.detail)
+			}
+			colorPicker.addEventListener('color-copy', colorCopyListener)
+			await colorPicker.copyColor()
+
+			expect(spy).toHaveBeenCalledWith(expectedData)
+		})
+	})
+
 	describe('color inputs', () => {
 		test.each([
 			[

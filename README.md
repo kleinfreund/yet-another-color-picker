@@ -40,6 +40,7 @@ Links:
 	- [Events](#events)
 		- [`change`](#change)
 		- [`color-change`](#color-change)
+		- [`color-copy`](#color-copy)
 		- [`input`](#input)
 	- [Theming](#theming)
 - [Versioning](#versioning)
@@ -462,6 +463,32 @@ In the following sections, the web component's [IDL and content attibutes](https
 	colorPicker.addEventListener('color-change', function (event) {
 		console.log(event.detail)
 	})
+
+	colorPicker.value = 'rebeccapurple'
+	```
+
+#### `color-copy`
+
+- **Description**: The `color-copy` event is fired once a copy operation succeeded.
+- **Type**: `CustomEvent<ColorChangeDetail>`
+- **Data**: Emits the same event data as [the `color-change` event](#color-change).
+- **Usage**:
+
+	HTML:
+	```html
+	<color-picker color="hsl(270 100% 50% / 0.8)"></color-picker>
+	```
+
+	JavaScript:
+	```js
+	import 'yet-another-color-picker'
+
+	const colorPicker = document.querySelector('color-picker')
+	colorPicker.addEventListener('color-copy', function (event) {
+		console.log(event.detail)
+	})
+
+	colorPicker.copyColor()
 	```
 
 #### `input`

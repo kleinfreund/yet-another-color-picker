@@ -16,6 +16,7 @@ declare class CustomFormInput extends HTMLElement {
 declare global {
     interface HTMLElementEventMap {
         'color-change': CustomEvent<ColorChangeDetail>;
+        'color-copy': CustomEvent<ColorChangeDetail>;
     }
     interface HTMLElementTagNameMap {
         'color-picker': ColorPicker;
@@ -152,8 +153,6 @@ declare class ColorPicker extends CustomFormInput {
      * For example, if the active color format is HSL, the copied text will be a valid CSS color in HSL format.
      *
      * Only works in secure browsing contexts (i.e. HTTPS).
-     *
-     * @returns the promise returned by calling `window.navigator.clipboard.writeText`.
      */
     copyColor(): Promise<void>;
     /**

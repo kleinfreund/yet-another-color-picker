@@ -13,6 +13,7 @@ import { CustomFormInput } from './CustomFormInput.js'
 declare global {
 	interface HTMLElementEventMap {
 		'color-change': CustomEvent<ColorChangeDetail>
+		'color-copy': CustomEvent<ColorChangeDetail>
 	}
 
 	interface HTMLElementTagNameMap {
@@ -371,7 +372,7 @@ export class ColorPicker extends CustomFormInput {
 			this.#renderIfIdle()
 
 			// Post-render operations
-			this.#emitColorChangeEvent()
+			this.#emitColorEvent('color-change')
 
 			if (isUserTriggered) {
 				// Form-associated custom elements automatically include their form value in any event's `target.value` property.
@@ -463,7 +464,7 @@ export class ColorPicker extends CustomFormInput {
 		this.#setValue(this.defaultValue || '#ffffffff', { isUserTriggered: false })
 	}
 
-	#emitColorChangeEvent () {
+	#emitColorEvent (type: 'color-change' | 'color-copy') {
 		const excludeAlphaChannel = this.alphaChannel === 'hide'
 		const cssColor = formatAsCssColor({ color: this.#value[this.format], format: this.format }, excludeAlphaChannel)
 
@@ -485,7 +486,7 @@ export class ColorPicker extends CustomFormInput {
 			colors = { hex, hsl, hwb, rgb }
 		}
 
-		this.dispatchEvent(new CustomEvent('color-change', {
+		this.dispatchEvent(new CustomEvent(type, {
 			detail: {
 				colors,
 				cssColor,
@@ -867,19 +868,18 @@ export class ColorPicker extends CustomFormInput {
 	 * For example, if the active color format is HSL, the copied text will be a valid CSS color in HSL format.
 	 *
 	 * Only works in secure browsing contexts (i.e. HTTPS).
-	 *
-	 * @returns the promise returned by calling `window.navigator.clipboard.writeText`.
 	 */
 	copyColor () {
 		return this.#copyColor()
 	}
 
-	#copyColor = () => {
+	#copyColor = async () => {
 		const excludeAlphaChannel = this.alphaChannel === 'hide'
 		const cssColor = formatAsCssColor({ color: this.#value[this.format], format: this.format }, excludeAlphaChannel)
 
 		// Note: the Clipboard API’s `writeText` method can throw a `DOMException` error in case of insufficient write permissions (see https://w3c.github.io/clipboard-apis/#dom-clipboard-writetext). This error is explicitly not handled here so that users of this package can see the original error in the console.
-		return window.navigator.clipboard.writeText(cssColor)
+		await window.navigator.clipboard.writeText(cssColor)
+		this.#emitColorEvent('color-copy')
 	}
 
 	/**
