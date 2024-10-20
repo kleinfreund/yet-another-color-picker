@@ -6,7 +6,6 @@ export default defineConfig({
 		ColorPicker: 'src/ColorPicker.ts',
 	},
 	format: 'esm',
-	target: 'es2022',
 	dts: true,
 	clean: true,
 	minify: true,
