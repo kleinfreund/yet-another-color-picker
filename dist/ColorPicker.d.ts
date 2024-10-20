@@ -1,3 +1,18 @@
+declare class CustomFormInput extends HTMLElement {
+    #private;
+    static formAssociated: boolean;
+    get labels(): NodeList;
+    get form(): HTMLFormElement | null;
+    get shadowRoot(): ShadowRoot | null;
+    get type(): string;
+    get validationMessage(): string;
+    get validity(): ValidityState;
+    get willValidate(): boolean;
+    checkValidity(): boolean;
+    reportValidity(): boolean;
+    setFormValue(...args: Parameters<ElementInternals['setFormValue']>): void;
+}
+
 declare global {
     interface HTMLElementEventMap {
         'color-change': CustomEvent<ColorChangeDetail>;
@@ -39,7 +54,7 @@ interface ColorMap {
     rgb: ColorRgb;
 }
 interface ColorChangeDetail {
-    colors: ColorMap;
+    colors: Omit<ColorMap, 'hsv'>;
     cssColor: string;
 }
 type ColorFormat = keyof ColorMap;
@@ -66,45 +81,71 @@ interface ColorPairRgb {
 }
 type ColorPair = ColorPairHex | ColorPairHsl | ColorPairHsv | ColorPairHwb | ColorPairRgb;
 type VisibleColorPair = Exclude<ColorPair, ColorPairHsv>;
-type AttributeName = 'alpha-channel' | 'color' | 'format' | 'id' | 'visible-formats';
+type AttributeName = 'alpha-channel' | 'disabled' | 'format' | 'id' | 'name' | 'readonly' | 'value' | 'visible-formats';
 type ColorPickerProperties = keyof ColorPicker;
-declare class ColorPicker extends HTMLElement {
+declare class ColorPicker extends CustomFormInput {
     #private;
     static observedAttributes: AttributeName[];
     get [Symbol.toStringTag](): string;
-    /**
-     * The current color format. Changed by interacting with the “Switch format” button.
-     */
-    get format(): VisibleColorFormat;
-    set format(format: VisibleColorFormat);
     /**
      * Whether to show input controls for a color’s alpha channel. If set to `'hide'`, the alpha range input and the alpha channel input are hidden, the “Copy color” button will copy a CSS color value without alpha channel, and the object emitted in a `color-change` event will have a `cssColor` property value without alpha channel.
      */
     get alphaChannel(): AlphaChannelProp;
     set alphaChannel(alphaChannel: AlphaChannelProp);
+    get defaultValue(): string;
+    set defaultValue(defaultValue: string);
     /**
-     * Sets the color of the color picker. You can pass any valid CSS color string.
+     * The form-associated element's disabled state. Controls the disabled state of the form controls and buttons that are part of the color picker. Does not change when an ancestor fieldset is disabled.
      */
-    get color(): string | ColorHsl | ColorHwb | ColorRgb;
-    set color(color: string | ColorHsl | ColorHwb | ColorRgb);
+    get disabled(): boolean;
+    set disabled(disabled: boolean);
     /**
-     * The internal color representation for all formats.
+     * The element's _effective_ disabled state. `true` if the element itself is disabled _or_ if the element is a descendant of a disabled `fieldset` element.
      */
-    get colors(): ColorMap;
-    set colors(colors: ColorMap);
+    get disabledState(): boolean;
+    set disabledState(disabledState: boolean);
     /**
-     * The ID value will be used to prefix all `input` elements’ `id` and `label` elements’ `for` attribute values. Make sure to set this if you use multiple instances of the component on a page.
+     * The current color format. Changed by interacting with the “Switch format” button.
+     */
+    get format(): VisibleColorFormat;
+    set format(format: VisibleColorFormat);
+    get name(): string;
+    set name(name: string);
+    /**
+     * ID of the form-associated element. Will be used to prefix all form controls’ `id` and `for` attribute values.
      */
     get id(): string;
     set id(id: string);
+    get readOnly(): boolean;
+    set readOnly(readOnly: boolean);
+    get required(): boolean;
+    set required(required: boolean);
+    /**
+     * Value of the form-associated element.
+     *
+     * **Getter**: Returns the current color as a string in functional RGB notation (e.g. `rgb(255 255 255 / 1)`).
+     */
+    get value(): string;
+    /**
+     * **Setter**: Sets the current color. Any valid CSS color can be used.
+     *
+     * Sets the dirty flag.
+     */
+    set value(value: string | ColorHsl | ColorHwb | ColorRgb);
     /**
      * A list of visible color formats. Controls for which formats the color `input` elements are shown and in which order the formats will be cycled through when activating the format switch button.
      */
     get visibleFormats(): VisibleColorFormat[];
     set visibleFormats(visibleFormats: VisibleColorFormat[]);
+    constructor();
     connectedCallback(): void;
     disconnectedCallback(): void;
     attributeChangedCallback(attribute: AttributeName, oldValue: string | null, newValue: string | null): void;
+    formDisabledCallback(disabled: boolean): void;
+    /**
+     * Resets the dirty flag and initializes the color picker anew using the value of the `value` content attribute, if set, or; otherwise, the default color.
+     */
+    formResetCallback(): void;
     /**
      * Copies the current color (determined by the active color format).
      *

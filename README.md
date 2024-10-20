@@ -4,7 +4,10 @@
 
 A color picker web component.
 
-This package’s files are distributed in the ES module format and have not been transpiled. It uses [lit-html](https://www.npmjs.com/package/lit-html).
+- Form-associated custom element (i.e. it works in forms via the [ElementInternals API](https://developer.mozilla.org/en-US/docs/Web/API/ElementInternals))
+- Distributed is ES module format
+- Not transpiled
+- Uses [lit-html](https://www.npmjs.com/package/lit-html) (as a peer dependency)
 
 Links:
 
@@ -21,17 +24,23 @@ Links:
 	- [As npm package](#as-npm-package)
 	- [As plain files directly in the browser (no build step)](#as-plain-files-directly-in-the-browser-no-build-step)
 - [Documentation](#documentation)
-	- [Properties](#properties)
+	- [Attributes](#attributes)
 		- [`alphaChannel`](#alphachannel)
-		- [`color`](#color)
+		- [`defaultValue`](#defaultvalue)
+		- [`disabled`](#disabled)
 		- [`format`](#format)
 		- [`id`](#id)
+		- [`name`](#name)
+		- [`readOnly`](#readonly)
+		- [`value`](#value)
 		- [`visibleFormats`](#visibleformats)
 	- [Methods](#methods)
 		- [`copyColor()`](#copycolor)
 		- [`switchFormat()`](#switchformat)
 	- [Events](#events)
+		- [`change`](#change)
 		- [`color-change`](#color-change)
+		- [`input`](#input)
 	- [Theming](#theming)
 - [Versioning](#versioning)
 - [Contributing](#contributing)
@@ -107,7 +116,7 @@ Links:
 1. Download the files.
 
 	```sh
-	curl --remote-name-all 'https://cdn.jsdelivr.net/npm/yet-another-color-picker@latest/dist/ColorPicker.{js,css}'
+	curl --remote-name-all 'https://cdn.jsdelivr.net/npm/yet-another-color-picker@latest/dist/ColorPicker.{js,css,d.ts}'
 	```
 
 	1. Define an [import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script/type/importmap) for lit-html.
@@ -190,19 +199,19 @@ Links:
 
 ## Documentation
 
-### Properties
+### Attributes
 
-Most of the following properties can also be set via its corresponding attribute.
+In the following sections, the web component's [IDL and content attibutes](https://developer.mozilla.org/en-US/docs/Glossary/IDL#content_versus_idl_attributes), are documented.
 
-**Note**: Changing an attribute will be synced to its corresponding property; however, changing a property will *not* be synced to its corresponding attribute.
+**Note**: Setting a content attribute will be reflected by its corresponding IDL attribute; however, setting an IDL attribute will *not* be reflected by its corresponding content attribute.
 
 #### `alphaChannel`
 
-- **Description**: Whether to show input controls for a color’s alpha channel. If set to `'hide'`, the alpha range input and the alpha channel input are hidden, the “Copy color” button will copy a CSS color value without alpha channel, and the object emitted in a `color-change` event will have a `cssColor` property value without alpha channel.
+- **Description**: Whether to show controls for a color’s alpha channel. If set to `'hide'`, the alpha range input and the alpha channel input are hidden, the “Copy color” button will copy a CSS color value without alpha channel, and the object emitted in a `color-change` event will have a `cssColor` property value without alpha channel.
 - **Type**: `'show' | 'hide'`
 - **Required**: `false`
 - **Default**: `'show'`
-- **Attribute**: `alpha-channel`
+- **Content attribute**: `alpha-channel`
 - **Usage**:
 
 	JavaScript:
@@ -215,33 +224,47 @@ Most of the following properties can also be set via its corresponding attribute
 	<color-picker alpha-channel="hide"></color-picker>
 	```
 
-#### `color`
+#### `defaultValue`
 
-- **Description**: Sets the color of the color picker. You can pass any valid CSS color string.
-- **Type**: `string | ColorHsl | ColorHwb | ColorRgb` (for `string`, any valid CSS color string will work)
+- **Description**: Set the color picker's current color as long as the color wasn't changed by the user already.
+- **Type**: `string`
 - **Required**: `false`
-- **Default**: `'#ffffffff'`
-- **Attribute**: `color`
+- **Default**: `''`
+- **Content attribute**: `value`
 - **Usage**:
 
 	JavaScript:
 	```js
-	colorPicker.color = 'hsl(270 100% 50% / 0.8)'
+	colorPicker.defaultValue = 'hsl(270 100% 50% / 0.8)'
 	```
+
+	HTML:
+	```html
+	<color-picker value="hsl(270 100% 50% / 0.8)"></color-picker>
+	```
+
+	HTML:
+	```html
+	<color-picker value="#f80b"></color-picker>
+	```
+
+#### `disabled`
+
+- **Description**: Disables the color picker.
+- **Type**: `boolean`
+- **Required**: `false`
+- **Default**: `false`
+- **Content attribute**: `disabled`
+- **Usage**:
 
 	JavaScript:
 	```js
-	colorPicker.color = { h: 270, s: 100, l: 50, a: 0.8 }
+	colorPicker.disabled = true
 	```
 
 	HTML:
 	```html
-	<color-picker color="hsl(270 100% 50% / 0.8)"></color-picker>
-	```
-
-	HTML:
-	```html
-	<color-picker color="#f80b"></color-picker>
+	<color-picker disabled></color-picker>
 	```
 
 #### `format`
@@ -250,7 +273,7 @@ Most of the following properties can also be set via its corresponding attribute
 - **Type**: `VisibleColorFormat`
 - **Required**: `false`
 - **Default**: `'hsl'`
-- **Attribute**: `format`
+- **Content attribute**: `format`
 - **Usage**:
 
 	JavaScript:
@@ -265,11 +288,14 @@ Most of the following properties can also be set via its corresponding attribute
 
 #### `id`
 
-- **Description**: The ID value will be used to prefix all `input` elements’ `id` and `label` elements’ `for` attribute values. Make sure to set this if you use multiple instances of the component on a page.
+- **Description**: This value will be used to prefix any of the color picker’s form-associated elements’ `id` and `for` attribute values. Make sure to set this if you use multiple instances of the component on a page.
+
+	**Note**: The IDL attribute `id` of form-associated elements _is_ reflected by its content attribute.
+
 - **Type**: `string`
 - **Required**: `false`
 - **Default**: `'color-picker'`
-- **Attribute**: `id`
+- **Content attribute**: `id`
 - **Usage**:
 
 	JavaScript:
@@ -282,13 +308,80 @@ Most of the following properties can also be set via its corresponding attribute
 	<color-picker id="color-picker-1"></color-picker>
 	```
 
+#### `name`
+
+- **Description**: Name of the color picker (used when the color picker is part of a form).
+
+	**Note**: The IDL attribute `name` of form-associated elements _is_ reflected by its content attribute.
+
+- **Type**: `string`
+- **Required**: `false`
+- **Default**: `''`
+- **Content attribute**: `name`
+- **Usage**:
+
+	JavaScript:
+	```js
+	colorPicker.name = 'color-picker'
+	```
+
+	HTML:
+	```html
+	<color-picker name="color-picker"></color-picker>
+	```
+
+#### `readOnly`
+
+- **Description**: Makes the color picker read-only.
+- **Type**: `boolean`
+- **Required**: `false`
+- **Default**: `false`
+- **Content attribute**: `readonly`
+- **Usage**:
+
+	JavaScript:
+	```js
+	colorPicker.readonly = true
+	```
+
+	HTML:
+	```html
+	<color-picker readonly></color-picker>
+	```
+
+#### `value`
+
+- **Description**: The current color of the color picker.
+
+	The `value` getter will return the current color as a string (formatted as a CSS RGB color, e.g. `'rgb(127.5 0 255 / 0.8)'`). This is also the form value used in form submission.
+
+	The `value` setter accepts a `string` (any CSS color works, e.g. `'hsl(270 100% 50% / 0.8)'`) or an `object` (e.g. `{ h: 270, s: 100, l: 50, a: 0.8 }`).
+
+- **Type**: `string | ColorHsl | ColorHwb | ColorRgb` (for `string`, any valid CSS color string will work)
+- **Required**: `false`
+- **Default**: `'rgb(255 255 255 / 1)'`
+- **Content attribute**: None. The `value` IDL attribute doesn't directly reflect a content attribute. However, the `value` IDL attribute does reflect the `defaultValue` IDL attribute as long as the dirty flag isn't set.
+- **Usage**:
+
+	JavaScript:
+	```js
+	colorPicker.value = 'hsl(270 100% 50% / 0.8)'
+	colorPicker.value
+	//> 'rgb(127.5 0 255 / 0.8)'
+	```
+
+	JavaScript:
+	```js
+	colorPicker.value = { h: 270, s: 100, l: 50, a: 0.8 }
+	```
+
 #### `visibleFormats`
 
 - **Description**: A list of visible color formats. Controls for which formats the color `input` elements are shown and in which order the formats will be cycled through when activating the format switch button.
 - **Type**: `VisibleColorFormat` (an array of `VisibleColorFormat`s)
 - **Required**: `false`
 - **Default**: `['hex', 'hsl', 'hwb', 'rgb']`
-- **Attribute**: `visible-formats`
+- **Content attribute**: `visible-formats`
 - **Usage**:
 
 	JavaScript:
@@ -331,18 +424,22 @@ Most of the following properties can also be set via its corresponding attribute
 
 ### Events
 
+#### `change`
+
+- **Description**: The `change` event is fired when the color is changed.
+- **Type**: `Event`
+
 #### `color-change`
 
-- **Description**: The custom event that is emitted each time the internal colors object is updated.
+- **Description**: The `color-change` event is fired when the color is changed.
 - **Type**: `CustomEvent<ColorChangeDetail>`
-- **Data**: The custom event emits an object whose `detail` property contains both the internal colors object and a CSS color value as a string based on the currently active format. The `cssColor` property will respect `alpha-channel`.
+- **Data**: Emits an object whose `detail` property contains both the internal `colors` object and a CSS color value as a string based on the currently active format. The `cssColor` property respects the `alphaChannel` IDL attribute.
 
 	```ts
 	{
 		colors: {
 			hex: string
 			hsl: ColorHsl
-			hsv: ColorHsv
 			hwb: ColorHwb
 			rgb: ColorRgb
 		}
@@ -366,6 +463,11 @@ Most of the following properties can also be set via its corresponding attribute
 		console.log(event.detail)
 	})
 	```
+
+#### `input`
+
+- **Description**: The `input` event is fired when the color is changed.
+- **Type**: `Event`
 
 ## Theming
 

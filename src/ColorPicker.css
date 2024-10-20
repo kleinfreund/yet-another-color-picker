@@ -230,7 +230,7 @@ Range input: thumbs
 	background-color: var(--cp-color-background-input, #fff);
 }
 
-.cp-copy-button:enabled:focus {
+.cp-copy-button:focus {
 	/* Justification for removing the outline: The focus styles are maintained using a solid border style. This maintains a focus style in Windows’ high contrast mode which would be lost with a combination of `outline: none` and a box shadow because box shadows are removed in high contrast mode. */
 	outline: none;
 	border-color: var(--cp-color-border, 1px);
@@ -288,7 +288,7 @@ Range input: thumbs
 	background-color: #fff;
 }
 
-.cp-switch-format-button:enabled:focus {
+.cp-switch-format-button:focus {
 	border-color: var(--cp-color-border, #000);
 }
 

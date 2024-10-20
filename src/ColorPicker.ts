@@ -1,13 +1,14 @@
-import { html, render } from 'lit-html'
+import { html, nothing, render } from 'lit-html'
 
 import { clamp } from './utilities/clamp.js'
-import { getCssValue } from './utilities/CssValues.js'
 import { colorsAreValueEqual } from './utilities/colorsAreValueEqual.js'
+import { getCssValue } from './utilities/CssValues.js'
 import { convert } from './utilities/convert.js'
 import { formatAsCssColor } from './utilities/formatAsCssColor.js'
 import { getNewThumbPosition } from './utilities/getNewThumbPosition.js'
 import { isValidHexColor } from './utilities/isValidHexColor.js'
 import { parsePropsColor } from './utilities/parsePropsColor.js'
+import { CustomFormInput } from './CustomFormInput.js'
 
 declare global {
 	interface HTMLElementEventMap {
@@ -58,7 +59,7 @@ export interface ColorMap {
 }
 
 export interface ColorChangeDetail {
-	colors: ColorMap
+	colors: Omit<ColorMap, 'hsv'>
 	cssColor: string
 }
 
@@ -75,11 +76,12 @@ export type ColorPair = ColorPairHex | ColorPairHsl | ColorPairHsv | ColorPairHw
 export type VisibleColorPair = Exclude<ColorPair, ColorPairHsv>
 
 interface AttributeDefinition {
-	type: StringConstructor | ArrayConstructor
+	type: StringConstructor | BooleanConstructor | ArrayConstructor
 	property: ColorPickerProperties
+	reflected?: boolean
 }
 
-type AttributeName = 'alpha-channel' | 'color' | 'format' | 'id' | 'visible-formats'
+type AttributeName = 'alpha-channel' | 'disabled' | 'format' | 'id' | 'name' | 'readonly' | 'value' | 'visible-formats'
 
 const ATTRIBUTES: Record<AttributeName, AttributeDefinition> = {
 	'alpha-channel': {
@@ -87,9 +89,9 @@ const ATTRIBUTES: Record<AttributeName, AttributeDefinition> = {
 		property: 'alphaChannel',
 	},
 
-	color: {
-		type: String,
-		property: 'color',
+	disabled: {
+		type: Boolean,
+		property: 'disabled',
 	},
 
 	format: {
@@ -100,6 +102,23 @@ const ATTRIBUTES: Record<AttributeName, AttributeDefinition> = {
 	id: {
 		type: String,
 		property: 'id',
+		reflected: true,
+	},
+
+	name: {
+		type: String,
+		property: 'name',
+		reflected: true,
+	},
+
+	readonly: {
+		type: Boolean,
+		property: 'readOnly',
+	},
+
+	value: {
+		type: String,
+		property: 'defaultValue',
 	},
 
 	'visible-formats': {
@@ -112,7 +131,7 @@ export type ColorPickerProperties = keyof ColorPicker
 
 const COLOR_FORMATS = ['hex', 'hsl', 'hsv', 'hwb', 'rgb'] as const satisfies readonly ColorFormat[]
 
-export class ColorPicker extends HTMLElement {
+export class ColorPicker extends CustomFormInput {
 	static observedAttributes = Object.keys(ATTRIBUTES) as AttributeName[]
 
 	/**
@@ -126,10 +145,26 @@ export class ColorPicker extends HTMLElement {
 		}
 	}
 
+	/**
+	 * Indicates when changes to the `value` content attribute *shouldn't* be reflected by its IDL attribute.
+	 *
+	 * This happens as soon as the user made changes to the form value by changing the current color (1) via the GUI or (2) by updating it programmatically.
+	 *
+	 * A form reset will reset this flag.
+	 */
+	#dirty = false
+	#disabledState = false
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	#value: any = {
+		hex: '#ffffffff',
+		hsl: { h: 0, s: 0, l: 100, a: 1 },
+		hsv: { h: 0, s: 0, v: 100, a: 1 },
+		hwb: { h: 0, w: 100, b: 0, a: 1 },
+		rgb: { r: 255, g: 255, b: 255, a: 1 },
+	}
+
 	#alphaChannel: AlphaChannelProp = 'show'
-	#color: string | ColorHsl | ColorHwb | ColorRgb = '#ffffffff'
 	#format: VisibleColorFormat = 'hsl'
-	#id = 'color-picker'
 	#visibleFormats: VisibleColorFormat[] = ['hex', 'hsl', 'hwb', 'rgb']
 
 	#colorSpace: HTMLElement | null = null
@@ -143,39 +178,12 @@ export class ColorPicker extends HTMLElement {
 	#hasPointerOriginatedInColorSpace = false
 
 	/**
-	 * The current color represented in all supported color formats.
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	#colors: any = {
-		hex: '#ffffffff',
-		hsl: { h: 0, s: 0, l: 100, a: 1 },
-		hsv: { h: 0, s: 0, v: 100, a: 1 },
-		hwb: { h: 0, w: 100, b: 0, a: 1 },
-		rgb: { r: 255, g: 255, b: 255, a: 1 },
-	}
-
-	/**
 	 * Tracks queued updates.
 	 */
 	#updateCount = 0
 
 	get [Symbol.toStringTag] () {
 		return 'ColorPicker'
-	}
-
-	/**
-	 * The current color format. Changed by interacting with the “Switch format” button.
-	 */
-	get format () {
-		return this.#format
-	}
-
-	set format (format) {
-		this.#format = this.visibleFormats.includes(format) ? format : this.visibleFormats[0]!
-
-		this.#queueUpdate(() => {
-			this.#renderIfIdle()
-		})
 	}
 
 	/**
@@ -193,50 +201,185 @@ export class ColorPicker extends HTMLElement {
 		})
 	}
 
-	/**
-	 * Sets the color of the color picker. You can pass any valid CSS color string.
-	 */
-	get color () {
-		return this.#color
+	get defaultValue () {
+		// The `defaultValue` IDL attribute reflects the `value` (yes, not `default-value`) content attribute.
+		return this.getAttribute('value') ?? ''
 	}
 
-	set color (color) {
-		this.#color = color
+	set defaultValue (defaultValue) {
+		this.setAttribute('value', defaultValue)
+
+		if (!this.#dirty) {
+			this.#setValue(defaultValue, { isUserTriggered: false })
+		}
+	}
+
+	/**
+	 * The form-associated element's disabled state. Controls the disabled state of the form controls and buttons that are part of the color picker. Does not change when an ancestor fieldset is disabled.
+	 */
+	get disabled () {
+		return this.hasAttribute('disabled')
+	}
+
+	set disabled (disabled) {
+		if (disabled) {
+			this.setAttribute('disabled', '')
+		} else {
+			this.removeAttribute('disabled')
+		}
 
 		this.#queueUpdate(() => {
-			this.#recomputeColors()
 			this.#renderIfIdle()
 		})
 	}
 
 	/**
-	 * The internal color representation for all formats.
+	 * The element's _effective_ disabled state. `true` if the element itself is disabled _or_ if the element is a descendant of a disabled `fieldset` element.
 	 */
-	get colors () {
-		return this.#colors as ColorMap
+	// Keeping track of this separetely to the `disabled` IDL attribute is necessary because that should only indicate if the element itself is disabled. However, sometimes we need to know whether the element is functionally disabled through _either_ its own disabled state _or_ an ancestor fieldset.
+	get disabledState () {
+		return this.disabled || this.#disabledState
 	}
 
-	set colors (colors: ColorMap) {
-		this.#colors = colors
+	set disabledState (disabledState) {
+		this.#disabledState = disabledState
 
 		this.#queueUpdate(() => {
 			this.#renderIfIdle()
-			this.#emitColorChangeEvent()
 		})
 	}
 
 	/**
-	 * The ID value will be used to prefix all `input` elements’ `id` and `label` elements’ `for` attribute values. Make sure to set this if you use multiple instances of the component on a page.
+	 * The current color format. Changed by interacting with the “Switch format” button.
+	 */
+	get format () {
+		return this.#format
+	}
+
+	set format (format) {
+		format = format || 'hsl'
+		this.#format = this.visibleFormats.includes(format) ? format : this.visibleFormats[0]!
+
+		this.#queueUpdate(() => {
+			this.#renderIfIdle()
+		})
+	}
+
+	get name () {
+		return this.getAttribute('name') ?? ''
+	}
+
+	set name (name) {
+		this.setAttribute('name', name)
+	}
+
+	/**
+	 * ID of the form-associated element. Will be used to prefix all form controls’ `id` and `for` attribute values.
 	 */
 	get id () {
-		return this.#id
+		return this.getAttribute('id') ?? 'color-picker'
 	}
 
 	set id (id) {
-		this.#id = id
+		this.setAttribute('id', id)
 
 		this.#queueUpdate(() => {
 			this.#renderIfIdle()
+		})
+	}
+
+	get readOnly () {
+		return this.hasAttribute('readonly')
+	}
+
+	set readOnly (readOnly) {
+		if (readOnly) {
+			this.setAttribute('readonly', '')
+		} else {
+			this.removeAttribute('readonly')
+		}
+
+		this.#queueUpdate(() => {
+			this.#renderIfIdle()
+		})
+	}
+
+	get required () {
+		return this.hasAttribute('required')
+	}
+
+	set required (required) {
+		if (required) {
+			this.setAttribute('required', '')
+		} else {
+			this.removeAttribute('required')
+		}
+	}
+
+	/**
+	 * Value of the form-associated element.
+	 *
+	 * **Getter**: Returns the current color as a string in functional RGB notation (e.g. `rgb(255 255 255 / 1)`).
+	 */
+	get value (): string {
+		return formatAsCssColor({ format: 'rgb', color: this.#value.rgb }, false)
+	}
+
+	/**
+	 * **Setter**: Sets the current color. Any valid CSS color can be used.
+	 *
+	 * Sets the dirty flag.
+	 */
+	set value (value: string | ColorHsl | ColorHwb | ColorRgb) {
+		this.#setValue(value, { isUserTriggered: true })
+	}
+
+	/**
+	 * Set `value`.
+	 *
+	 * Sets the dirty flag **if `isUserTriggered` is `true`**.
+	 */
+	#setValue (
+		value: string | ColorHsl | ColorHsv | ColorHwb | ColorRgb,
+		{ isUserTriggered }: { isUserTriggered: boolean },
+	) {
+		const pair = parsePropsColor(value)
+		if (pair === null) {
+			return
+		}
+
+		if (isUserTriggered) {
+			this.#dirty = true
+		}
+
+		if (colorsAreValueEqual(this.#value[pair.format], pair.color)) {
+			return
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const updatedColors: any = { [pair.format]: pair.color }
+		for (const targetFormat of COLOR_FORMATS) {
+			if (targetFormat !== pair.format) {
+				updatedColors[targetFormat] = convert(pair.format, targetFormat, pair.color)
+			}
+		}
+
+		this.#value = updatedColors
+		this.setFormValue(this.value)
+
+		this.#queueUpdate(() => {
+			this.#renderIfIdle()
+
+			// Post-render operations
+			this.#emitColorChangeEvent()
+
+			if (isUserTriggered) {
+				// Form-associated custom elements automatically include their form value in any event's `target.value` property.
+				this.dispatchEvent(new Event('input'))
+
+				// Technically, this should be guarded behind some form of “has committed value” check. However, the nature of the color picker means that each color change always coincides with a value being committed.
+				this.dispatchEvent(new Event('change'))
+			}
 		})
 	}
 
@@ -252,6 +395,11 @@ export class ColorPicker extends HTMLElement {
 
 		// Set `format` to its current value to trigger the validation logic for whether it's one of the visible formats.
 		this.format = this.#format
+	}
+
+	constructor () {
+		super()
+		this.setFormValue(this.value)
 	}
 
 	connectedCallback () {
@@ -275,92 +423,74 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	attributeChangedCallback (attribute: AttributeName, oldValue: string | null, newValue: string | null) {
-		// Returns early if the prop hasn't changed.
-		if (oldValue === newValue) {
-			return
-		}
-
-		this.#syncAttributeToProperty(attribute)
-	}
-
-	/**
-	 * Syncs a changed attribute to its corresponding property.
-	 */
-	#syncAttributeToProperty (attribute: AttributeName) {
-		const { property, type } = ATTRIBUTES[attribute]
-		const attributeValue = this.getAttribute(attribute)
-
-		let value
-		if (attributeValue !== null) {
+		if (newValue !== oldValue) {
+			let value
+			const { property, type, reflected = false } = ATTRIBUTES[attribute]
 			switch (type) {
 				case Array: {
-					value = attributeValue.split(',').map((format) => format.trim())
+					value = newValue !== null ? newValue.split(',').map((format) => format.trim()) : null
+					break
+				}
+				case Boolean: {
+					// The presence of a boolean attribute alone indicates `true`; absence indicates `false`.
+					value = newValue !== null
 					break
 				}
 				default: {
-					value = attributeValue
+					value = newValue
 					break
 				}
 			}
 
-			// Only sets a property if it has changed.
-			if (this[property] !== value) {
-				Reflect.set(this, property, value)
+			// If the new value is `null` (i.e. the content attribute was removed) and the content attribute reflects the IDL attribute (i.e. the IDL attribute setter sets the content attribute), don't use the IDL attribute's setter because that would set the attribute again.
+			if (newValue !== null || !reflected) {
+				// @ts-expect-error this is fine
+				this[property] = value
 			}
 		}
 	}
 
-	#recomputeColors () {
-		const pair = parsePropsColor(this.color)
-
-		if (pair !== null) {
-			this.#updateColors(pair)
-		}
+	formDisabledCallback (disabled: boolean) {
+		this.disabledState = disabled
 	}
 
-	#updateColors ({ format, color }: ColorPair) {
-		let normalizedColor = color
-		if (this.alphaChannel === 'hide') {
-			if (typeof color !== 'string') {
-				color.a = 1
-				normalizedColor = color
-			} else if ([5, 9].includes(color.length)) {
-				const alphaChannelLength = (color.length - 1) / 4
-				normalizedColor = color.substring(0, color.length - alphaChannelLength) + 'f'.repeat(alphaChannelLength)
-			} else if ([4, 7].includes(color.length)) {
-				normalizedColor = color + 'f'.repeat((color.length - 1) / 3)
-			}
-		}
-
-		if (!colorsAreValueEqual(this.colors[format], normalizedColor)) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const updatedColors: any = {}
-			updatedColors[format] = normalizedColor
-
-			for (const targetFormat of COLOR_FORMATS) {
-				if (targetFormat !== format) {
-					updatedColors[targetFormat] = convert(format, targetFormat, normalizedColor)
-				}
-			}
-
-			this.colors = updatedColors
-		}
+	/**
+	 * Resets the dirty flag and initializes the color picker anew using the value of the `value` content attribute, if set, or; otherwise, the default color.
+	 */
+	// This relies on all internal form controls being disassociated from their form so that they don't reset their values per the default reset algorithm. This would interfere with the logic in this callback.
+	formResetCallback () {
+		this.#dirty = false
+		this.#setValue(this.defaultValue || '#ffffffff', { isUserTriggered: false })
 	}
 
 	#emitColorChangeEvent () {
-		const detail = this.#getColorChangeDetail()
-		const event = new CustomEvent('color-change', { detail })
-		this.dispatchEvent(event)
-	}
-
-	#getColorChangeDetail (): ColorChangeDetail {
 		const excludeAlphaChannel = this.alphaChannel === 'hide'
-		const cssColor = formatAsCssColor({ color: this.#colors[this.format], format: this.format }, excludeAlphaChannel)
+		const cssColor = formatAsCssColor({ color: this.#value[this.format], format: this.format }, excludeAlphaChannel)
 
-		return {
-			colors: this.colors,
-			cssColor,
+		let colors: ColorChangeDetail['colors']
+		const { hex, hsl, hwb, rgb } = this.#value
+		if (this.alphaChannel === 'hide') {
+			const digits = this.#value.hex.length - 1
+			const hasAlpha = digits%4 === 0
+			const alphaChannelLength = digits/(hasAlpha ? 4 : 3)
+			const hex = this.#value.hex.substring(0, this.#value.hex.length - (hasAlpha ? alphaChannelLength : 0)) + 'f'.repeat(alphaChannelLength)
+
+			colors = {
+				hex,
+				hsl: { ...hsl, a: 1 },
+				hwb: { ...hwb, a: 1 },
+				rgb: { ...rgb, a: 1 },
+			}
+		} else {
+			colors = { hex, hsl, hwb, rgb }
 		}
+
+		this.dispatchEvent(new CustomEvent('color-change', {
+			detail: {
+				colors,
+				cssColor,
+			},
+		}))
 	}
 
 	/**
@@ -368,8 +498,8 @@ export class ColorPicker extends HTMLElement {
 	 */
 	#setCssProps () {
 		// Use the current color as the *opaque* end of the the alpha channel slider. For this purpose, we use the current color with its alpha channel set to 1.
-		const opaqueColor = formatAsCssColor({ format: 'hsl', color: this.colors.hsl }, false)
-		this.style.setProperty('--cp-color', opaqueColor)
+		const rgb = { ...this.#value.rgb, a: 1 }
+		this.style.setProperty('--cp-color', formatAsCssColor({ format: 'rgb', color: rgb }, false))
 
 		if (this.#colorSpace === null || this.#thumb === null) {
 			return
@@ -378,7 +508,7 @@ export class ColorPicker extends HTMLElement {
 		// Allows the color space thumb to be positioned relative to this element.
 		this.#colorSpace.style.position = 'relative'
 		// Sets the background color of the color space. The color space shows a *slice* through the HSV color cylinder's center. The slice's angle represents the color's *hue* (i.e. rotating the angle of the HSV slice changes the color's hue). We want this color at 100% *saturation* and 100% *value* (which is the same as 50% lightness of the corresponding HSL color).
-		this.#colorSpace.style.backgroundColor = `hsl(${this.colors.hsl.h} 100% 50%)`
+		this.#colorSpace.style.backgroundColor = `hsl(${this.#value.hsl.h} 100% 50%)`
 		// Adds two gradients on top of the solid background color of the color space. This creates the final image of the HSV slice. The first gradient goes from fully opaque black at the bottom to fully transparent at the top. The second gradient goes from full opaque white at the left to fully transparent at the right.
 		this.#colorSpace.style.backgroundImage = 'linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent)'
 
@@ -386,8 +516,8 @@ export class ColorPicker extends HTMLElement {
 		// Allows positioning the color space thumb.
 		this.#thumb.style.position = 'absolute'
 		// Sets the X and Y coordinates of the color space thumb. Having chosen the color space to be a slice through the HSV cylinder allows us to map the saturation and value of the current color in HSV representation directly to the thumb's coordinates. In other words: the thumb controls the saturation (X coordinate) and value (Y coordinate) linearly.
-		this.#thumb.style.left = `${this.colors.hsv.s}%`
-		this.#thumb.style.bottom = `${this.colors.hsv.v}%`
+		this.#thumb.style.left = `${this.#value.hsv.s}%`
+		this.#thumb.style.bottom = `${this.#value.hsv.v}%`
 	}
 
 	/**
@@ -395,7 +525,7 @@ export class ColorPicker extends HTMLElement {
 	 *
 	 * The `callback` must call `this.#renderIfIdle()` which guarantees that `this.#updateCount` is tracked correctly.
 	 *
-	 * Using `queueMicrotask` ensures that multiple changes to writeable properties can be processed before applying their effects.
+	 * Using `queueMicrotask` ensures that multiple simultaneous changes to IDL attributes can be processed before applying their effects (which might depend on this having happened).
 	 */
 	#queueUpdate (callback: VoidFunction) {
 		this.#updateCount++
@@ -428,6 +558,9 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	#template () {
+		// Used to disassociate form controls from the custom element's parent form.
+		const nonExistentFormName = '👽'
+
 		const colorSpaceTemplate = () => html`<div
 			class="cp-color-space"
 			@mousedown="${this.#startMovingThumbWithMouse}"
@@ -435,7 +568,7 @@ export class ColorPicker extends HTMLElement {
 		>
 			<div
 				class="cp-thumb"
-				tabIndex="0"
+				tabIndex="${this.disabledState ? nothing : '0'}"
 				aria-label="Color space thumb"
 				@keydown="${this.#moveThumbWithArrows}"
 			></div>
@@ -448,13 +581,16 @@ export class ColorPicker extends HTMLElement {
 			<span class="cp-range-input-label-text cp-range-input-label-text--hue">Hue</span>
 
 			<input
+				form="${nonExistentFormName}"
 				class="cp-range-input cp-range-input--hue"
 				id="${this.id}-hue-slider"
 				type="range"
 				min="0"
 				max="360"
 				step="1"
-				.value="${this.colors.hsv.h}"
+				.value="${this.#value.hsl.h}"
+				?disabled="${this.disabledState}"
+				?readonly="${this.readOnly}"
 				@keydown="${this.#changeInputValue}"
 				@input="${(event: Event) => this.#handleSliderInput(event, 'h')}"
 			>
@@ -467,13 +603,16 @@ export class ColorPicker extends HTMLElement {
 			<span class="cp-range-input-label-text cp-range-input-label-text--alpha">Alpha</span>
 
 			<input
+				form="${nonExistentFormName}"
 				class="cp-range-input cp-range-input--alpha"
 				id="${this.id}-alpha-slider"
 				type="range"
 				min="0"
 				max="1"
 				step="0.01"
-				.value="${this.colors.hsv.a}"
+				.value="${this.#value.hsl.a}"
+				?disabled="${this.disabledState}"
+				?readonly="${this.readOnly}"
 				@keydown="${this.#changeInputValue}"
 				@input="${(event: Event) => this.#handleSliderInput(event, 'a')}"
 			>
@@ -487,6 +626,7 @@ export class ColorPicker extends HTMLElement {
 		const copyButtonTemplate = () => html`<button
 			class="cp-copy-button"
 			type="button"
+			?disabled="${this.disabledState}"
 			@click="${this.#copyColor}"
 		>
 			<span class="cp-visually-hidden">Copy color</span>
@@ -506,9 +646,10 @@ export class ColorPicker extends HTMLElement {
 		</button>`
 
 		const hexColorInputTemplate = () => {
-			const hexInputValue = this.alphaChannel === 'hide' && [5, 9].includes(this.colors.hex.length)
-				? this.colors.hex.slice(0, -(this.colors.hex.length - 1)/4)
-				: this.colors.hex
+			const hex = this.#value.hex
+			const hexInputValue = this.alphaChannel === 'hide' && [5, 9].includes(hex.length)
+				? hex.slice(0, -(hex.length - 1)/4)
+				: hex
 
 			return html`<label
 				class="cp-hex-input-label"
@@ -517,11 +658,14 @@ export class ColorPicker extends HTMLElement {
 				<span class="cp-color-input-label-text">Hex</span>
 
 				<input
+					form="${nonExistentFormName}"
 					class="cp-color-input"
 					id="${this.id}-color-hex"
 					type="text"
 					.value="${hexInputValue}"
-					@input="${this.#updateHexColorValue}"
+					?disabled="${this.disabledState}"
+					?readonly="${this.readOnly}"
+					@change="${this.#updateHexColorValue}"
 				>
 			</label>`
 		}
@@ -530,7 +674,7 @@ export class ColorPicker extends HTMLElement {
 			const channels = format.split('').concat(this.alphaChannel === 'show' ? ['a'] : [])
 			return channels.map((channel) => {
 				const cssValue = getCssValue(format, channel)
-				const value = cssValue.to(this.#colors[format][channel])
+				const value = cssValue.to(this.#value[format][channel])
 
 				return html`<label
 					class="cp-color-input-label"
@@ -540,11 +684,14 @@ export class ColorPicker extends HTMLElement {
 					<span class="cp-color-input-label-text">${channel.toUpperCase()}</span>
 
 					<input
+						form="${nonExistentFormName}"
 						class="cp-color-input"
 						id="${this.id}-color-${format}-${channel}"
 						type="text"
 						.value="${value}"
-						@input="${(event: Event) => this.#updateColorValue(event, channel)}"
+						?disabled="${this.disabledState}"
+						?readonly="${this.readOnly}"
+						@change="${(event: Event) => this.#updateColorValue(event, channel)}"
 					>
 				</label>`
 			})
@@ -553,6 +700,7 @@ export class ColorPicker extends HTMLElement {
 		const switchFormatButtonTemplate = () => html`<button
 			class="cp-switch-format-button"
 			type="button"
+			?disabled="${this.disabledState}"
 			@click="${this.#switchFormat}"
 		>
 			<span class="cp-visually-hidden">Switch format</span>
@@ -595,12 +743,14 @@ export class ColorPicker extends HTMLElement {
 		if (
 			event.buttons !== 1 ||
 			this.#hasPointerOriginatedInColorSpace === false ||
-			!(this.#colorSpace instanceof HTMLElement)
+			!(this.#colorSpace instanceof HTMLElement) ||
+			this.disabledState ||
+			this.readOnly
 		) {
 			return
 		}
 
-		this.#moveThumb(this.#colorSpace, event.clientX, event.clientY)
+		this.#moveThumb(getNewThumbPosition(this.#colorSpace, event.clientX, event.clientY))
 	}
 
 	#startMovingThumbWithTouch = (event: TouchEvent) => {
@@ -611,7 +761,9 @@ export class ColorPicker extends HTMLElement {
 	#moveThumbWithTouch = (event: TouchEvent) => {
 		if (
 			this.#hasPointerOriginatedInColorSpace === false ||
-			!(this.#colorSpace instanceof HTMLElement)
+			!(this.#colorSpace instanceof HTMLElement) ||
+			this.disabledState ||
+			this.readOnly
 		) {
 			return
 		}
@@ -621,16 +773,15 @@ export class ColorPicker extends HTMLElement {
 
 		const touchPoint = event.touches[0]!
 
-		this.#moveThumb(this.#colorSpace, touchPoint.clientX, touchPoint.clientY)
+		this.#moveThumb(getNewThumbPosition(this.#colorSpace, touchPoint.clientX, touchPoint.clientY))
 	}
 
-	#moveThumb (colorSpace: HTMLElement, clientX: number, clientY: number) {
-		const newThumbPosition = getNewThumbPosition(colorSpace, clientX, clientY)
-		const hsvColor = Object.assign({}, this.colors.hsv)
-		hsvColor.s = newThumbPosition.x
-		hsvColor.v = newThumbPosition.y
+	#moveThumb ({ x, y }: { x: number, y: number }) {
+		const hsv: ColorHsv = Object.assign({}, this.#value.hsv)
+		hsv.s = x
+		hsv.v = y
 
-		this.#updateColors({ format: 'hsv', color: hsvColor })
+		this.#setValue(hsv, { isUserTriggered: true })
 	}
 
 	#stopMovingThumb = () => {
@@ -638,7 +789,12 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	#moveThumbWithArrows = (event: KeyboardEvent) => {
-		if (!['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'].includes(event.key)) {
+		if (
+			!['ArrowUp', 'ArrowRight', 'ArrowDown', 'ArrowLeft'].includes(event.key) ||
+			!(this.#colorSpace instanceof HTMLElement) ||
+			this.disabledState ||
+			this.readOnly
+		) {
 			return
 		}
 
@@ -646,11 +802,12 @@ export class ColorPicker extends HTMLElement {
 		const direction = ['ArrowLeft', 'ArrowDown'].includes(event.key) ? -1 : 1
 		const channel = ['ArrowLeft', 'ArrowRight'].includes(event.key) ? 's' : 'v'
 		const step = event.shiftKey ? 10 : 1
-		const newColorValue = this.colors.hsv[channel] + direction * step
-		const hsvColor = Object.assign({}, this.colors.hsv)
-		hsvColor[channel] = clamp(newColorValue, 0, 100)
 
-		this.#updateColors({ format: 'hsv', color: hsvColor })
+		const { s, v } = this.#value.hsv
+		const x = channel === 's' ? clamp(s + direction * step, 0, 100) : s
+		const y = channel === 'v' ? clamp(v + direction * step, 0, 100) : v
+
+		this.#moveThumb({ x, y })
 	}
 
 	#changeInputValue = (event: KeyboardEvent) => {
@@ -673,24 +830,24 @@ export class ColorPicker extends HTMLElement {
 
 	#handleSliderInput = (event: Event, channel: 'h' | 'a') => {
 		const input = event.currentTarget as HTMLInputElement
-		const hsvColor = Object.assign({}, this.colors.hsv)
-		hsvColor[channel] = Number(input.value)
+		const hsl: ColorHsl = Object.assign({}, this.#value.hsl)
+		hsl[channel] = Number(input.value)
 
-		this.#updateColors({ format: 'hsv', color: hsvColor })
+		this.#setValue(hsl, { isUserTriggered: true })
 	}
 
 	#updateHexColorValue = (event: Event) => {
 		const input = event.target as HTMLInputElement
 
 		if (isValidHexColor(input.value)) {
-			this.#updateColors({ format: 'hex', color: input.value })
+			this.#setValue(input.value, { isUserTriggered: true })
 		}
 	}
 
 	#updateColorValue = (event: Event, channel: string) => {
 		const input = event.target as HTMLInputElement
 		const format = this.format as Exclude<VisibleColorFormat, 'hex'>
-		const color = Object.assign({}, this.#colors[format])
+		const color = Object.assign({}, this.#value[format])
 		const cssValue = getCssValue(format, channel)
 		const value = cssValue.from(input.value)
 
@@ -701,7 +858,7 @@ export class ColorPicker extends HTMLElement {
 
 		color[channel] = value
 
-		this.#updateColors({ format, color })
+		this.#setValue(color, { isUserTriggered: true })
 	}
 
 	/**
@@ -718,9 +875,8 @@ export class ColorPicker extends HTMLElement {
 	}
 
 	#copyColor = () => {
-		const color = this.#colors[this.format]
 		const excludeAlphaChannel = this.alphaChannel === 'hide'
-		const cssColor = formatAsCssColor({ color, format: this.format }, excludeAlphaChannel)
+		const cssColor = formatAsCssColor({ color: this.#value[this.format], format: this.format }, excludeAlphaChannel)
 
 		// Note: the Clipboard API’s `writeText` method can throw a `DOMException` error in case of insufficient write permissions (see https://w3c.github.io/clipboard-apis/#dom-clipboard-writetext). This error is explicitly not handled here so that users of this package can see the original error in the console.
 		return window.navigator.clipboard.writeText(cssColor)

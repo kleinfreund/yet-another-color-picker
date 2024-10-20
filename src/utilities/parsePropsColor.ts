@@ -1,7 +1,15 @@
 import { getCssValue } from './CssValues.js'
 import { detectFormat } from './detectFormat.js'
 import { isValidHexColor } from './isValidHexColor.js'
-import { ColorPair, VisibleColorFormat } from '../ColorPicker.js'
+import {
+	ColorHsl,
+	ColorHsv,
+	ColorHwb,
+	ColorPair,
+	ColorRgb,
+	VisibleColorFormat,
+	VisibleColorPair,
+} from '../ColorPicker.js'
 
 const CHANNELS_BY_FORMAT = {
 	hsl: ['h', 's', 'l', 'a'],
@@ -14,7 +22,7 @@ const CHANNELS_BY_FORMAT = {
  *
  * Supports all valid CSS colors in string form (e.g. tomato, #f80c, hsl(266.66 50% 100% / 0.8), hwb(0.9 0.9 0.9 / 1), etc.) as well as the color formats used for internal storage by the color picker.
  */
-export function parsePropsColor (propsColor: string | Record<string, unknown>): ColorPair | null {
+export function parsePropsColor (propsColor: string  | ColorHsl | ColorHsv | ColorHwb | ColorRgb): ColorPair | null {
 	// 1. Objects
 	if (typeof propsColor !== 'string') {
 		const format = detectFormat(propsColor)
@@ -80,5 +88,5 @@ export function parsePropsColor (propsColor: string | Record<string, unknown>): 
 		]
 	}))
 
-	return { format, color } as ColorPair
+	return { format, color } as VisibleColorPair
 }

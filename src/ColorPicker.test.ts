@@ -3,13 +3,23 @@ import { afterEach, beforeAll, describe, test, expect, vi } from 'vitest'
 import './ColorPicker.js'
 import type { ColorChangeDetail, ColorPickerProperties } from './ColorPicker.js'
 
-type RenderOptions = {
+interface RenderOptions {
 	attributes?: Record<string, string>
 	properties?: Partial<Record<ColorPickerProperties, string>>
+	node?: Node
 }
 
+// JSDom doesn't know ElementInternals so we have to mock it away.
+HTMLElement.prototype.attachInternals = vi.fn(() => {
+	return { setFormValue: vi.fn() } as unknown as ElementInternals
+})
+
 function render (options: RenderOptions = {}) {
-	const { attributes = {}, properties = {} } = options
+	const {
+		attributes = {},
+		properties = {},
+		node = document.body,
+	} = options
 	const colorPicker = document.createElement('color-picker')
 
 
@@ -22,7 +32,7 @@ function render (options: RenderOptions = {}) {
 		colorPicker[property] = value
 	}
 
-	document.body.appendChild(colorPicker)
+	node.appendChild(colorPicker)
 
 	return colorPicker
 }
@@ -45,17 +55,140 @@ describe('ColorPicker', () => {
 	})
 
 	describe('attributes & properties', () => {
-		test('has expected property default values', async () => {
+		test('has expected property default values', () => {
 			const colorPicker = render()
 
-			expect(colorPicker.id).toBe('color-picker')
 			expect(colorPicker.alphaChannel).toBe('show')
-			expect(colorPicker.color).toBe('#ffffffff')
 			expect(colorPicker.format).toBe('hsl')
+			expect(colorPicker.getAttribute('value')).toBe(null)
+			expect(colorPicker.defaultValue).toBe('')
+			expect(colorPicker.value).toBe('rgb(255 255 255 / 1)')
 			expect(colorPicker.visibleFormats).toEqual(['hex', 'hsl', 'hwb', 'rgb'])
 		})
 
-		test.each<[Record<string, string>, ColorPickerProperties, string | string[]]>([
+		test.each<'disabled' | 'readOnly' | 'required'>([
+			'disabled',
+			'readOnly',
+			'required',
+		])('reflects expected boolean IDL attributes', async (attribute) => {
+			const colorPicker = render()
+
+			expect(colorPicker[attribute]).toBe(false)
+			expect(colorPicker.getAttribute(attribute)).toBe(null)
+
+			colorPicker[attribute] = true
+			expect(colorPicker[attribute]).toBe(true)
+			expect(colorPicker.getAttribute(attribute)).toBe('')
+
+			colorPicker[attribute] = false
+			expect(colorPicker[attribute]).toBe(false)
+			expect(colorPicker.getAttribute(attribute)).toBe(null)
+
+			colorPicker.setAttribute(attribute, '')
+			expect(colorPicker[attribute]).toBe(true)
+			expect(colorPicker.getAttribute(attribute)).toBe('')
+
+			colorPicker.removeAttribute(attribute)
+			expect(colorPicker[attribute]).toBe(false)
+			expect(colorPicker.getAttribute(attribute)).toBe(null)
+		})
+
+		test.each<['id' | 'name', string]>([
+			['id', 'color-picker'],
+			['name', ''],
+		])('reflects expected string IDL attributes', async (attribute, defaultPropertyValue) => {
+			const colorPicker = render()
+
+			expect(colorPicker[attribute]).toBe(defaultPropertyValue)
+			expect(colorPicker.getAttribute(attribute)).toBe(null)
+
+			colorPicker[attribute] = '1'
+			expect(colorPicker[attribute]).toBe('1')
+			expect(colorPicker.getAttribute(attribute)).toBe('1')
+
+			colorPicker.setAttribute(attribute, '2')
+			expect(colorPicker[attribute]).toBe('2')
+			expect(colorPicker.getAttribute(attribute)).toBe('2')
+
+			colorPicker.removeAttribute(attribute)
+			expect(colorPicker[attribute]).toBe(defaultPropertyValue)
+			expect(colorPicker.getAttribute(attribute)).toBe(null)
+		})
+
+		test.each<[Record<string, string>, { value: string, defaultValue: string, valueAttribute: string | null }]>([
+			[
+				{},
+				{
+					value: 'rgb(255 255 255 / 1)',
+					defaultValue: '',
+					valueAttribute: null,
+				},
+			],
+			[
+				{
+					value: '#ff6600',
+				},
+				{
+					value: 'rgb(255 102 0 / 1)',
+					defaultValue: '#ff6600',
+					valueAttribute: '#ff6600',
+				},
+			],
+		])('value/defaultValue IDL and content attribute interactions work', async (attributes, { value, defaultValue, valueAttribute }) => {
+			const colorPicker = render({ attributes })
+			await waitForRecomputations()
+
+			expect(colorPicker.value).toBe(value)
+			expect(colorPicker.defaultValue).toBe(defaultValue)
+			expect(colorPicker.getAttribute('value')).toBe(valueAttribute)
+
+			// Changing the `value` content attribute propagates, via the `defaultValue` IDL attribute, to the `value` IDL attribute because the dirty flag isn't set currently.
+			colorPicker.setAttribute('value', '#ff0000') // red
+			await waitForRecomputations()
+
+			expect(colorPicker.value).toBe('rgb(255 0 0 / 1)') // red
+			expect(colorPicker.defaultValue).toBe('#ff0000') // red
+			expect(colorPicker.getAttribute('value')).toBe('#ff0000') // red
+
+			// Changing the `defaultValue` IDL attribute propagates to the `value` IDL attribute because the dirty flag isn't set currently.
+			colorPicker.defaultValue = '#00ff00' // green
+			await waitForRecomputations()
+
+			expect(colorPicker.value).toBe('rgb(0 255 0 / 1)') // green
+			expect(colorPicker.defaultValue).toBe('#00ff00') // green
+			expect(colorPicker.getAttribute('value')).toBe('#00ff00') // green
+
+			// Changing the `value` IDL attribute doesn't propagate to either the `defaultValue` IDL attribute or the `value` content attribute.
+			colorPicker.value = '#0000ff' // blue
+			await waitForRecomputations()
+
+			expect(colorPicker.value).toBe('rgb(0 0 255 / 1)') // blue
+			expect(colorPicker.defaultValue).toBe('#00ff00') // green (didn't change)
+			expect(colorPicker.getAttribute('value')).toBe('#00ff00') // green (didn't change)
+
+			colorPicker.setAttribute('value', '#000000') // black
+			await waitForRecomputations()
+
+			expect(colorPicker.value).toBe('rgb(0 0 255 / 1)') // blue (didn't change)
+			expect(colorPicker.defaultValue).toBe('#000000') // black
+			expect(colorPicker.getAttribute('value')).toBe('#000000') // black
+		})
+
+		test('removing format attribute switches to default', async () => {
+			const colorPicker = render({
+				attributes: {
+					format: 'hwb',
+				},
+			})
+			await waitForRecomputations()
+			expect(colorPicker.querySelector('#color-picker-color-hwb-h')).not.toBe(null)
+
+			colorPicker.removeAttribute('format')
+			await waitForRecomputations()
+			expect(colorPicker.querySelector('#color-picker-color-hsl-h')).not.toBe(null)
+		})
+
+		test.each<[Record<string, string>, ColorPickerProperties, string | boolean | string[]]>([
 			[
 				{ 'alpha-channel': 'show' },
 				'alphaChannel',
@@ -67,14 +200,19 @@ describe('ColorPicker', () => {
 				'hide',
 			],
 			[
-				{ color: '#fff' },
-				'color',
-				'#fff',
+				{ value: '#fff' },
+				'value',
+				'rgb(255 255 255 / 1)',
 			],
 			[
 				{ format: 'hex' },
 				'format',
 				'hex',
+			],
+			[
+				{ disabled: '' },
+				'disabled',
+				true,
 			],
 			[
 				{ 'visible-formats': 'hex,rgb,hsl' },
@@ -93,7 +231,7 @@ describe('ColorPicker', () => {
 			expect(colorPicker[property]).toEqual(propertyValue)
 		})
 
-		test.each<[Record<string, string>, ColorPickerProperties, string | string[]]>([
+		test.each<[Record<string, string>, ColorPickerProperties, string | boolean | string[]]>([
 			[
 				{ 'alpha-channel': 'show' },
 				'alphaChannel',
@@ -105,14 +243,19 @@ describe('ColorPicker', () => {
 				'hide',
 			],
 			[
-				{ color: '#fff' },
-				'color',
-				'#fff',
+				{ value: '#fff' },
+				'value',
+				'rgb(255 255 255 / 1)',
 			],
 			[
 				{ format: 'hex' },
 				'format',
 				'hex',
+			],
+			[
+				{ disabled: '' },
+				'disabled',
+				true,
 			],
 			[
 				{ 'visible-formats': 'hex,rgb,hsl' },
@@ -141,10 +284,10 @@ describe('ColorPicker', () => {
 			['rgb(255 50% 0 / 0.5)', '#ff800080'],
 			['hsl(0 100% 50% / 1)', '#ff0000ff'],
 			['hwb(180 33.333333333333336% 49.80392156862745% / 1)', '#558080ff'],
-		])('renders hex input correctly for valid color attribute', async (color, expectedHexInputValue) => {
+		])('renders hex input correctly for valid color attribute', async (value, expectedHexInputValue) => {
 			const colorPicker = render({
 				attributes: {
-					color,
+					value,
 					format: 'hex',
 				},
 			})
@@ -159,10 +302,10 @@ describe('ColorPicker', () => {
 			['rgb(255 50% 0 / 0.5)', '#ff800080'],
 			['hsl(0 100% 50% / 1)', '#ff0000ff'],
 			['hwb(180 33.333333333333336% 49.80392156862745% / 1)', '#558080ff'],
-		])('renders hex input correctly for valid color property', async (color, expectedHexInputValue) => {
+		])('renders hex input correctly for valid color property', async (value, expectedHexInputValue) => {
 			const colorPicker = render({
 				properties: {
-					color,
+					value,
 					format: 'hex',
 				},
 			})
@@ -175,13 +318,11 @@ describe('ColorPicker', () => {
 		test('renders correctly with an invalid color attribute', async () => {
 			const colorPicker = render({
 				attributes: {
-					color: '#ff',
+					value: '#12',
 					format: 'hex',
 				},
 			})
 			await waitForRecomputations()
-
-			expect(colorPicker.color).toBe('#ff')
 
 			const input = colorPicker.querySelector('.cp-color-input') as HTMLInputElement
 			expect(input.value).toBe('#ffffffff')
@@ -190,22 +331,20 @@ describe('ColorPicker', () => {
 		test('renders correctly with an invalid color property', async () => {
 			const colorPicker = render({
 				properties: {
-					color: '#ff',
+					value: '#12',
 					format: 'hex',
 				},
 			})
 			await waitForRecomputations()
 
-			expect(colorPicker.color).toBe('#ff')
-
 			const input = colorPicker.querySelector('.cp-color-input') as HTMLInputElement
 			expect(input.value).toBe('#ffffffff')
 		})
 
-		test('falls back to visible color format when format isn\'t a visible format', async () => {
+		test('falls back to visible color format when defaultFormat isn\'t one of the visible formats', async () => {
 			const colorPicker = render({
 				attributes: {
-					color: '#ff',
+					value: '#12',
 					format: 'hsl',
 					'visible-formats': 'hex',
 				},
@@ -226,7 +365,7 @@ describe('ColorPicker', () => {
 			const colorPicker = render({ attributes })
 			await waitForRecomputations()
 
-			const inputGroupMarkup = (colorPicker.querySelector('.cp-color-input-group') as HTMLElement).innerHTML
+			const inputGroupMarkup = colorPicker.querySelector('.cp-color-input-group')!.innerHTML
 			for (const expectedLabel of expectedLabels) {
 				expect(inputGroupMarkup).toContain(expectedLabel)
 			}
@@ -241,7 +380,7 @@ describe('ColorPicker', () => {
 			const colorPicker = render({ properties })
 			await waitForRecomputations()
 
-			const inputGroupMarkup = (colorPicker.querySelector('.cp-color-input-group') as HTMLElement).innerHTML
+			const inputGroupMarkup = colorPicker.querySelector('.cp-color-input-group')!.innerHTML
 			for (const expectedLabel of expectedLabels) {
 				expect(inputGroupMarkup).toContain(expectedLabel)
 			}
@@ -256,7 +395,7 @@ describe('ColorPicker', () => {
 				'hsl(180 50% 50% / 1)',
 				{ r: 63.75, g: 191.25, b: 191.25, a: 1 },
 			],
-		])('recomputes colors when color attribute changes', async (color, expectedRgbColor) => {
+		])('recomputes colors when color attribute changes', async (value, expectedRgbColor) => {
 			const colorPicker = render()
 			await waitForRecomputations()
 
@@ -266,11 +405,11 @@ describe('ColorPicker', () => {
 			}
 			colorPicker.addEventListener('color-change', colorChangeListener)
 
-			colorPicker.setAttribute('color', color)
+			colorPicker.setAttribute('value', value)
 			await waitForRecomputations()
 			expect(rgbColorSpy).toHaveBeenCalledWith(expectedRgbColor)
 
-			colorPicker.setAttribute('color', '#fffc')
+			colorPicker.setAttribute('value', '#fffc')
 			await waitForRecomputations()
 			expect(rgbColorSpy).toHaveBeenCalledWith({ r: 255, g: 255, b: 255, a: 0.8 })
 		})
@@ -284,7 +423,7 @@ describe('ColorPicker', () => {
 				'hsl(180 50% 50% / 1)',
 				{ r: 63.75, g: 191.25, b: 191.25, a: 1 },
 			],
-		])('recomputes colors when color property changes', async (color, expectedRgbColor) => {
+		])('recomputes colors when color property changes', async (value, expectedRgbColor) => {
 			const colorPicker = render()
 			await waitForRecomputations()
 
@@ -294,11 +433,11 @@ describe('ColorPicker', () => {
 			}
 			colorPicker.addEventListener('color-change', colorChangeListener)
 
-			colorPicker.color = color
+			colorPicker.value = value
 			await waitForRecomputations()
 			expect(rgbColorSpy).toHaveBeenCalledWith(expectedRgbColor)
 
-			colorPicker.color = '#fffc'
+			colorPicker.value = '#fffc'
 			await waitForRecomputations()
 			expect(rgbColorSpy).toHaveBeenCalledWith({ r: 255, g: 255, b: 255, a: 0.8 })
 		})
@@ -354,14 +493,15 @@ describe('ColorPicker', () => {
 		})
 
 		test.each([
-			['show', true, 'hsl(180 0% 100% / 1)'],
-			['hide', false, 'hsl(180 0% 100%)'],
+			['show', true, 'hsl(180 100% 50% / 1)'],
+			['hide', false, 'hsl(180 100% 50%)'],
 		])('shows/hides correct elements when setting alpha-channel', async (alphaChannel, isElementVisible, expectedCssColor) => {
 			const id = 'test-color-picker'
 			const colorPicker = render({
 				attributes: {
 					id,
 					'alpha-channel': alphaChannel,
+					value: '#f00',
 				},
 			})
 
@@ -380,7 +520,7 @@ describe('ColorPicker', () => {
 
 			const inputElement = colorPicker.querySelector(`#${id}-color-hsl-h`) as HTMLInputElement
 			inputElement.value = '180'
-			inputElement.dispatchEvent(new InputEvent('input'))
+			inputElement.dispatchEvent(new InputEvent('change'))
 			await waitForRecomputations()
 
 			expect(cssColorSpy).toHaveBeenCalledWith(expectedCssColor)
@@ -395,7 +535,7 @@ describe('ColorPicker', () => {
 			const spy = vi.fn()
 			colorPicker.addEventListener('color-change', spy)
 
-			const colorSpace = colorPicker.querySelector('.cp-color-space') as HTMLElement
+			const colorSpace = colorPicker.querySelector('.cp-color-space')!
 
 			colorSpace.getBoundingClientRect = vi.fn(() => ({
 				width: 200,
@@ -472,7 +612,7 @@ describe('ColorPicker', () => {
 			})
 			await waitForRecomputations()
 
-			expect(colorPicker.style.getPropertyValue('--cp-color')).toBe('hsl(0 0% 100% / 1)')
+			expect(colorPicker.style.getPropertyValue('--cp-color')).toBe('rgb(255 255 255 / 1)')
 
 			const thumb = colorPicker.querySelector('.cp-thumb') as HTMLElement
 			expect(thumb.style.getPropertyValue('left')).toBe('0%')
@@ -482,7 +622,7 @@ describe('ColorPicker', () => {
 		test('can initiate moving the color space thumb with a mouse', async () => {
 			const colorPicker = render({
 				attributes: {
-					color: '#f80c',
+					value: '#f80c',
 				},
 			})
 
@@ -492,7 +632,7 @@ describe('ColorPicker', () => {
 
 			expect(spy).toHaveBeenCalledTimes(1)
 
-			const colorSpace = colorPicker.querySelector('.cp-color-space') as HTMLElement
+			const colorSpace = colorPicker.querySelector('.cp-color-space')!
 			colorSpace.dispatchEvent(new MouseEvent('mousedown', { buttons: 1 }))
 			colorPicker.ownerDocument.dispatchEvent(new MouseEvent('mousemove', { buttons: 1 }))
 			await waitForRecomputations()
@@ -503,7 +643,7 @@ describe('ColorPicker', () => {
 		test('can initiate moving the color space thumb with a touch-based device', async () => {
 			const colorPicker = render({
 				attributes: {
-					color: '#f80c',
+					value: '#f80c',
 				},
 			})
 
@@ -513,7 +653,7 @@ describe('ColorPicker', () => {
 
 			expect(spy).toHaveBeenCalledTimes(1)
 
-			const colorSpace = colorPicker.querySelector('.cp-color-space') as HTMLElement
+			const colorSpace = colorPicker.querySelector('.cp-color-space')!
 
 			colorSpace.getBoundingClientRect = vi.fn(() => ({
 				width: 200,
@@ -534,26 +674,26 @@ describe('ColorPicker', () => {
 			}))
 			colorPicker.ownerDocument.dispatchEvent(new TouchEvent('touchmove', {
 				touches: [
+					{ clientX: 0, clientY: 0 } as Touch,
+				],
+			}))
+			await waitForRecomputations()
+
+			expect(spy).toHaveBeenCalledTimes(2)
+
+			colorSpace.dispatchEvent(new TouchEvent('touchstart', {
+				touches: [
+					{ clientX: 1, clientY: 0 } as Touch,
+				],
+			}))
+			colorPicker.ownerDocument.dispatchEvent(new TouchEvent('touchmove', {
+				touches: [
 					{ clientX: 1, clientY: 0 } as Touch,
 				],
 			}))
 			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(3)
-
-			colorSpace.dispatchEvent(new TouchEvent('touchstart', {
-				touches: [
-					{ clientX: 2, clientY: 0 } as Touch,
-				],
-			}))
-			colorPicker.ownerDocument.dispatchEvent(new TouchEvent('touchmove', {
-				touches: [
-					{ clientX: 3, clientY: 0 } as Touch,
-				],
-			}))
-			await waitForRecomputations()
-
-			expect(spy).toHaveBeenCalledTimes(5)
 		})
 
 		test('can not move the color space thumb with the wrong key', async () => {
@@ -565,22 +705,22 @@ describe('ColorPicker', () => {
 			const colorPicker = render()
 			await waitForRecomputations()
 
-			const thumb = colorPicker.querySelector('.cp-thumb') as HTMLElement
+			const thumb = colorPicker.querySelector('.cp-thumb')!
 			thumb.dispatchEvent(new KeyboardEvent('keydown', keydownEvent))
 
 			expect(keydownEvent.preventDefault).not.toHaveBeenCalled()
 		})
 
-		test.each<[string, boolean, 'v' | 's', number]>([
-			['ArrowDown', false, 'v', 49],
-			['ArrowDown', true, 'v', 40],
-			['ArrowUp', false, 'v', 51],
-			['ArrowUp', true, 'v', 60],
-			['ArrowRight', false, 's', 51],
-			['ArrowRight', true, 's', 60],
-			['ArrowLeft', false, 's', 49],
-			['ArrowLeft', true, 's', 40],
-		])('can move the color space thumb with the %s key (holding shift: %s)', async (key, shiftKey, channel, expectedColorValue) => {
+		test.each<[string, boolean, string]>([
+			['ArrowDown', false, 'hwb(180 24.5% 51% / 1)'],
+			['ArrowDown', true, 'hwb(180 20% 60% / 1)'],
+			['ArrowUp', false, 'hwb(180 25.5% 49% / 1)'],
+			['ArrowUp', true, 'hwb(180 30% 40% / 1)'],
+			['ArrowRight', false, 'hwb(180 24.5% 50% / 1)'],
+			['ArrowRight', true, 'hwb(180 20% 50% / 1)'],
+			['ArrowLeft', false, 'hwb(180 25.5% 50% / 1)'],
+			['ArrowLeft', true, 'hwb(180 30% 50% / 1)'],
+		])('can move the color space thumb with the %s key (holding shift: %s)', async (key, shiftKey, expectedCssColor) => {
 			const keydownEvent = {
 				key,
 				shiftKey,
@@ -589,25 +729,26 @@ describe('ColorPicker', () => {
 
 			const colorPicker = render({
 				attributes: {
-					color: 'hwb(180, 25%, 50%, 1)',
+					format: 'hwb',
+					value: 'hwb(180, 25%, 50%, 1)',
 				},
 			})
 			await waitForRecomputations()
 
 			const spy = vi.fn()
 			function colorChangeListener (event: CustomEvent<ColorChangeDetail>) {
-				spy(event.detail.colors.hsv[channel])
+				spy(event.detail.cssColor)
 			}
 			colorPicker.addEventListener('color-change', colorChangeListener)
 
 			// expect(keydownEvent.preventDefault).not.toHaveBeenCalled()
 
-			const thumb = colorPicker.querySelector('.cp-thumb') as HTMLElement
+			const thumb = colorPicker.querySelector('.cp-thumb')!
 			thumb.dispatchEvent(new KeyboardEvent('keydown', keydownEvent))
 			await waitForRecomputations()
 
 			// expect(keydownEvent.preventDefault).toHaveBeenCalled()
-			expect(spy).toHaveBeenCalledWith(expectedColorValue)
+			expect(spy).toHaveBeenCalledWith(expectedCssColor)
 		})
 	})
 
@@ -660,7 +801,7 @@ describe('ColorPicker', () => {
 			let channel: 'h' | 'a'
 			const spy = vi.fn()
 			function colorChangeListener (event: CustomEvent<ColorChangeDetail>) {
-				spy(event.detail.colors.hsv[channel])
+				spy(event.detail.colors.hsl[channel])
 			}
 			colorPicker.addEventListener('color-change', colorChangeListener)
 
@@ -794,7 +935,7 @@ describe('ColorPicker', () => {
 
 			const input = colorPicker.querySelector(`#${colorPicker.id}-color-${attributes.format}-${channel}`) as HTMLInputElement
 			input.value = channelValue
-			input.dispatchEvent(new InputEvent('input'))
+			input.dispatchEvent(new InputEvent('change'))
 
 			expect(spy).not.toHaveBeenCalled()
 		})
@@ -815,7 +956,7 @@ describe('ColorPicker', () => {
 
 			const input = colorPicker.querySelector('#color-picker-color-hex') as HTMLInputElement
 			input.value = invalidHexColorString
-			input.dispatchEvent(new InputEvent('input'))
+			input.dispatchEvent(new InputEvent('change'))
 
 			expect(spy).not.toHaveBeenCalled()
 		})
@@ -833,7 +974,7 @@ describe('ColorPicker', () => {
 
 			const input = colorPicker.querySelector(`#${colorPicker.id}-color-${attributes.format}-${channel}`) as HTMLInputElement
 			input.value = channelValue
-			input.dispatchEvent(new InputEvent('input'))
+			input.dispatchEvent(new InputEvent('change'))
 			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(1)
@@ -854,7 +995,7 @@ describe('ColorPicker', () => {
 
 			const input = colorPicker.querySelector('#color-picker-color-hex') as HTMLInputElement
 			input.value = channelValue
-			input.dispatchEvent(new InputEvent('input'))
+			input.dispatchEvent(new InputEvent('change'))
 			await waitForRecomputations()
 
 			expect(spy).toHaveBeenCalledTimes(1)
@@ -865,7 +1006,7 @@ describe('ColorPicker', () => {
 		test.each([
 			[
 				{
-					color: '#ff99aacc',
+					value: '#ff99aacc',
 					format: 'hsl',
 					'alpha-channel': 'show',
 				},
@@ -874,7 +1015,6 @@ describe('ColorPicker', () => {
 					colors: {
 						hex: '#ff99aacc',
 						hsl: { h: 350, s: 100, l: 80, a: 0.8 },
-						hsv: { h: 350, s: 39.99999999999999, v: 100, a: 0.8 },
 						hwb: { h: 350, w: 60.00000000000001, b: 0, a: 0.8 },
 						rgb: { r: 255, g: 153, b: 170, a: 0.8 },
 					},
@@ -882,7 +1022,7 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					color: '#f9ac',
+					value: '#f9ac',
 					format: 'hsl',
 					'alpha-channel': 'show',
 				},
@@ -891,7 +1031,6 @@ describe('ColorPicker', () => {
 					colors: {
 						hex: '#f9ac',
 						hsl: { h: 350, s: 100, l: 80, a: 0.8 },
-						hsv: { h: 350, s: 39.99999999999999, v: 100, a: 0.8 },
 						hwb: { h: 350, w: 60.00000000000001, b: 0, a: 0.8 },
 						rgb: { r: 255, g: 153, b: 170, a: 0.8 },
 					},
@@ -899,7 +1038,7 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					color: '#ff99aacc',
+					value: '#ff99aacc',
 					format: 'hex',
 					'alpha-channel': 'show',
 				},
@@ -908,7 +1047,6 @@ describe('ColorPicker', () => {
 					colors: {
 						hex: '#ff99aacc',
 						hsl: { h: 350, s: 100, l: 80, a: 0.8 },
-						hsv: { h: 350, s: 39.99999999999999, v: 100, a: 0.8 },
 						hwb: { h: 350, w: 60.00000000000001, b: 0, a: 0.8 },
 						rgb: { r: 255, g: 153, b: 170, a: 0.8 },
 					},
@@ -916,7 +1054,7 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					color: '#f9ac',
+					value: '#f9ac',
 					format: 'hex',
 					'alpha-channel': 'show',
 				},
@@ -925,7 +1063,6 @@ describe('ColorPicker', () => {
 					colors: {
 						hex: '#f9ac',
 						hsl: { h: 350, s: 100, l: 80, a: 0.8 },
-						hsv: { h: 350, s: 39.99999999999999, v: 100, a: 0.8 },
 						hwb: { h: 350, w: 60.00000000000001, b: 0, a: 0.8 },
 						rgb: { r: 255, g: 153, b: 170, a: 0.8 },
 					},
@@ -933,7 +1070,7 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					color: '#ff99aacc',
+					value: '#ff99aacc',
 					format: 'hsl',
 					'alpha-channel': 'hide',
 				},
@@ -942,7 +1079,6 @@ describe('ColorPicker', () => {
 					colors: {
 						hex: '#ff99aaff',
 						hsl: { h: 350, s: 100, l: 80, a: 1 },
-						hsv: { h: 350, s: 39.99999999999999, v: 100, a: 1 },
 						hwb: { h: 350, w: 60.00000000000001, b: 0, a: 1 },
 						rgb: { r: 255, g: 153, b: 170, a: 1 },
 					},
@@ -950,7 +1086,7 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					color: '#f9ac',
+					value: '#f9ac',
 					format: 'hsl',
 					'alpha-channel': 'hide',
 				},
@@ -959,7 +1095,6 @@ describe('ColorPicker', () => {
 					colors: {
 						hex: '#f9af',
 						hsl: { h: 350, s: 100, l: 80, a: 1 },
-						hsv: { h: 350, s: 39.99999999999999, v: 100, a: 1 },
 						hwb: { h: 350, w: 60.00000000000001, b: 0, a: 1 },
 						rgb: { r: 255, g: 153, b: 170, a: 1 },
 					},
@@ -967,7 +1102,7 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					color: '#ff99aacc',
+					value: '#ff99aacc',
 					format: 'hex',
 					'alpha-channel': 'hide',
 				},
@@ -976,7 +1111,6 @@ describe('ColorPicker', () => {
 					colors: {
 						hex: '#ff99aaff',
 						hsl: { h: 350, s: 100, l: 80, a: 1 },
-						hsv: { h: 350, s: 39.99999999999999, v: 100, a: 1 },
 						hwb: { h: 350, w: 60.00000000000001, b: 0, a: 1 },
 						rgb: { r: 255, g: 153, b: 170, a: 1 },
 					},
@@ -984,7 +1118,7 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					color: '#f9ac',
+					value: '#f9ac',
 					format: 'hex',
 					'alpha-channel': 'hide',
 				},
@@ -993,7 +1127,6 @@ describe('ColorPicker', () => {
 					colors: {
 						hex: '#f9af',
 						hsl: { h: 350, s: 100, l: 80, a: 1 },
-						hsv: { h: 350, s: 39.99999999999999, v: 100, a: 1 },
 						hwb: { h: 350, w: 60.00000000000001, b: 0, a: 1 },
 						rgb: { r: 255, g: 153, b: 170, a: 1 },
 					},
@@ -1001,7 +1134,7 @@ describe('ColorPicker', () => {
 			],
 			[
 				{
-					color: '#23a96a',
+					value: '#23a96a',
 					format: 'hex',
 					'alpha-channel': 'hide',
 				},
@@ -1010,7 +1143,6 @@ describe('ColorPicker', () => {
 					colors: {
 						hex: '#23a96aff',
 						hsl: { h: 151.7910447761194, s: 65.68627450980392, l: 40, a: 1 },
-						hsv: { h: 151.7910447761194, s: 79.28994082840237, v: 66.27450980392157, a: 1 },
 						hwb: { h: 151.7910447761194, w: 13.725490196078432, b: 33.725490196078425, a: 1 },
 						rgb: { r: 35, g: 169, b: 106, a: 1 },
 					},
@@ -1033,35 +1165,35 @@ describe('ColorPicker', () => {
 	describe('color inputs', () => {
 		test.each([
 			[
-				{ color: '#12345678', 'alpha-channel': 'show' },
+				{ value: '#12345678', 'alpha-channel': 'show' },
 				'#12345678',
 			],
 			[
-				{ color: '#12345678', 'alpha-channel': 'hide' },
+				{ value: '#12345678', 'alpha-channel': 'hide' },
 				'#123456',
 			],
 			[
-				{ color: '#123456', 'alpha-channel': 'show' },
+				{ value: '#123456', 'alpha-channel': 'show' },
 				'#123456',
 			],
 			[
-				{ color: '#123456', 'alpha-channel': 'hide' },
+				{ value: '#123456', 'alpha-channel': 'hide' },
 				'#123456',
 			],
 			[
-				{ color: '#123a', 'alpha-channel': 'show' },
+				{ value: '#123a', 'alpha-channel': 'show' },
 				'#123a',
 			],
 			[
-				{ color: '#123a', 'alpha-channel': 'hide' },
+				{ value: '#123a', 'alpha-channel': 'hide' },
 				'#123',
 			],
 			[
-				{ color: '#123', 'alpha-channel': 'show' },
+				{ value: '#123', 'alpha-channel': 'show' },
 				'#123',
 			],
 			[
-				{ color: '#123', 'alpha-channel': 'hide' },
+				{ value: '#123', 'alpha-channel': 'hide' },
 				'#123',
 			],
 		])('shows expected color for hex colors', async (attributes, expectedHexColor) => {
@@ -1097,6 +1229,46 @@ describe('ColorPicker', () => {
 			document.body.appendChild(removedColorPicker)
 			expect(document.addEventListener).toHaveBeenCalledTimes(2 * numberOfDocumentLevelListeners)
 			expect(document.removeEventListener).toHaveBeenCalledTimes(numberOfDocumentLevelListeners)
+		})
+
+		test('form reset sets initial color', async () => {
+			const form = document.createElement('form')
+			document.body.appendChild(form)
+			const colorPicker = render({
+				attributes: {
+					value: '#f60a',
+					format: 'hex',
+				},
+				node: form,
+			})
+
+			// Confirm initial color
+			await waitForRecomputations()
+			const input = colorPicker.querySelector<HTMLInputElement>('.cp-color-input')!
+			expect(input.value).toBe('#f60a')
+
+			// Change to a different color
+			colorPicker.value = '#000f'
+			await waitForRecomputations()
+			expect(input.value).toBe('#000f')
+
+			// Confirm reset to initial color
+			// Note: `form.reset()` does't trigger this mechanism in JSDom so we're calling it manually.
+			colorPicker.formResetCallback()
+			await waitForRecomputations()
+			expect(input.value).toBe('#f60a')
+
+			// Change to a different color
+			colorPicker.value = '#000f'
+			await waitForRecomputations()
+			expect(input.value).toBe('#000f')
+
+			colorPicker.setAttribute('value', '#0000')
+			// Confirm reset to color from `value` content attribute/`defaultValue` IDL attribute.
+			// Note: `form.reset()` does't trigger this mechanism in JSDom so we're calling it manually.
+			colorPicker.formResetCallback()
+			await waitForRecomputations()
+			expect(input.value).toBe('#0000')
 		})
 	})
 })

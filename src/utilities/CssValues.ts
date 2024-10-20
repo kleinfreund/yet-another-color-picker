@@ -27,10 +27,10 @@ interface CssValuePercentageFromOptions extends CssValueNumberFromOptions {
 	referenceValue?: number
 }
 
-type CssValue<
+interface CssValue<
 	FromOptions = Record<string, never>,
 	ToOptions = Record<string, never>,
-> = {
+> {
 	from: (value: string, options?: FromOptions) => number
 	to: (value: number, options?: ToOptions) => string
 }
