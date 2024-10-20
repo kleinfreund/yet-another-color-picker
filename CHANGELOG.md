@@ -1,3 +1,51 @@
+## [4.0.0](https://github.com/kleinfreund/yet-another-color-picker/compare/v3.0.1...v4.0.0) (2024-10-20)
+
+### ⚠ BREAKING CHANGES
+
+* Remove the content attribute `color`. **How to update**: Use the `value` content attribute or the `defaultValue` IDL attribute instead.
+* Remove the IDL attribute `color`. **How to update**: Use the `value` IDL attribute instead.
+* Remove the IDL attribute `colors`. **How to update**: Use the event data of the `color-change` event instead.
+* Remove the IDL attribute `defaultFormat. **How to update**: Use the IDL attribute `format` instead.
+* Remove the content attribute `default-format`. **How to update**: Use the content attribute `format` instead.
+
+### Features
+
+* add color-copy event ([8d850f0](https://github.com/kleinfreund/yet-another-color-picker/commit/8d850f09929dde4d6676477f6d3277feede489d2))
+
+  Add a new event `copy-color` that is fired once a copy operation succeeded. Its event data is the same as that of the `color-change` event.
+* make the color picker a form-associated custom element ([e11232a](https://github.com/kleinfreund/yet-another-color-picker/commit/e11232ac6b35324133a2bc16d41ff828ac32193d))
+
+  Make the color picker a form-associated custom element via the ElementInternals API. This allows the color picker to participate in forms as a form control and contribute a form value on form submission. Additionally, on form reset, the color picker's form value is reset to the value of the `value` content attribute. The `value` content attribute, `defaultValue` IDL attribute, and `value` IDL attribute are implemented to match the behavior of native HTML form controls.
+
+  Add the `value` IDL attribute. The getter returns a string formatted as a CSS RGB color (e.g. `'rgb(127.5 0 255 / 0.8)'`). This is also the value used in form submission. The setter accepts any valid CSS color string (including named colors) or any of the color picker's internal color object formats (e.g. `{ r: 127.5, g: 0, b: 255, a: 0.8 }`).
+
+  Add the `defaultValue` IDL and `value` content attribute. Sets the default value used on form reset. Also sets the `value` IDL attribute as long as the user hasn't change the color.
+
+  Add the `disabled` IDL and content attribute. Disabling the color picker will render it completely inert. All containing form controls and buttons will be disabled and the color picker thumb won't respond to interactions. An ancestor `fieldset` element which is disabled will also render the color picker disabled.
+
+  Add the `readOnly` IDL and `readonly` content attribute. Setting the color picker to read-only will prevent the user from changing the color.
+
+  Add the `required` IDL and content attribute.
+
+  Add the `input` and `change` events. They are fired whenever the user changes the color. Note, that there is currently no scenario in which only the `input` but not the `change` event is fired.
+
+  **BREAKING CHANGE**: Remove the content attribute `color`. **How to update**: Use the `value` content attribute or the `defaultValue` IDL attribute instead.
+
+  **BREAKING CHANGE**: Remove the IDL attribute `color`. **How to update**: Use the `value` IDL attribute instead.
+
+  **BREAKING CHANGE**: Remove the IDL attribute `colors`. **How to update**: Use the event data of the `color-change` event instead.
+* support format content attribute ([8aeaae9](https://github.com/kleinfreund/yet-another-color-picker/commit/8aeaae98378eb6c4bbc264acd1ac71b7f13894ff))
+
+  Add support for the `format` content attribute which corresponds to the `activeFormat` IDL attribute.
+
+  **BREAKING CHANGE**: Remove the IDL attribute `defaultFormat. **How to update**: Use the IDL attribute `format` instead.
+
+  **BREAKING CHANGE**: Remove the content attribute `default-format`. **How to update**: Use the content attribute `format` instead.
+
+### Bug Fixes
+
+* not listing lit-html as a peer dependency ([94bc1e9](https://github.com/kleinfreund/yet-another-color-picker/commit/94bc1e95ae2921c992c5289611cb056be309ad10))
+
 ## [3.0.1](https://github.com/kleinfreund/yet-another-color-picker/compare/v3.0.0...v3.0.1) (2023-11-23)
 
 
