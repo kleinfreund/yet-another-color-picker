@@ -356,9 +356,9 @@ In the following sections, the web component's [IDL and content attibutes](https
 
 	The `value` getter will return the current color as a string (formatted as a CSS RGB color, e.g. `'rgb(127.5 0 255 / 0.8)'`). This is also the form value used in form submission.
 
-	The `value` setter accepts a `string` (any CSS color works, e.g. `'hsl(270 100% 50% / 0.8)'`) or an `object` (e.g. `{ h: 270, s: 100, l: 50, a: 0.8 }`).
+	The `value` setter accepts a `string` (any valid CSS color in a known format works, e.g. `'hsl(270 100% 50% / 0.8)'`) or an `object` (e.g. `{ h: 270, s: 100, l: 50, a: 0.8 }`).
 
-- **Type**: `string | ColorHsl | ColorHwb | ColorRgb` (for `string`, any valid CSS color string will work)
+- **Type**: `string | ColorHsl | ColorHwb | ColorRgb`
 - **Required**: `false`
 - **Default**: `'rgb(255 255 255 / 1)'`
 - **Content attribute**: None. The `value` IDL attribute doesn't directly reflect a content attribute. However, the `value` IDL attribute does reflect the `defaultValue` IDL attribute as long as the dirty flag isn't set.

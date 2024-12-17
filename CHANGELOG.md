@@ -25,7 +25,7 @@
 
   Make the color picker a form-associated custom element via the ElementInternals API. This allows the color picker to participate in forms as a form control and contribute a form value on form submission. Additionally, on form reset, the color picker's form value is reset to the value of the `value` content attribute. The `value` content attribute, `defaultValue` IDL attribute, and `value` IDL attribute are implemented to match the behavior of native HTML form controls.
 
-  Add the `value` IDL attribute. The getter returns a string formatted as a CSS RGB color (e.g. `'rgb(127.5 0 255 / 0.8)'`). This is also the value used in form submission. The setter accepts any valid CSS color string (including named colors) or any of the color picker's internal color object formats (e.g. `{ r: 127.5, g: 0, b: 255, a: 0.8 }`).
+  Add the `value` IDL attribute. The getter returns a string formatted as a CSS RGB color (e.g. `'rgb(127.5 0 255 / 0.8)'`). This is also the value used in form submission. The setter accepts any valid CSS color string in a known format (including named colors) or any of the color picker's internal color object formats (e.g. `{ r: 127.5, g: 0, b: 255, a: 0.8 }`).
 
   Add the `defaultValue` IDL and `value` content attribute. Sets the default value used on form reset. Also sets the `value` IDL attribute as long as the user hasn't change the color.
 
