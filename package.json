@@ -38,7 +38,7 @@
 		"dist/ColorPicker.js",
 		"dist/ColorPicker.d.ts"
 	],
-	"sideEffects": false,
+	"sideEffects": true,
 	"scripts": {
 		"build:js": "tsup --minify terser",
 		"build:css": "npx clean-css-cli src/ColorPicker.css --output dist/ColorPicker.css",
