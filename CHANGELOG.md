@@ -1,3 +1,11 @@
+## [4.0.1](https://github.com/kleinfreund/yet-another-color-picker/compare/v4.0.0...v4.0.1) (2024-12-17)
+
+### Bug Fixes
+
+* **dist:** declaring sideEffects: false in package.json ([512142a](https://github.com/kleinfreund/yet-another-color-picker/commit/512142aea525e043e88154d5f4f4bec314fa2116))
+
+  Fix declaring `sideEffects: false` in the package.json file with inadvertently breaks the likely most common usage of the package using `import 'yet-another-color-picker'` specifically for its side effect of registering the custom element.
+
 ## [4.0.0](https://github.com/kleinfreund/yet-another-color-picker/compare/v3.0.1...v4.0.0) (2024-10-20)
 
 ### ⚠ BREAKING CHANGES
