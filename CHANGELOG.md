@@ -13,7 +13,7 @@
 * Remove the content attribute `color`. **How to update**: Use the `value` content attribute or the `defaultValue` IDL attribute instead.
 * Remove the IDL attribute `color`. **How to update**: Use the `value` IDL attribute instead.
 * Remove the IDL attribute `colors`. **How to update**: Use the event data of the `color-change` event instead.
-* Remove the IDL attribute `defaultFormat. **How to update**: Use the IDL attribute `format` instead.
+* Remove the IDL attribute `defaultFormat`. **How to update**: Use the IDL attribute `format` instead.
 * Remove the content attribute `default-format`. **How to update**: Use the content attribute `format` instead.
 
 ### Features
