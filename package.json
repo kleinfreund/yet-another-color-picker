@@ -10,7 +10,7 @@
 	"homepage": "https://yet-another-color-picker.netlify.app",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/kleinfreund/yet-another-color-picker.git"
+		"url": "git+https://github.com/kleinfreund/yet-another-color-picker.git"
 	},
 	"bugs": {
 		"url": "https://github.com/kleinfreund/yet-another-color-picker/issues"
