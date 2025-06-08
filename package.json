@@ -39,7 +39,7 @@
 	"scripts": {
 		"clean": "rimraf dist",
 		"build": "run-s clean build:js build:css",
-		"build:js": "tsup --minify terser",
+		"build:js": "vite build",
 		"build:css": "npx clean-css-cli src/ColorPicker.css --output dist/ColorPicker.css",
 		"start": "vite",
 		"test": "vitest run --coverage",
@@ -86,10 +86,10 @@
 		"rimraf": "^6.0.1",
 		"semantic-release": "^24.2.5",
 		"terser": "^5.41.0",
-		"tsup": "^8.5.0",
 		"typescript": "~5.8.3",
 		"typescript-eslint": "^8.33.1",
 		"vite": "^6.3.5",
+		"vite-plugin-dts": "^4.5.4",
 		"vitest": "^3.2.2"
 	},
 	"overrides": {
