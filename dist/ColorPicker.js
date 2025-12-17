@@ -1,23 +1,23 @@
-var Ft = Object.defineProperty;
-var mt = (t) => {
+var Et = Object.defineProperty;
+var pt = (t) => {
   throw TypeError(t);
 };
-var Mt = (t, s, e) => s in t ? Ft(t, s, { enumerable: !0, configurable: !0, writable: !0, value: e }) : t[s] = e;
-var ot = (t, s, e) => Mt(t, typeof s != "symbol" ? s + "" : s, e), lt = (t, s, e) => s.has(t) || mt("Cannot " + e);
-var r = (t, s, e) => (lt(t, s, "read from private field"), e ? e.call(t) : s.get(t)), u = (t, s, e) => s.has(t) ? mt("Cannot add the same private member more than once") : s instanceof WeakSet ? s.add(t) : s.set(t, e), f = (t, s, e, i) => (lt(t, s, "write to private field"), i ? i.call(t, e) : s.set(t, e), e), l = (t, s, e) => (lt(t, s, "access private method"), e);
-var ht = (t, s, e, i) => ({
+var It = (t, s, e) => s in t ? Et(t, s, { enumerable: !0, configurable: !0, writable: !0, value: e }) : t[s] = e;
+var mt = (t, s, e) => It(t, typeof s != "symbol" ? s + "" : s, e), at = (t, s, e) => s.has(t) || pt("Cannot " + e);
+var i = (t, s, e) => (at(t, s, "read from private field"), e ? e.call(t) : s.get(t)), u = (t, s, e) => s.has(t) ? pt("Cannot add the same private member more than once") : s instanceof WeakSet ? s.add(t) : s.set(t, e), f = (t, s, e, r) => (at(t, s, "write to private field"), r ? r.call(t, e) : s.set(t, e), e), l = (t, s, e) => (at(t, s, "access private method"), e);
+var ot = (t, s, e, r) => ({
   set _(n) {
     f(t, s, n, e);
   },
   get _() {
-    return r(t, s, i);
+    return i(t, s, r);
   }
 });
-import { render as kt, html as y, nothing as Nt } from "lit-html";
-function M(t, s, e) {
+import { render as Vt, html as v, nothing as Mt } from "lit-html";
+function V(t, s, e) {
   return Math.max(s, Math.min(t, e));
 }
-function Lt(t, s) {
+function Nt(t, s) {
   if (typeof t == "string" || typeof s == "string")
     return t === s;
   for (const e in t)
@@ -25,82 +25,82 @@ function Lt(t, s) {
       return !1;
   return !0;
 }
-function Ht(t, s) {
+function kt(t, s) {
   const e = t.toFixed(s);
   return e.includes(".") ? e.replace(/\.?0+$/, "") : e;
 }
-const Ot = {
+const Lt = {
   deg: 1,
   grad: 0.9,
   rad: 180 / Math.PI,
   turn: 360
-}, ct = {
+}, lt = {
   from(t) {
-    return t.endsWith("%") ? F.from(t, { referenceValue: 1 }) : x.from(t, { min: 0, max: 1 });
+    return t.endsWith("%") ? I.from(t, { referenceValue: 1 }) : w.from(t, { min: 0, max: 1 });
   },
   to(t) {
-    return x.to(t);
+    return w.to(t);
   }
-}, ft = {
+}, bt = {
   from(t) {
     const s = t.match(/deg|g?rad|turn$/);
     if (s === null)
-      return x.from(t);
+      return w.from(t);
     const e = s[0];
-    return x.from(t.slice(0, -e.length)) * Ot[e];
+    return w.from(t.slice(0, -e.length)) * Lt[e];
   },
   to(t) {
-    return x.to(t);
+    return w.to(t);
   }
-}, x = {
+}, w = {
   from(t, { min: s = Number.NEGATIVE_INFINITY, max: e = Number.POSITIVE_INFINITY } = {}) {
-    return t.endsWith(".") ? NaN : M(Number(t), s, e);
+    return t.endsWith(".") ? NaN : V(Number(t), s, e);
   },
   to(t) {
-    return Ht(t, 2);
+    return kt(t, 2);
   }
-}, F = {
-  from(t, { referenceValue: s = 100, min: e = 0, max: i = 100 } = {}) {
-    return t.endsWith("%") ? x.from(t.slice(0, -1), { min: e, max: i }) * s / 100 : NaN;
+}, I = {
+  from(t, { referenceValue: s = 100, min: e = 0, max: r = 100 } = {}) {
+    return t.endsWith("%") ? w.from(t.slice(0, -1), { min: e, max: r }) * s / 100 : NaN;
   },
   to(t) {
-    return x.to(t) + "%";
+    return w.to(t) + "%";
   }
-}, ut = {
+}, ht = {
   from(t) {
-    return t.endsWith("%") ? F.from(t, { referenceValue: 255 }) : x.from(t, { min: 0, max: 255 });
+    return t.endsWith("%") ? I.from(t, { referenceValue: 255 }) : w.from(t, { min: 0, max: 255 });
   },
   to(t) {
-    return x.to(t);
+    return w.to(t);
   }
-}, Rt = {
+}, Ht = {
   hsl: {
-    h: ft,
-    s: F,
-    l: F,
-    a: ct
+    h: bt,
+    s: I,
+    l: I,
+    a: lt
   },
   hwb: {
-    h: ft,
-    w: F,
-    b: F,
-    a: ct
+    h: bt,
+    w: I,
+    b: I,
+    a: lt
   },
   rgb: {
-    r: ut,
-    g: ut,
-    b: ut,
-    a: ct
+    r: ht,
+    g: ht,
+    b: ht,
+    a: lt
   }
 };
-function Z(t, s) {
-  return Rt[t][s];
+function Q(t, s) {
+  return Ht[t][s];
 }
-function _(t) {
+function Y(t) {
   const s = [], e = t.length > 5 ? 2 : 1;
-  for (let i = 1; i < t.length; i += e) {
-    const n = t.substring(i, i + e).repeat(e % 2 + 1), a = parseInt(n, 16);
-    s.push(i === 3 * e + 1 ? a / 255 : a);
+  for (let r = 1; r < t.length; r += e) {
+    const n = t.substring(r, r + e).repeat(e % 2 + 1), a = parseInt(n, 16);
+    s.push(r === 3 * e + 1 ? a / 255 : a);
   }
   return s.length === 3 && s.push(1), {
     r: s[0],
@@ -109,40 +109,40 @@ function _(t) {
     a: s[3]
   };
 }
-function xt(t) {
-  const s = t.l / 100, e = s + t.s / 100 * Math.min(s, 1 - s), i = e === 0 ? 0 : 200 * (1 - s / e);
+function wt(t) {
+  const s = t.l / 100, e = s + t.s / 100 * Math.min(s, 1 - s), r = e === 0 ? 0 : 200 * (1 - s / e);
   return {
     h: t.h,
-    s: i,
+    s: r,
     v: e * 100,
     a: t.a
   };
 }
-function X(t) {
+function K(t) {
   let s = t.h % 360;
   s < 0 && (s += 360);
-  const e = t.s / 100, i = t.l / 100;
+  const e = t.s / 100, r = t.l / 100;
   return {
-    r: dt(0, s, e, i) * 255,
-    g: dt(8, s, e, i) * 255,
-    b: dt(4, s, e, i) * 255,
+    r: ct(0, s, e, r) * 255,
+    g: ct(8, s, e, r) * 255,
+    b: ct(4, s, e, r) * 255,
     a: t.a
   };
 }
-function dt(t, s, e, i) {
-  const n = (t + s / 30) % 12, a = e * Math.min(i, 1 - i);
-  return i - a * Math.max(-1, Math.min(n - 3, 9 - n, 1));
+function ct(t, s, e, r) {
+  const n = (t + s / 30) % 12, a = e * Math.min(r, 1 - r);
+  return r - a * Math.max(-1, Math.min(n - 3, 9 - n, 1));
 }
-function $t(t) {
-  const s = t.s / 100, e = t.v / 100, i = e * (1 - s / 2);
+function xt(t) {
+  const s = t.s / 100, e = t.v / 100, r = e * (1 - s / 2);
   return {
     h: t.h,
-    s: i === 0 || i === 1 ? 0 : (e - i) / Math.min(i, 1 - i) * 100,
-    l: i * 100,
+    s: r === 0 || r === 1 ? 0 : (e - r) / Math.min(r, 1 - r) * 100,
+    l: r * 100,
     a: t.a
   };
 }
-function Tt(t) {
+function $t(t) {
   return {
     h: t.h,
     w: t.v * (100 - t.s) / 100,
@@ -150,171 +150,167 @@ function Tt(t) {
     a: t.a
   };
 }
-function R(t) {
-  return X($t(t));
+function O(t) {
+  return K(xt(t));
 }
 function E(t) {
   const s = t.w / 100, e = t.b / 100;
-  let i, n;
+  let r, n;
   const a = s + e;
-  return a >= 1 ? (i = 0, n = s / a) : (n = 1 - e, i = (1 - s / n) * 100), {
+  return a >= 1 ? (r = 0, n = s / a) : (n = 1 - e, r = (1 - s / n) * 100), {
     h: t.h,
-    s: i,
+    s: r,
     v: n * 100,
     a: t.a
   };
 }
-function J(t) {
-  const { r: s, g: e, b: i, a: n } = t, a = Math.min(s, e, i), h = Math.max(s, e, i), c = h - a, p = (h + a) / 2;
-  let m = 0;
-  c !== 0 && (h === s ? m = (e - i) / c + (e < i ? 6 : 0) : h === e ? m = (i - s) / c + 2 : h === i && (m = (s - e) / c + 4), m *= 60);
-  let S = 0;
-  return p !== 0 && p !== 255 && (S = (h - p) / Math.min(p, 255 - p)), {
-    h: m,
-    s: S * 100,
+function X(t) {
+  const { r: s, g: e, b: r, a: n } = t, a = Math.min(s, e, r), h = Math.max(s, e, r), c = h - a, p = (h + a) / 2;
+  let b = 0;
+  c !== 0 && (h === s ? b = (e - r) / c + (e < r ? 6 : 0) : h === e ? b = (r - s) / c + 2 : h === r && (b = (s - e) / c + 4), b *= 60);
+  let C = 0;
+  return p !== 0 && p !== 255 && (C = (h - p) / Math.min(p, 255 - p)), {
+    h: b,
+    s: C * 100,
     l: p / 255 * 100,
     a: n
   };
 }
-function G(t) {
+function _(t) {
   return "#" + Object.values(t).map((s, e) => Math.round(e === 3 ? s * 255 : s).toString(16).padStart(2, "0")).join("");
 }
-function D(t) {
-  return Tt(xt(J(t)));
+function R(t) {
+  return $t(wt(X(t)));
 }
-const Dt = {
+const Ot = {
   hex: {
     hex: (t) => t,
-    hsl: (t) => J(_(t)),
-    hsv: (t) => E(D(_(t))),
-    hwb: (t) => D(_(t)),
-    rgb: _
+    hsl: (t) => X(Y(t)),
+    hsv: (t) => E(R(Y(t))),
+    hwb: (t) => R(Y(t)),
+    rgb: Y
   },
   hsl: {
-    hex: (t) => G(X(t)),
+    hex: (t) => _(K(t)),
     hsl: (t) => t,
-    hsv: xt,
-    hwb: (t) => D(X(t)),
-    rgb: X
+    hsv: wt,
+    hwb: (t) => R(K(t)),
+    rgb: K
   },
   hsv: {
-    hex: (t) => G(R(t)),
-    hsl: $t,
+    hex: (t) => _(O(t)),
+    hsl: xt,
     hsv: (t) => t,
-    hwb: Tt,
-    rgb: R
+    hwb: $t,
+    rgb: O
   },
   hwb: {
-    hex: (t) => G(R(E(t))),
-    hsl: (t) => J(R(E(t))),
+    hex: (t) => _(O(E(t))),
+    hsl: (t) => X(O(E(t))),
     hsv: E,
     hwb: (t) => t,
-    rgb: (t) => R(E(t))
+    rgb: (t) => O(E(t))
   },
   rgb: {
-    hex: G,
-    hsl: J,
-    hsv: (t) => E(D(t)),
-    hwb: D,
+    hex: _,
+    hsl: X,
+    hsv: (t) => E(R(t)),
+    hwb: R,
     rgb: (t) => t
   }
 };
-function Ut(t, s, e) {
-  return Dt[t][s](e);
+function Rt(t, s, e) {
+  return Ot[t][s](e);
 }
-function K({ format: t, color: s }, e) {
+function G({ format: t, color: s }, e) {
   if (t === "hex")
     return e && [5, 9].includes(s.length) ? s.substring(0, s.length - (s.length - 1) / 4) : s;
-  const i = Object.entries(s).slice(0, e ? 3 : 4).map(([n, a]) => {
-    const h = Z(t, n);
+  const r = Object.entries(s).slice(0, e ? 3 : 4).map(([n, a]) => {
+    const h = Q(t, n);
     return (n === "a" ? "/ " : "") + h.to(a);
   });
-  return `${t}(${i.join(" ")})`;
+  return `${t}(${r.join(" ")})`;
 }
-function gt(t, s, e) {
-  const i = t.getBoundingClientRect(), n = s - i.left, a = e - i.top;
+function ft(t, s, e) {
+  const r = t.getBoundingClientRect(), n = s - r.left, a = e - r.top;
   return {
-    x: i.width === 0 ? 0 : M(n / i.width * 100, 0, 100),
-    y: i.height === 0 ? 0 : M((1 - a / i.height) * 100, 0, 100)
+    x: r.width === 0 ? 0 : V(n / r.width * 100, 0, 100),
+    y: r.height === 0 ? 0 : V((1 - a / r.height) * 100, 0, 100)
   };
 }
-function At(t) {
+function Tt(t) {
   return /^#(?:(?:[A-F0-9]{2}){3,4}|[A-F0-9]{3,4})$/i.test(t);
 }
-function Wt(t) {
+function Dt(t) {
   return "r" in t ? "rgb" : "w" in t ? "hwb" : "v" in t ? "hsv" : "s" in t ? "hsl" : null;
 }
-const vt = {
+const gt = {
   hsl: ["h", "s", "l", "a"],
   hwb: ["h", "w", "b", "a"],
   rgb: ["r", "g", "b", "a"]
 };
-function qt(t) {
+function Ut(t) {
   if (typeof t != "string") {
-    const c = Wt(t);
+    const c = Dt(t);
     return c === null ? null : { format: c, color: t };
   }
   if (t.startsWith("#"))
-    return At(t) ? { format: "hex", color: t } : null;
+    return Tt(t) ? { format: "hex", color: t } : null;
   if (!t.includes("(")) {
     const c = document.createElement("canvas").getContext("2d");
     c.fillStyle = t;
     const p = c.fillStyle;
     return p === "#000000" && t !== "black" ? null : { format: "hex", color: p };
   }
-  const [s, e] = t.split("("), i = s.substring(0, 3);
-  if (!(i in vt))
+  const [s, e] = t.split("("), r = s.substring(0, 3);
+  if (!(r in gt))
     return null;
   const n = e.replace(/[,/)]/g, " ").replace(/\s+/g, " ").trim().split(" ");
   n.length === 3 && n.push("1");
-  const a = vt[i], h = Object.fromEntries(a.map((c, p) => {
-    const m = Z(i, c);
+  const a = gt[r], h = Object.fromEntries(a.map((c, p) => {
+    const b = Q(r, c);
     return [
       c,
-      m.from(n[p])
+      b.from(n[p])
     ];
   }));
-  return { format: i, color: h };
+  return { format: r, color: h };
 }
-var v;
-class Ct extends HTMLElement {
-  constructor() {
-    super(...arguments);
-    u(this, v, this.attachInternals());
-  }
+class Wt extends HTMLElement {
+  static formAssociated = !0;
+  #t = this.attachInternals();
   get labels() {
-    return r(this, v).labels;
+    return this.#t.labels;
   }
   get form() {
-    return r(this, v).form;
+    return this.#t.form;
   }
   get shadowRoot() {
-    return r(this, v).shadowRoot;
+    return this.#t.shadowRoot;
   }
   get type() {
     return this.tagName.toLowerCase();
   }
   get validationMessage() {
-    return r(this, v).validationMessage;
+    return this.#t.validationMessage;
   }
   get validity() {
-    return r(this, v).validity;
+    return this.#t.validity;
   }
   get willValidate() {
-    return r(this, v).willValidate;
+    return this.#t.willValidate;
   }
   checkValidity() {
-    return r(this, v).checkValidity();
+    return this.#t.checkValidity();
   }
   reportValidity() {
-    return r(this, v).reportValidity();
+    return this.#t.reportValidity();
   }
-  setFormValue(...e) {
-    r(this, v).setFormValue(...e);
+  setFormValue(...s) {
+    this.#t.setFormValue(...s);
   }
 }
-v = new WeakMap(), ot(Ct, "formAssociated", !0);
-const yt = {
+const vt = {
   "alpha-channel": {
     type: String,
     property: "alphaChannel"
@@ -349,9 +345,9 @@ const yt = {
     type: Array,
     property: "visibleFormats"
   }
-}, jt = ["hex", "hsl", "hsv", "hwb", "rgb"];
-var k, U, d, W, N, q, g, w, C, L, o, $, pt, St, T, A, bt, It, tt, H, et, O, Q, V, st, j, B, it, rt, P, z;
-const nt = class nt extends Ct {
+}, qt = ["hex", "hsl", "hsv", "hwb", "rgb"];
+var M, D, d, U, N, W, g, y, A, k, o, x, ut, At, $, T, dt, Ct, Z, L, tt, H, J, F, et, q, j, st, rt, B, P;
+const it = class it extends Wt {
   constructor() {
     super();
     u(this, o);
@@ -362,8 +358,8 @@ const nt = class nt extends Ct {
      *
      * A form reset will reset this flag.
      */
-    u(this, k, !1);
-    u(this, U, !1);
+    u(this, M, !1);
+    u(this, D, !1);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     u(this, d, {
       hex: "#ffffffff",
@@ -372,72 +368,72 @@ const nt = class nt extends Ct {
       hwb: { h: 0, w: 100, b: 0, a: 1 },
       rgb: { r: 255, g: 255, b: 255, a: 1 }
     });
-    u(this, W, "show");
+    u(this, U, "show");
     u(this, N, "hsl");
-    u(this, q, ["hex", "hsl", "hwb", "rgb"]);
+    u(this, W, ["hex", "hsl", "hwb", "rgb"]);
     u(this, g, null);
-    u(this, w, null);
+    u(this, y, null);
     /**
      * Tracks whether a pointer originated from within the color space.
      *
      * Only if it did do we want to run the logic of dragging the color space thumb around.
      */
-    u(this, C, !1);
+    u(this, A, !1);
     /**
      * Tracks queued updates.
      */
-    u(this, L, 0);
+    u(this, k, 0);
+    u(this, Z, (e) => {
+      f(this, A, !0), i(this, L).call(this, e);
+    });
+    u(this, L, (e) => {
+      e.buttons !== 1 || i(this, A) === !1 || !(i(this, g) instanceof HTMLElement) || this.disabledState || this.readOnly || l(this, o, J).call(this, ft(i(this, g), e.clientX, e.clientY));
+    });
     u(this, tt, (e) => {
-      f(this, C, !0), r(this, H).call(this, e);
+      f(this, A, !0), i(this, H).call(this, e);
     });
     u(this, H, (e) => {
-      e.buttons !== 1 || r(this, C) === !1 || !(r(this, g) instanceof HTMLElement) || this.disabledState || this.readOnly || l(this, o, Q).call(this, gt(r(this, g), e.clientX, e.clientY));
+      if (i(this, A) === !1 || !(i(this, g) instanceof HTMLElement) || this.disabledState || this.readOnly)
+        return;
+      e.preventDefault();
+      const r = e.touches[0];
+      l(this, o, J).call(this, ft(i(this, g), r.clientX, r.clientY));
+    });
+    u(this, F, () => {
+      f(this, A, !1);
     });
     u(this, et, (e) => {
-      f(this, C, !0), r(this, O).call(this, e);
-    });
-    u(this, O, (e) => {
-      if (r(this, C) === !1 || !(r(this, g) instanceof HTMLElement) || this.disabledState || this.readOnly)
+      if (!["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"].includes(e.key) || !(i(this, g) instanceof HTMLElement) || this.disabledState || this.readOnly)
         return;
       e.preventDefault();
-      const i = e.touches[0];
-      l(this, o, Q).call(this, gt(r(this, g), i.clientX, i.clientY));
+      const r = ["ArrowLeft", "ArrowDown"].includes(e.key) ? -1 : 1, n = ["ArrowLeft", "ArrowRight"].includes(e.key) ? "s" : "v", a = e.shiftKey ? 10 : 1, { s: h, v: c } = i(this, d).hsv, p = n === "s" ? V(h + r * a, 0, 100) : h, b = n === "v" ? V(c + r * a, 0, 100) : c;
+      l(this, o, J).call(this, { x: p, y: b });
     });
-    u(this, V, () => {
-      f(this, C, !1);
-    });
-    u(this, st, (e) => {
-      if (!["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"].includes(e.key) || !(r(this, g) instanceof HTMLElement) || this.disabledState || this.readOnly)
-        return;
-      e.preventDefault();
-      const i = ["ArrowLeft", "ArrowDown"].includes(e.key) ? -1 : 1, n = ["ArrowLeft", "ArrowRight"].includes(e.key) ? "s" : "v", a = e.shiftKey ? 10 : 1, { s: h, v: c } = r(this, d).hsv, p = n === "s" ? M(h + i * a, 0, 100) : h, m = n === "v" ? M(c + i * a, 0, 100) : c;
-      l(this, o, Q).call(this, { x: p, y: m });
-    });
-    u(this, j, (e) => {
+    u(this, q, (e) => {
       if (!["ArrowUp", "ArrowRight", "ArrowDown", "ArrowLeft"].includes(e.key) || !e.shiftKey)
         return;
-      const i = e.currentTarget, n = Number(i.step), a = ["ArrowLeft", "ArrowDown"].includes(e.key) ? -1 : 1, h = Number(i.value) + a * n * 10, c = M(h, Number(i.min), Number(i.max));
-      i.value = String(c - a * n);
+      const r = e.currentTarget, n = Number(r.step), a = ["ArrowLeft", "ArrowDown"].includes(e.key) ? -1 : 1, h = Number(r.value) + a * n * 10, c = V(h, Number(r.min), Number(r.max));
+      r.value = String(c - a * n);
     });
-    u(this, B, (e, i) => {
-      const n = e.currentTarget, a = Object.assign({}, r(this, d).hsl);
-      a[i] = Number(n.value), l(this, o, $).call(this, a, { isUserTriggered: !0 });
+    u(this, j, (e, r) => {
+      const n = e.currentTarget, a = Object.assign({}, i(this, d).hsl);
+      a[r] = Number(n.value), l(this, o, x).call(this, a, { isUserTriggered: !0 });
     });
-    u(this, it, (e) => {
-      const i = e.target;
-      At(i.value) && l(this, o, $).call(this, i.value, { isUserTriggered: !0 });
+    u(this, st, (e) => {
+      const r = e.target;
+      Tt(r.value) && l(this, o, x).call(this, r.value, { isUserTriggered: !0 });
     });
-    u(this, rt, (e, i) => {
-      const n = e.target, a = this.format, h = Object.assign({}, r(this, d)[a]), p = Z(a, i).from(n.value);
-      Number.isNaN(p) || (h[i] = p, l(this, o, $).call(this, h, { isUserTriggered: !0 }));
+    u(this, rt, (e, r) => {
+      const n = e.target, a = this.format, h = Object.assign({}, i(this, d)[a]), p = Q(a, r).from(n.value);
+      Number.isNaN(p) || (h[r] = p, l(this, o, x).call(this, h, { isUserTriggered: !0 }));
     });
-    u(this, P, async () => {
-      const e = this.alphaChannel === "hide", i = K({ color: r(this, d)[this.format], format: this.format }, e);
-      await window.navigator.clipboard.writeText(i), l(this, o, pt).call(this, "color-copy");
+    u(this, B, async () => {
+      const e = this.alphaChannel === "hide", r = G({ color: i(this, d)[this.format], format: this.format }, e);
+      await window.navigator.clipboard.writeText(r), l(this, o, ut).call(this, "color-copy");
     });
-    u(this, z, () => {
-      const i = (this.visibleFormats.findIndex((n) => n === this.format) + 1) % this.visibleFormats.length;
-      this.format = this.visibleFormats[i];
+    u(this, P, () => {
+      const r = (this.visibleFormats.findIndex((n) => n === this.format) + 1) % this.visibleFormats.length;
+      this.format = this.visibleFormats[r];
     });
     this.setFormValue(this.value);
   }
@@ -448,18 +444,18 @@ const nt = class nt extends Ct {
    * Whether to show input controls for a color’s alpha channel. If set to `'hide'`, the alpha range input and the alpha channel input are hidden, the “Copy color” button will copy a CSS color value without alpha channel, and the object emitted in a `color-change` event will have a `cssColor` property value without alpha channel.
    */
   get alphaChannel() {
-    return r(this, W);
+    return i(this, U);
   }
   set alphaChannel(e) {
-    f(this, W, e), l(this, o, T).call(this, () => {
-      l(this, o, A).call(this);
+    f(this, U, e), l(this, o, $).call(this, () => {
+      l(this, o, T).call(this);
     });
   }
   get defaultValue() {
     return this.getAttribute("value") ?? "";
   }
   set defaultValue(e) {
-    this.setAttribute("value", e), r(this, k) || l(this, o, $).call(this, e, { isUserTriggered: !1 });
+    this.setAttribute("value", e), i(this, M) || l(this, o, x).call(this, e, { isUserTriggered: !1 });
   }
   /**
    * The form-associated element's disabled state. Controls the disabled state of the form controls and buttons that are part of the color picker. Does not change when an ancestor fieldset is disabled.
@@ -468,8 +464,8 @@ const nt = class nt extends Ct {
     return this.hasAttribute("disabled");
   }
   set disabled(e) {
-    e ? this.setAttribute("disabled", "") : this.removeAttribute("disabled"), l(this, o, T).call(this, () => {
-      l(this, o, A).call(this);
+    e ? this.setAttribute("disabled", "") : this.removeAttribute("disabled"), l(this, o, $).call(this, () => {
+      l(this, o, T).call(this);
     });
   }
   /**
@@ -477,22 +473,22 @@ const nt = class nt extends Ct {
    */
   // Keeping track of this separetely to the `disabled` IDL attribute is necessary because that should only indicate if the element itself is disabled. However, sometimes we need to know whether the element is functionally disabled through _either_ its own disabled state _or_ an ancestor fieldset.
   get disabledState() {
-    return this.disabled || r(this, U);
+    return this.disabled || i(this, D);
   }
   set disabledState(e) {
-    f(this, U, e), l(this, o, T).call(this, () => {
-      l(this, o, A).call(this);
+    f(this, D, e), l(this, o, $).call(this, () => {
+      l(this, o, T).call(this);
     });
   }
   /**
    * The current color format. Changed by interacting with the “Switch format” button.
    */
   get format() {
-    return r(this, N);
+    return i(this, N);
   }
   set format(e) {
-    e = e || "hsl", f(this, N, this.visibleFormats.includes(e) ? e : this.visibleFormats[0]), l(this, o, T).call(this, () => {
-      l(this, o, A).call(this);
+    e = e || "hsl", f(this, N, this.visibleFormats.includes(e) ? e : this.visibleFormats[0]), l(this, o, $).call(this, () => {
+      l(this, o, T).call(this);
     });
   }
   get name() {
@@ -508,16 +504,16 @@ const nt = class nt extends Ct {
     return this.getAttribute("id") ?? "color-picker";
   }
   set id(e) {
-    this.setAttribute("id", e), l(this, o, T).call(this, () => {
-      l(this, o, A).call(this);
+    this.setAttribute("id", e), l(this, o, $).call(this, () => {
+      l(this, o, T).call(this);
     });
   }
   get readOnly() {
     return this.hasAttribute("readonly");
   }
   set readOnly(e) {
-    e ? this.setAttribute("readonly", "") : this.removeAttribute("readonly"), l(this, o, T).call(this, () => {
-      l(this, o, A).call(this);
+    e ? this.setAttribute("readonly", "") : this.removeAttribute("readonly"), l(this, o, $).call(this, () => {
+      l(this, o, T).call(this);
     });
   }
   get required() {
@@ -532,7 +528,7 @@ const nt = class nt extends Ct {
    * **Getter**: Returns the current color as a string in functional RGB notation (e.g. `rgb(255 255 255 / 1)`).
    */
   get value() {
-    return K({ format: "rgb", color: r(this, d).rgb }, !1);
+    return G({ format: "rgb", color: i(this, d).rgb }, !1);
   }
   /**
    * **Setter**: Sets the current color. Any valid CSS color can be used.
@@ -540,30 +536,30 @@ const nt = class nt extends Ct {
    * Sets the dirty flag.
    */
   set value(e) {
-    l(this, o, $).call(this, e, { isUserTriggered: !0 });
+    l(this, o, x).call(this, e, { isUserTriggered: !0 });
   }
   /**
    * A list of visible color formats. Controls for which formats the color `input` elements are shown and in which order the formats will be cycled through when activating the format switch button.
    */
   get visibleFormats() {
-    return r(this, q);
+    return i(this, W);
   }
   set visibleFormats(e) {
-    f(this, q, e), this.format = r(this, N);
+    f(this, W, e), this.format = i(this, N);
   }
   connectedCallback() {
-    this.isConnected && (this.ownerDocument.addEventListener("mousemove", r(this, H), { passive: !1 }), this.ownerDocument.addEventListener("touchmove", r(this, O), { passive: !1 }), this.ownerDocument.addEventListener("mouseup", r(this, V)), this.ownerDocument.addEventListener("touchend", r(this, V)), l(this, o, bt).call(this));
+    this.isConnected && (this.ownerDocument.addEventListener("mousemove", i(this, L), { passive: !1 }), this.ownerDocument.addEventListener("touchmove", i(this, H), { passive: !1 }), this.ownerDocument.addEventListener("mouseup", i(this, F)), this.ownerDocument.addEventListener("touchend", i(this, F)), l(this, o, dt).call(this));
   }
   disconnectedCallback() {
-    this.ownerDocument.removeEventListener("mousemove", r(this, H)), this.ownerDocument.removeEventListener("touchmove", r(this, O)), this.ownerDocument.removeEventListener("mouseup", r(this, V)), this.ownerDocument.removeEventListener("touchend", r(this, V));
+    this.ownerDocument.removeEventListener("mousemove", i(this, L)), this.ownerDocument.removeEventListener("touchmove", i(this, H)), this.ownerDocument.removeEventListener("mouseup", i(this, F)), this.ownerDocument.removeEventListener("touchend", i(this, F));
   }
-  attributeChangedCallback(e, i, n) {
-    if (n !== i) {
+  attributeChangedCallback(e, r, n) {
+    if (n !== r) {
       let a;
-      const { property: h, type: c, reflected: p = !1 } = yt[e];
+      const { property: h, type: c, reflected: p = !1 } = vt[e];
       switch (c) {
         case Array: {
-          a = n !== null ? n.split(",").map((m) => m.trim()) : null;
+          a = n !== null ? n.split(",").map((b) => b.trim()) : null;
           break;
         }
         case Boolean: {
@@ -586,7 +582,7 @@ const nt = class nt extends Ct {
    */
   // This relies on all internal form controls being disassociated from their form so that they don't reset their values per the default reset algorithm. This would interfere with the logic in this callback.
   formResetCallback() {
-    f(this, k, !1), l(this, o, $).call(this, this.defaultValue || "#ffffffff", { isUserTriggered: !1 });
+    f(this, M, !1), l(this, o, x).call(this, this.defaultValue || "#ffffffff", { isUserTriggered: !1 });
   }
   /**
    * Copies the current color (determined by the active color format).
@@ -596,44 +592,44 @@ const nt = class nt extends Ct {
    * Only works in secure browsing contexts (i.e. HTTPS).
    */
   copyColor() {
-    return r(this, P).call(this);
+    return i(this, B).call(this);
   }
   /**
    * Sets the next active color format by cycling through `colorPicker.visibleFormats`.
    */
   switchFormat() {
-    return r(this, z).call(this);
+    return i(this, P).call(this);
   }
 };
-k = new WeakMap(), U = new WeakMap(), d = new WeakMap(), W = new WeakMap(), N = new WeakMap(), q = new WeakMap(), g = new WeakMap(), w = new WeakMap(), C = new WeakMap(), L = new WeakMap(), o = new WeakSet(), /**
+M = new WeakMap(), D = new WeakMap(), d = new WeakMap(), U = new WeakMap(), N = new WeakMap(), W = new WeakMap(), g = new WeakMap(), y = new WeakMap(), A = new WeakMap(), k = new WeakMap(), o = new WeakSet(), /**
  * Set `value`.
  *
  * Sets the dirty flag **if `isUserTriggered` is `true`**.
  */
-$ = function(e, { isUserTriggered: i }) {
-  const n = qt(e);
-  if (n === null || (i && f(this, k, !0), Lt(r(this, d)[n.format], n.color)))
+x = function(e, { isUserTriggered: r }) {
+  const n = Ut(e);
+  if (n === null || (r && f(this, M, !0), Nt(i(this, d)[n.format], n.color)))
     return;
   const a = { [n.format]: n.color };
-  for (const h of jt)
-    h !== n.format && (a[h] = Ut(n.format, h, n.color));
-  f(this, d, a), this.setFormValue(this.value), l(this, o, T).call(this, () => {
-    l(this, o, A).call(this), l(this, o, pt).call(this, "color-change"), i && (this.dispatchEvent(new Event("input")), this.dispatchEvent(new Event("change")));
+  for (const h of qt)
+    h !== n.format && (a[h] = Rt(n.format, h, n.color));
+  f(this, d, a), this.setFormValue(this.value), l(this, o, $).call(this, () => {
+    l(this, o, T).call(this), l(this, o, ut).call(this, "color-change"), r && (this.dispatchEvent(new Event("input")), this.dispatchEvent(new Event("change")));
   });
-}, pt = function(e) {
-  const i = this.alphaChannel === "hide", n = K({ color: r(this, d)[this.format], format: this.format }, i);
+}, ut = function(e) {
+  const r = this.alphaChannel === "hide", n = G({ color: i(this, d)[this.format], format: this.format }, r);
   let a;
-  const { hex: h, hsl: c, hwb: p, rgb: m } = r(this, d);
+  const { hex: h, hsl: c, hwb: p, rgb: b } = i(this, d);
   if (this.alphaChannel === "hide") {
-    const S = r(this, d).hex.length - 1, Y = S % 4 === 0, b = S / (Y ? 4 : 3);
+    const C = i(this, d).hex.length - 1, z = C % 4 === 0, m = C / (z ? 4 : 3);
     a = {
-      hex: r(this, d).hex.substring(0, r(this, d).hex.length - (Y ? b : 0)) + "f".repeat(b),
+      hex: i(this, d).hex.substring(0, i(this, d).hex.length - (z ? m : 0)) + "f".repeat(m),
       hsl: { ...c, a: 1 },
       hwb: { ...p, a: 1 },
-      rgb: { ...m, a: 1 }
+      rgb: { ...b, a: 1 }
     };
   } else
-    a = { hex: h, hsl: c, hwb: p, rgb: m };
+    a = { hex: h, hsl: c, hwb: p, rgb: b };
   this.dispatchEvent(new CustomEvent(e, {
     detail: {
       colors: a,
@@ -643,9 +639,9 @@ $ = function(e, { isUserTriggered: i }) {
 }, /**
  * Sets the essential properties of the color picker as inline styles so that they can't be overridden.
  */
-St = function() {
-  const e = { ...r(this, d).rgb, a: 1 };
-  this.style.setProperty("--cp-color", K({ format: "rgb", color: e }, !1)), !(r(this, g) === null || r(this, w) === null) && (r(this, g).style.position = "relative", r(this, g).style.backgroundColor = `hsl(${r(this, d).hsl.h} 100% 50%)`, r(this, g).style.backgroundImage = "linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent)", r(this, w).style.boxSizing = "border-box", r(this, w).style.position = "absolute", r(this, w).style.left = `${r(this, d).hsv.s}%`, r(this, w).style.bottom = `${r(this, d).hsv.v}%`);
+At = function() {
+  const e = { ...i(this, d).rgb, a: 1 };
+  this.style.setProperty("--cp-color", G({ format: "rgb", color: e }, !1)), !(i(this, g) === null || i(this, y) === null) && (i(this, g).style.position = "relative", i(this, g).style.backgroundColor = `hsl(${i(this, d).hsl.h} 100% 50%)`, i(this, g).style.backgroundImage = "linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, transparent)", i(this, y).style.boxSizing = "border-box", i(this, y).style.position = "absolute", i(this, y).style.left = `${i(this, d).hsv.s}%`, i(this, y).style.bottom = `${i(this, d).hsv.v}%`);
 }, /**
  * Queues an update using `queueMicrotask`.
  *
@@ -653,75 +649,75 @@ St = function() {
  *
  * Using `queueMicrotask` ensures that multiple simultaneous changes to IDL attributes can be processed before applying their effects (which might depend on this having happened).
  */
-T = function(e) {
-  ht(this, L)._++, queueMicrotask(e);
-}, A = function() {
-  ht(this, L)._--, r(this, L) === 0 && l(this, o, bt).call(this);
+$ = function(e) {
+  ot(this, k)._++, queueMicrotask(e);
+}, T = function() {
+  ot(this, k)._--, i(this, k) === 0 && l(this, o, dt).call(this);
 }, /**
  * Renders the component.
  */
-bt = function() {
-  this.isConnected && (this.classList.add("cp-color-picker"), kt(l(this, o, It).call(this), this), f(this, g, this.querySelector(".cp-color-space")), f(this, w, this.querySelector(".cp-thumb")), l(this, o, St).call(this));
-}, It = function() {
-  const e = "👽", i = () => y`<div
+dt = function() {
+  this.isConnected && (this.classList.add("cp-color-picker"), Vt(l(this, o, Ct).call(this), this), f(this, g, this.querySelector(".cp-color-space")), f(this, y, this.querySelector(".cp-thumb")), l(this, o, At).call(this));
+}, Ct = function() {
+  const r = () => v`<div
 			class="cp-color-space"
-			@mousedown="${r(this, tt)}"
-			@touchstart="${r(this, et)}"
+			@mousedown="${i(this, Z)}"
+			@touchstart="${i(this, tt)}"
 		>
 			<div
 				class="cp-thumb"
-				tabIndex="${this.disabledState ? Nt : "0"}"
+				tabIndex="${this.disabledState ? Mt : "0"}"
 				aria-label="Color space thumb"
-				@keydown="${r(this, st)}"
+				@keydown="${i(this, et)}"
 			></div>
-		</div>`, n = () => y`<label
+		</div>`, n = () => v`<label
 			class="cp-range-input-label cp-range-input-label--hue"
 			for="${this.id}-hue-slider"
 		>
 			<span class="cp-range-input-label-text cp-range-input-label-text--hue">Hue</span>
 
 			<input
-				form="${e}"
+				form="${"👽"}"
 				class="cp-range-input cp-range-input--hue"
 				id="${this.id}-hue-slider"
 				type="range"
 				min="0"
 				max="360"
 				step="1"
-				.value="${r(this, d).hsl.h}"
+				.value="${i(this, d).hsl.h}"
 				?disabled="${this.disabledState}"
 				?readonly="${this.readOnly}"
-				@keydown="${r(this, j)}"
-				@input="${(b) => r(this, B).call(this, b, "h")}"
+				@keydown="${i(this, q)}"
+				@input="${(m) => i(this, j).call(this, m, "h")}"
 			>
-		</label>`, a = () => y`<label
+		</label>`, a = () => v`<label
 			class="cp-range-input-label cp-range-input-label--alpha"
 			for="${this.id}-alpha-slider"
 		>
 			<span class="cp-range-input-label-text cp-range-input-label-text--alpha">Alpha</span>
 
 			<input
-				form="${e}"
+				form="${"👽"}"
 				class="cp-range-input cp-range-input--alpha"
 				id="${this.id}-alpha-slider"
 				type="range"
 				min="0"
 				max="1"
 				step="0.01"
-				.value="${r(this, d).hsl.a}"
+				.value="${i(this, d).hsl.a}"
 				?disabled="${this.disabledState}"
 				?readonly="${this.readOnly}"
-				@keydown="${r(this, j)}"
-				@input="${(b) => r(this, B).call(this, b, "a")}"
+				@keydown="${i(this, q)}"
+				@input="${(m) => i(this, j).call(this, m, "a")}"
 			>
-		</label>`, h = () => y`<div class="cp-range-input-group">
+		</label>`, h = () => v`<div class="cp-range-input-group">
 			${n()}
 			${this.alphaChannel === "show" ? a() : ""}
-		</div>`, c = () => y`<button
+		</div>`, c = () => v`<button
 			class="cp-copy-button"
 			type="button"
 			?disabled="${this.disabledState}"
-			@click="${r(this, P)}"
+			@click="${i(this, B)}"
 		>
 			<span class="cp-visually-hidden">Copy color</span>
 
@@ -738,49 +734,49 @@ bt = function() {
 				/>
 			</svg>
 		</button>`, p = () => {
-    const b = r(this, d).hex, at = this.alphaChannel === "hide" && [5, 9].includes(b.length) ? b.slice(0, -(b.length - 1) / 4) : b;
-    return y`<label
+    const m = i(this, d).hex, nt = this.alphaChannel === "hide" && [5, 9].includes(m.length) ? m.slice(0, -(m.length - 1) / 4) : m;
+    return v`<label
 				class="cp-hex-input-label"
 				for="${this.id}-color-hex"
 			>
 				<span class="cp-color-input-label-text">Hex</span>
 
 				<input
-					form="${e}"
+					form="${"👽"}"
 					class="cp-color-input"
 					id="${this.id}-color-hex"
 					type="text"
-					.value="${at}"
+					.value="${nt}"
 					?disabled="${this.disabledState}"
 					?readonly="${this.readOnly}"
-					@change="${r(this, it)}"
+					@change="${i(this, st)}"
 				>
 			</label>`;
-  }, m = (b) => b.split("").concat(this.alphaChannel === "show" ? ["a"] : []).map((I) => {
-    const Vt = Z(b, I).to(r(this, d)[b][I]);
-    return y`<label
+  }, b = (m) => m.split("").concat(this.alphaChannel === "show" ? ["a"] : []).map((S) => {
+    const St = Q(m, S).to(i(this, d)[m][S]);
+    return v`<label
 					class="cp-color-input-label"
-					id="${this.id}-color-${b}-${I}-label"
-					for="${this.id}-color-${b}-${I}"
+					id="${this.id}-color-${m}-${S}-label"
+					for="${this.id}-color-${m}-${S}"
 				>
-					<span class="cp-color-input-label-text">${I.toUpperCase()}</span>
+					<span class="cp-color-input-label-text">${S.toUpperCase()}</span>
 
 					<input
-						form="${e}"
+						form="${"👽"}"
 						class="cp-color-input"
-						id="${this.id}-color-${b}-${I}"
+						id="${this.id}-color-${m}-${S}"
 						type="text"
-						.value="${Vt}"
+						.value="${St}"
 						?disabled="${this.disabledState}"
 						?readonly="${this.readOnly}"
-						@change="${(Et) => r(this, rt).call(this, Et, I)}"
+						@change="${(Ft) => i(this, rt).call(this, Ft, S)}"
 					>
 				</label>`;
-  }), S = () => y`<button
+  }), C = () => v`<button
 			class="cp-switch-format-button"
 			type="button"
 			?disabled="${this.disabledState}"
-			@click="${r(this, z)}"
+			@click="${i(this, P)}"
 		>
 			<span class="cp-visually-hidden">Switch format</span>
 
@@ -796,23 +792,23 @@ bt = function() {
 					fill="currentColor"
 				/>
 			</svg>
-		</button>`, Y = () => y`<div class="cp-color-input-wrapper">
+		</button>`, z = () => v`<div class="cp-color-input-wrapper">
 			<div class="cp-color-input-group">
-				${this.format === "hex" ? p() : m(this.format)}
+				${this.format === "hex" ? p() : b(this.format)}
 			</div>
-			${this.visibleFormats.length > 1 ? S() : ""}
+			${this.visibleFormats.length > 1 ? C() : ""}
 		</div>`;
-  return y`
-			${i()}
+  return v`
+			${r()}
 			${h()}
 			${c()}
-			${Y()}
+			${z()}
 		`;
-}, tt = new WeakMap(), H = new WeakMap(), et = new WeakMap(), O = new WeakMap(), Q = function({ x: e, y: i }) {
-  const n = Object.assign({}, r(this, d).hsv);
-  n.s = e, n.v = i, l(this, o, $).call(this, n, { isUserTriggered: !0 });
-}, V = new WeakMap(), st = new WeakMap(), j = new WeakMap(), B = new WeakMap(), it = new WeakMap(), rt = new WeakMap(), P = new WeakMap(), z = new WeakMap(), ot(nt, "observedAttributes", Object.keys(yt)), window.customElements.get("color-picker") === void 0 && window.customElements.define("color-picker", nt);
-let wt = nt;
+}, Z = new WeakMap(), L = new WeakMap(), tt = new WeakMap(), H = new WeakMap(), J = function({ x: e, y: r }) {
+  const n = Object.assign({}, i(this, d).hsv);
+  n.s = e, n.v = r, l(this, o, x).call(this, n, { isUserTriggered: !0 });
+}, F = new WeakMap(), et = new WeakMap(), q = new WeakMap(), j = new WeakMap(), st = new WeakMap(), rt = new WeakMap(), B = new WeakMap(), P = new WeakMap(), mt(it, "observedAttributes", Object.keys(vt)), window.customElements.get("color-picker") === void 0 && window.customElements.define("color-picker", it);
+let yt = it;
 export {
-  wt as ColorPicker
+  yt as ColorPicker
 };
