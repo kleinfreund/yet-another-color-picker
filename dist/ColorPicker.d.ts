@@ -1,90 +1,71 @@
-declare class CustomFormInput extends HTMLElement {
-    #private;
-    static formAssociated: boolean;
-    get labels(): NodeList;
-    get form(): HTMLFormElement | null;
-    get shadowRoot(): ShadowRoot | null;
-    get type(): string;
-    get validationMessage(): string;
-    get validity(): ValidityState;
-    get willValidate(): boolean;
-    checkValidity(): boolean;
-    reportValidity(): boolean;
-    setFormValue(...args: Parameters<ElementInternals['setFormValue']>): void;
+export declare type AlphaChannelProp = 'show' | 'hide';
+
+declare type AttributeName = 'alpha-channel' | 'disabled' | 'format' | 'id' | 'name' | 'readonly' | 'value' | 'visible-formats';
+
+export declare interface ColorChangeDetail {
+    colors: Omit<ColorMap, 'hsv'>;
+    cssColor: string;
 }
 
-declare global {
-    interface HTMLElementEventMap {
-        'color-change': CustomEvent<ColorChangeDetail>;
-        'color-copy': CustomEvent<ColorChangeDetail>;
-    }
-    interface HTMLElementTagNameMap {
-        'color-picker': ColorPicker;
-    }
-}
-type AlphaChannelProp = 'show' | 'hide';
-type ColorHsl = {
+export declare type ColorFormat = keyof ColorMap;
+
+export declare type ColorHsl = {
     h: number;
     s: number;
     l: number;
     a: number;
 };
-type ColorHsv = {
+
+export declare type ColorHsv = {
     h: number;
     s: number;
     v: number;
     a: number;
 };
-type ColorHwb = {
+
+export declare type ColorHwb = {
     h: number;
     w: number;
     b: number;
     a: number;
 };
-type ColorRgb = {
-    r: number;
-    g: number;
-    b: number;
-    a: number;
-};
-interface ColorMap {
+
+export declare interface ColorMap {
     hex: string;
     hsl: ColorHsl;
     hsv: ColorHsv;
     hwb: ColorHwb;
     rgb: ColorRgb;
 }
-interface ColorChangeDetail {
-    colors: Omit<ColorMap, 'hsv'>;
-    cssColor: string;
-}
-type ColorFormat = keyof ColorMap;
-type VisibleColorFormat = Exclude<ColorFormat, 'hsv'>;
-interface ColorPairHex {
+
+export declare type ColorPair = ColorPairHex | ColorPairHsl | ColorPairHsv | ColorPairHwb | ColorPairRgb;
+
+export declare interface ColorPairHex {
     format: 'hex';
     color: string;
 }
-interface ColorPairHsl {
+
+export declare interface ColorPairHsl {
     format: 'hsl';
     color: ColorHsl;
 }
-interface ColorPairHsv {
+
+export declare interface ColorPairHsv {
     format: 'hsv';
     color: ColorHsv;
 }
-interface ColorPairHwb {
+
+export declare interface ColorPairHwb {
     format: 'hwb';
     color: ColorHwb;
 }
-interface ColorPairRgb {
+
+export declare interface ColorPairRgb {
     format: 'rgb';
     color: ColorRgb;
 }
-type ColorPair = ColorPairHex | ColorPairHsl | ColorPairHsv | ColorPairHwb | ColorPairRgb;
-type VisibleColorPair = Exclude<ColorPair, ColorPairHsv>;
-type AttributeName = 'alpha-channel' | 'disabled' | 'format' | 'id' | 'name' | 'readonly' | 'value' | 'visible-formats';
-type ColorPickerProperties = keyof ColorPicker;
-declare class ColorPicker extends CustomFormInput {
+
+export declare class ColorPicker extends CustomFormInput {
     #private;
     static observedAttributes: AttributeName[];
     get [Symbol.toStringTag](): string;
@@ -161,4 +142,32 @@ declare class ColorPicker extends CustomFormInput {
     switchFormat(): void;
 }
 
-export { type AlphaChannelProp, type ColorChangeDetail, type ColorFormat, type ColorHsl, type ColorHsv, type ColorHwb, type ColorMap, type ColorPair, type ColorPairHex, type ColorPairHsl, type ColorPairHsv, type ColorPairHwb, type ColorPairRgb, ColorPicker, type ColorPickerProperties, type ColorRgb, type VisibleColorFormat, type VisibleColorPair };
+export declare type ColorPickerProperties = keyof ColorPicker;
+
+export declare type ColorRgb = {
+    r: number;
+    g: number;
+    b: number;
+    a: number;
+};
+
+declare class CustomFormInput extends HTMLElement {
+    #private;
+    static formAssociated: boolean;
+    get labels(): NodeList;
+    get form(): HTMLFormElement | null;
+    get shadowRoot(): ShadowRoot | null;
+    get type(): string;
+    get validationMessage(): string;
+    get validity(): ValidityState;
+    get willValidate(): boolean;
+    checkValidity(): boolean;
+    reportValidity(): boolean;
+    setFormValue(...args: Parameters<ElementInternals['setFormValue']>): void;
+}
+
+export declare type VisibleColorFormat = Exclude<ColorFormat, 'hsv'>;
+
+export declare type VisibleColorPair = Exclude<ColorPair, ColorPairHsv>;
+
+export { }
