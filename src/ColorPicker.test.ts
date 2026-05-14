@@ -829,7 +829,7 @@ describe('ColorPicker', () => {
 
 	describe('copy button', () => {
 		beforeAll(() => {
-			Object.defineProperty(global.navigator, 'clipboard', {
+			Object.defineProperty(globalThis.navigator, 'clipboard', {
 				value: {
 					// eslint-disable-next-line @typescript-eslint/no-empty-function
 					writeText: () => {},
@@ -859,7 +859,7 @@ describe('ColorPicker', () => {
 				'#ffffff',
 			],
 		])('copy button copies %s format as %s', async (attributes, cssColor) => {
-			vi.spyOn(global.navigator.clipboard, 'writeText').mockImplementation(vi.fn(() => Promise.resolve()))
+			vi.spyOn(globalThis.navigator.clipboard, 'writeText').mockImplementation(vi.fn(() => Promise.resolve()))
 
 			const colorPicker = render({ attributes })
 			await waitForRecomputations()
@@ -867,7 +867,7 @@ describe('ColorPicker', () => {
 			const copyButton = colorPicker.querySelector('.cp-copy-button') as HTMLButtonElement
 			copyButton.click()
 
-			expect(global.navigator.clipboard.writeText).toHaveBeenCalledWith(cssColor)
+			expect(globalThis.navigator.clipboard.writeText).toHaveBeenCalledWith(cssColor)
 		})
 	})
 
