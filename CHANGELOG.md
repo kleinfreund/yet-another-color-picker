@@ -1,3 +1,9 @@
+## [4.0.2](https://github.com/kleinfreund/yet-another-color-picker/compare/v4.0.1...v4.0.2) (2026-05-14)
+
+### Bug Fixes
+
+* remove pkg.engines.npm ([b589fb0](https://github.com/kleinfreund/yet-another-color-picker/commit/b589fb0d93b92651e24cf9282136ff403084bd60))
+
 ## [4.0.1](https://github.com/kleinfreund/yet-another-color-picker/compare/v4.0.0...v4.0.1) (2024-12-17)
 
 ### Bug Fixes
