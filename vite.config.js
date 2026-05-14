@@ -16,7 +16,7 @@ export default defineConfig({
 			fileName: 'ColorPicker',
 			formats: ['es'],
 		},
-		rollupOptions: {
+		rolldownOptions: {
 			// Prevents bundling peer dependencies.
 			external: Object.keys(pkg.peerDependencies),
 		},
