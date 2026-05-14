@@ -1,17 +1,17 @@
-import eslint from '@eslint/js'
+import { defineConfig, globalIgnores } from 'eslint/config'
+import js from '@eslint/js'
 import stylistic from '@stylistic/eslint-plugin'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
-export default tseslint.config(
-	{
-		ignores: ['coverage/', 'dist/'],
-	},
-	eslint.configs.recommended,
+export default defineConfig(
+	globalIgnores(['coverage/', 'dist/']),
+
+	js.configs.recommended,
 	...tseslint.configs.strict,
 	...tseslint.configs.stylistic,
+
 	{
-		files: ['**/*.{js,ts}'],
 		languageOptions: {
 			globals: {
 				...globals.browser,
@@ -35,6 +35,7 @@ export default tseslint.config(
 			'@stylistic/quotes': ['error', 'single'],
 		},
 	},
+
 	{
 		files: ['**/*.test.{js,ts}'],
 		rules: {
