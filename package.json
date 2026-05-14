@@ -69,8 +69,9 @@
 		"lit-html": "^3.0.0"
 	},
 	"devDependencies": {
-		"@commitlint/cli": "20.5.3",
-		"@commitlint/config-conventional": "20.5.3",
+		"@commitlint/cli": "21.0.1",
+		"@commitlint/config-conventional": "21.0.1",
+		"@commitlint/types": "21.0.1",
 		"@eslint/js": "9.39.4",
 		"@semantic-release/changelog": "6.0.3",
 		"@semantic-release/commit-analyzer": "13.0.1",
@@ -98,8 +99,5 @@
 		"vite": "7.3.3",
 		"vite-plugin-dts": "4.5.4",
 		"vitest": "4.1.6"
-	},
-	"overrides": {
-		"conventional-changelog-conventionalcommits": ">= 8.0.0"
 	}
 }
